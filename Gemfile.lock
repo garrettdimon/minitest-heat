@@ -1,0 +1,24 @@
+PATH
+  remote: .
+  specs:
+    minitest-heat (0.1.0)
+      diffy
+      minitest (~> 5.14.4)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    diffy (3.4.0)
+    minitest (5.14.4)
+    rake (12.3.3)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  minitest (~> 5.0)
+  minitest-heat!
+  rake (~> 12.0)
+
+BUNDLED WITH
+   2.1.4
