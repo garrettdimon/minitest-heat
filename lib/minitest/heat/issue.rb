@@ -8,8 +8,6 @@ module Minitest
     class Issue
       extend Forwardable
 
-      SLOW_THRESHOLD = 0.05
-
       attr_reader :result, :location, :failure
 
       def_delegators :@result, :passed?, :error?, :skipped?
@@ -25,8 +23,8 @@ module Minitest
         Location.raise_example_error_in_location
       end
 
-      def slow?
-        time > SLOW_THRESHOLD
+      def turtle?
+        time > Results::SLOW_THRESHOLD
       end
 
       def in_test?
@@ -37,12 +35,29 @@ module Minitest
         location.failure_in_source?
       end
 
+      def relevant_lines_of_code
+        filename = File.path(Pathname.new("#{Dir.pwd}#{location.source_file}"))
+        file = File.new(filename, "r")
+        lines = file.each_line.to_a
+
+        line_number = Integer(location.source_failure_line)
+        line_numbers = [line_number - 1, line_number, line_number + 1]
+
+        max_line_number_length = line_numbers.map(&:to_s).map(&:length).max
+
+        [
+          "#{line_numbers[0].to_s.rjust(max_line_number_length)}: #{lines[line_numbers[0] - 1]}",
+          "#{line_numbers[1].to_s.rjust(max_line_number_length)}: #{lines[line_numbers[1] - 1]}",
+          "#{line_numbers[2].to_s.rjust(max_line_number_length)}: #{lines[line_numbers[2] - 1]}",
+        ]
+      end
+
       def test_class
         result.klass.delete_prefix('Minitest::')
       end
 
       def test_name
-        result.name
+        "\"#{result.name.delete_prefix('test_').gsub('_', ' ').capitalize}\""
       end
 
       def exception

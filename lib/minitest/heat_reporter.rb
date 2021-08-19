@@ -69,10 +69,11 @@ module Minitest
 
       output.puts
       output.puts
-      results.errors.each { |result| output.issue_details(result) }
-      results.failures.each { |result| output.issue_details(result) }
+      results.errors.each { |issue| output.issue_details(issue) }
+      results.failures.each { |issue| output.issue_details(issue) }
       if results.errors.empty? && results.failures.empty?
-        results.skips.each { |result| output.issue_details(result) }
+        results.skips.each { |issue| output.issue_details(issue) }
+        results.turtles.each { |issue| output.issue_details(issue) }
       end
       output.compact_summary(results)
       output.puts

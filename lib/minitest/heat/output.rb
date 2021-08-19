@@ -68,32 +68,34 @@ module Minitest
           error_formatter(issue)
         elsif issue.skipped?
           skipped_formatter(issue)
-        else
+        elsif !issue.passed?
           failure_formatter(issue)
+        elsif issue.turtle?
+          turtle_formatter(issue)
         end
         puts
         puts
       end
 
       def error_formatter(issue)
-        error_style(issue.summary)
-        subtle_style(" in #{issue.in_test? ? issue.test_class : issue.class}")
+        error_style("#{issue.summary} in #{issue.in_test? ? issue.test_class : issue.class}")
+        puts
+        test_name_summary(issue)
+
         puts
         default_style("#{issue.location.test_file}:#{issue.location.test_definition_line} > #{issue.location.test_failure_line}")
         subtle_style("#{SPACER}#{issue.test_name}")
         puts
 
-        if issue.in_source?
-          puts "Backtrace:"
-          lines = issue.backtrace.project
-          lines.take(5).each do |line|
-            default_style("  #{line.path.delete_prefix(Dir.pwd)}/#{line.file}:#{line.number} ")
-            subtle_style("in `#{line.container}`")
-            if line == issue.freshest_file && lines.size > 1
-              default_style("#{SPACER}Most Recently Modified")
-            end
-            puts
+        puts "Backtrace:"
+        lines = issue.backtrace.project
+        lines.take(5).each do |line|
+          default_style("  #{line.path.delete_prefix(Dir.pwd)}/#{line.file}:#{line.number} ")
+          subtle_style("in `#{line.container}`")
+          if line == issue.freshest_file && lines.size > 1
+            default_style("#{SPACER}Most Recently Modified")
           end
+          puts
         end
       end
 
@@ -102,20 +104,38 @@ module Minitest
       end
 
       def failure_formatter(issue)
-        failure_style("#{issue.label}")
-        subtle_style(SPACER)
-        default_style(issue.test_class)
-        subtle_style(" > ")
-        default_style(issue.test_name)
-        if issue.slow?
-          subtle_style(SPACER)
-          turtle_style("#{issue.time.round(3)}s slow")
-        end
-        puts
-        default_style("#{issue.location.test_file}:#{issue.location.test_definition_line} > #{issue.location.test_failure_line}")
+        failure_style(issue.label)
+        spacer
+        failure_style("#{issue.test_class} > #{issue.test_name}")
+        subtle_style(" (Line #{issue.location.test_definition_line})")
         puts
         default_style(issue.summary)
         puts
+        puts
+        default_style("#{issue.location.test_file}:#{issue.location.test_failure_line}")
+        puts
+        lines = issue.relevant_lines_of_code
+        lines.each_index do |i|
+          line = "#{lines[i]}"
+          i == 1 ? default_style(line) : subtle_style(line)
+        end
+      end
+
+      def turtle_formatter(issue)
+        turtle_style("Slow")
+        spacer
+        highlight_style("#{issue.time.round(3)}s")
+        spacer
+        test_name_summary(issue)
+        puts
+      end
+
+      def test_name_summary(issue)
+        default_style("#{issue.test_class} > #{issue.test_name}")
+      end
+
+      def spacer
+        subtle_style(SPACER)
       end
 
       def error_style(value)
@@ -153,19 +173,29 @@ module Minitest
       def compact_summary(results)
         error_count = results.errors.size
         failure_count = results.failures.size
+        turtle_count = results.turtles.size
         skip_count = results.skips.size
 
         if error_count.positive?
           error_style(pluralize(error_count, 'error') + ' ')
-          subtle_style(pluralize(failure_count, 'failure') + ' ') if failure_count.positive?
-          subtle_style(pluralize(skip_count, 'skip')) if skip_count.positive?
-          subtle_style(" (Suppressing skips to focus on failures.)")
+          failure_style(pluralize(failure_count, 'failure') + ' ') if failure_count.positive?
+          if turtle_count.positive?
+          end
+          if skip_count.positive? || turtle_count.positive?
+            subtle_style(pluralize(skip_count, 'skip') + ' ') if skip_count.positive?
+            subtle_style(pluralize(turtle_count, 'slow') + ' ') if turtle_count.positive?
+            subtle_style("(Suppressing skips/slows to focus on failures.)")
+          end
         elsif failure_count.positive?
           failure_style(pluralize(failure_count, 'failure') + ' ')
-          subtle_style(pluralize(skip_count, 'skip')) if skip_count.positive?
-          subtle_style(" (Suppressing skips to focus on failures.)")
-        elsif skip_count.positive?
-          skipped_style(pluralize(skip_count, 'skip'))
+          if skip_count.positive? || turtle_count.positive?
+            subtle_style(pluralize(skip_count, 'skip') + ' ') if skip_count.positive?
+            subtle_style(pluralize(turtle_count, 'slow') + ' ') if turtle_count.positive?
+            subtle_style("(Suppressing skips/slows to focus on failures.)")
+          end
+        elsif skip_count.positive? || turtle_count.positive?
+          skipped_style(pluralize(skip_count, 'skip') + ' ')  if skip_count.positive?
+          subtle_style(pluralize(turtle_count, 'slow') + ' ') if turtle_count.positive?
         end
 
         puts

@@ -3,12 +3,15 @@
 module Minitest
   module Heat
     class Results
+      SLOW_THRESHOLD = 0.05
+
       attr_reader :test_count,
                   :assertion_count,
                   :success_count,
                   :errors,
                   :failures,
                   :skips,
+                  :turtles,
                   :start_time,
                   :stop_time
 
@@ -19,6 +22,7 @@ module Minitest
         @errors = []
         @failures = []
         @skips = []
+        @turtles = []
         @start_time = nil
         @stop_time = nil
       end
@@ -62,6 +66,10 @@ module Minitest
         skips.any?
       end
 
+      def turtle?(result)
+        result.time > SLOW_THRESHOLD
+      end
+
       def count(result)
         @test_count += 1
         @assertion_count += result.assertions
@@ -78,8 +86,10 @@ module Minitest
           @errors
         elsif result.skipped?
           @skips
-        else
+        elsif !result.passed?
           @failures
+        elsif turtle?(result)
+          @turtle
         end << Heat::Issue.new(result)
       end
     end
