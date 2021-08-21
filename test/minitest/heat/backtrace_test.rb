@@ -42,7 +42,7 @@ class Minitest::Heat::BacktraceTest < Minitest::Test
     pathname.utime(Time.now, Time.now)
 
     refute_equal @backtrace.project.reverse, @backtrace.recently_modified
-    assert_equal @backtrace.recently_modified.reverse.first, @backtrace.freshest_project_location
+    assert_equal @backtrace.recently_modified.first, @backtrace.freshest_project_location
   end
 
   def test_identifying_last_run_test_line

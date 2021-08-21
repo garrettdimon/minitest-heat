@@ -63,6 +63,10 @@ module Minitest
         end
       end
 
+      def issue_formatter(issue)
+
+      end
+
       def issue_details(issue)
         if issue.error?
           error_formatter(issue)
@@ -73,11 +77,11 @@ module Minitest
         elsif issue.turtle?
           turtle_formatter(issue)
         end
-        puts
-        puts
       end
 
       def error_formatter(issue)
+        error_style(issue.label)
+        spacer
         error_style("#{issue.summary} in #{issue.in_test? ? issue.test_class : issue.class}")
         puts
         test_name_summary(issue)
@@ -106,11 +110,8 @@ module Minitest
       def failure_formatter(issue)
         failure_style(issue.label)
         spacer
-        failure_style("#{issue.test_class} > #{issue.test_name}")
-        subtle_style(" (Line #{issue.location.test_definition_line})")
-        puts
-        default_style(issue.summary)
-        puts
+        failure_style("#{issue.test_name}")
+        subtle_style(" (#{issue.test_class} > #{issue.location.test_definition_line})")
         puts
         default_style("#{issue.location.test_file}:#{issue.location.test_failure_line}")
         puts
@@ -119,6 +120,9 @@ module Minitest
           line = "#{lines[i]}"
           i == 1 ? default_style(line) : subtle_style(line)
         end
+        puts
+        default_style(issue.summary)
+        puts
       end
 
       def turtle_formatter(issue)

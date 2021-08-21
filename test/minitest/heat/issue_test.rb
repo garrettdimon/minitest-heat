@@ -3,7 +3,7 @@
 require 'test_helper'
 
 class Minitest::Heat::IssueTest < Minitest::Test
-  def test_something
+  def test_retrieves_source_line
     assert true
   end
 end

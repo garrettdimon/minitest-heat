@@ -23,6 +23,20 @@ module Minitest
         Location.raise_example_error_in_location
       end
 
+      def formatter
+        if error?
+          Formatters::Error.new
+        elsif skipped?
+          Formatters::Skip.new
+        elsif !passed?
+          Formatters::Failure.new
+        elsif turtle?
+          Formatters::Turtle.new
+        else
+          raise 'No Matching Formatter'
+        end
+      end
+
       def turtle?
         time > Results::SLOW_THRESHOLD
       end
@@ -57,7 +71,7 @@ module Minitest
       end
 
       def test_name
-        "\"#{result.name.delete_prefix('test_').gsub('_', ' ').capitalize}\""
+        "#{result.name.delete_prefix('test_').gsub('_', ' ').capitalize}"
       end
 
       def exception
@@ -80,10 +94,6 @@ module Minitest
         error? ? exception_parts[0] : exception.message
       end
 
-      def exception_parts
-        exception.message.split("\n")
-      end
-
       def freshest_file
         backtrace.recently_modified.first
       end
@@ -94,6 +104,12 @@ module Minitest
 
           "#{path}:#{line[:line]} - `#{line[:method]}`"
         end
+      end
+
+      private
+
+      def exception_parts
+        exception.message.split("\n")
       end
     end
   end
