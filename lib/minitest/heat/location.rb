@@ -11,7 +11,7 @@ module Minitest
       end
 
       def self.raise_example_error_in_location
-        raise StandardError.new('Example Internal Error') if ENV['FORCE_FAILURES']
+        raise StandardError.new('Invalid Location Exception') if ENV['FORCE_FAILURES']
       end
 
       def failure_in_test?

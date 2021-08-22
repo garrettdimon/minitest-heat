@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'diffy'
-
 module Minitest
   module Heat
     # Friendly API for printing nicely-formatted output to the console
@@ -103,7 +101,7 @@ module Minitest
       end
 
       def issue_details(issue)
-        formatter = FORMATTERS[issue.formatter]
+        formatter = FORMATTERS[issue.type]
 
         formatter.each do |lines|
           lines.each do |tokens|
@@ -118,7 +116,21 @@ module Minitest
               send(content_method, issue)
             end
           end
-          puts
+          newline
+        end
+        newline
+      end
+
+      def heat_map(map)
+        text(:default, "Hot Spots:\n")
+        map.files.each do |file|
+          filename = file[0]
+          values = map.hits[filename]
+
+          text(:bold, "#{filename} ")
+          text(:error, 'E' * values[:error].size) if values[:error].any?
+          text(:failure, 'F' * values[:failure].size) if values[:failure].any?
+          newline
         end
         puts
       end
@@ -172,8 +184,6 @@ module Minitest
       def backtrace_summary(issue)
         lines = issue.backtrace.project
 
-        max_container_length = lines.map(&:container).map(&:length).max
-
         lines.take(5).each do |line|
           text(:subtle, "#{line.path.delete_prefix(Dir.pwd)}/")
           text(:default, "#{line.file}:#{line.number} ")
@@ -183,8 +193,8 @@ module Minitest
           newline
 
           if line == lines.first || line == issue.freshest_file && lines.size > 1
-            filename = "#{line.path.delete_prefix(Dir.pwd)}/#{line.file}"
-            source = Minitest::Heat::Source.new(filename, line_number: line.number, max_line_count: 3)
+            # filename = "#{line.path.delete_prefix(Dir.pwd)}/#{line.file}"
+            # source = Minitest::Heat::Source.new(filename, line_number: line.number, max_line_count: 3)
             # show_source(source, indentation: 2)
           end
         end

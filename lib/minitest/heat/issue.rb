@@ -8,6 +8,8 @@ module Minitest
     class Issue
       extend Forwardable
 
+      SLOW_THRESHOLD = 0.05
+
       SHARED_SYMBOLS = {
         spacer: ' · ',
         arrow: ' > '
@@ -28,6 +30,14 @@ module Minitest
         Location.raise_example_error_in_location
       end
 
+      def to_hit
+        [
+          location.source_file,
+          location.source_failure_line,
+          type
+        ]
+      end
+
       def spacer
         SHARED_SYMBOLS[:spacer]
       end
@@ -36,7 +46,7 @@ module Minitest
         SHARED_SYMBOLS[:arrow]
       end
 
-      def formatter
+      def type
         if error?
           :error
         elsif skipped?
@@ -51,7 +61,7 @@ module Minitest
       end
 
       def turtle?
-        time > Results::SLOW_THRESHOLD
+        time > SLOW_THRESHOLD
       end
 
       def in_test?

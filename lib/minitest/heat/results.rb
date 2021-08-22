@@ -3,15 +3,11 @@
 module Minitest
   module Heat
     class Results
-      SLOW_THRESHOLD = 0.05
 
       attr_reader :test_count,
                   :assertion_count,
                   :success_count,
-                  :errors,
-                  :failures,
-                  :skips,
-                  :turtles,
+                  :issues,
                   :start_time,
                   :stop_time
 
@@ -19,10 +15,12 @@ module Minitest
         @test_count = 0
         @assertion_count = 0
         @success_count = 0
-        @errors = []
-        @failures = []
-        @skips = []
-        @turtles = []
+        @issues = {
+          error: [],
+          failure: [],
+          skip: [],
+          turtle: []
+        }
         @start_time = nil
         @stop_time = nil
       end
@@ -54,6 +52,22 @@ module Minitest
         errors? || failures? || skips?
       end
 
+      def errors
+        issues.fetch(:error) { [] }
+      end
+
+      def failures
+        issues.fetch(:failure) { [] }
+      end
+
+      def skips
+        issues.fetch(:skips) { [] }
+      end
+
+      def turtles
+        issues.fetch(:turtle) { [] }
+      end
+
       def errors?
         errors.any?
       end
@@ -66,10 +80,6 @@ module Minitest
         skips.any?
       end
 
-      def turtle?(result)
-        result.time > SLOW_THRESHOLD
-      end
-
       def count(result)
         @test_count += 1
         @assertion_count += result.assertions
@@ -77,15 +87,12 @@ module Minitest
       end
 
       def record_issue(result)
-        if result.error?
-          @errors
-        elsif result.skipped?
-          @skips
-        elsif !result.passed?
-          @failures
-        elsif turtle?(result)
-          @turtle
-        end << Heat::Issue.new(result)
+        issue = Heat::Issue.new(result)
+
+        @issues[issue.type] ||= []
+        @issues[issue.type] << issue
+
+        issue
       end
     end
   end

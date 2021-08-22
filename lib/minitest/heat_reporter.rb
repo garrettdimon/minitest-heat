@@ -61,8 +61,8 @@ module Minitest
     def record(result)
       @results.count(result)
       unless result.passed?
-        @results.record_issue(result)
-        @map.add(result)
+        issue = @results.record_issue(result)
+        @map.add(*issue.to_hit)
       end
 
       output.marker(result.result_code)
@@ -82,6 +82,7 @@ module Minitest
       results.failures.each { |issue| output.issue_details(issue) }
       results.errors.each { |issue| output.issue_details(issue) }
 
+      output.heat_map(map)
 
       output.compact_summary(results)
     end
