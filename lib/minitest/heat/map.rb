@@ -2,7 +2,6 @@
 
 module Minitest
   module Heat
-    # Wrapper for Result to provide a more natural-language approach to result details
     class Map
       attr_reader :locations
 

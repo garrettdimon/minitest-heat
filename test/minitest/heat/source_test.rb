@@ -73,7 +73,6 @@ class Minitest::Heat::SourceTest < Minitest::Test
   end
 
   def test_limits_last_line_to_last_line_of_file
-    lines = File.readlines("#{Dir.pwd}#{@filename}")
     @source.line_number = @source.file_lines.length
     @source.max_line_count = 3
     @source.context = :after

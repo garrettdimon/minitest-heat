@@ -73,12 +73,7 @@ module Minitest
       def count(result)
         @test_count += 1
         @assertion_count += result.assertions
-
-        if result.passed?
-          @success_count += 1
-        else
-          record_issue(result)
-        end
+        @success_count += 1 if result.passed?
       end
 
       def record_issue(result)

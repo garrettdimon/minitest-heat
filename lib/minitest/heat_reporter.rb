@@ -33,14 +33,14 @@ module Minitest
     attr_reader :output,
                 :options,
                 :results,
-                :heat_map
+                :map
 
     def initialize(io = $stdout, options = {})
       @output = Heat::Output.new(io)
       @options = options
 
       @results = Heat::Results.new
-      @heat_map = Heat::Map.new
+      @map = Heat::Map.new
     end
 
     # Starts reporting on the run.
@@ -60,6 +60,11 @@ module Minitest
     #   https://github.com/seattlerb/minitest/blob/f4f57afaeb3a11bd0b86ab0757704cb78db96cf4/lib/minitest.rb#L504
     def record(result)
       @results.count(result)
+      unless result.passed?
+        @results.record_issue(result)
+        @map.add(result)
+      end
+
       output.marker(result.result_code)
     end
 
@@ -67,21 +72,23 @@ module Minitest
     def report
       @results.stop_timer!
 
-      output.puts
-      output.puts
+      output.newline
+      output.newline
+
       if results.errors.empty? && results.failures.empty?
         results.skips.each { |issue| output.issue_details(issue) }
         results.turtles.each { |issue| output.issue_details(issue) }
       end
       results.failures.each { |issue| output.issue_details(issue) }
       results.errors.each { |issue| output.issue_details(issue) }
+
+
       output.compact_summary(results)
-      output.puts
-      output.puts
     end
 
     # Did this run pass?
     def passed?
+      results.errors.empty? && results.failures.empty?
     end
   end
 end

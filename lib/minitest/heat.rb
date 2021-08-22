@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_relative 'heat/backtrace'
-require_relative 'heat/formatters'
 require_relative 'heat/issue'
 require_relative 'heat/location'
 require_relative 'heat/map'

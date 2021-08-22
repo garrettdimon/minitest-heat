@@ -6,36 +6,74 @@ module Minitest
   module Heat
     # Friendly API for printing nicely-formatted output to the console
     class Output
-      SPACER = ' · '
+      Token = Struct.new(:style, :content) do
+        STYLES = {
+          error:   %i[bold red],
+          failure: %i[default red],
+          skipped: %i[bold yellow],
+          success: %i[default green],
+          turtle:  %i[bold yellow],
+          bold:    %i[bold default],
+          default: %i[default default],
+          subtle:  %i[light default],
+        }.freeze
 
-      RED           = '0;31'
-      GREEN         = '0;32'
-      GRAY          = '0;37'
-      DARK_GRAY     = '1;30'
-      LIGHT_RED     = '1;31'
-      LIGHT_GREEN   = '1;32'
-      YELLOW        = '1;33'
-      WHITE         = '1;37'
-      BOLD          = '1'
-      NOT_BOLD      = '21'
+        WEIGHTS = {
+          default: 0,
+          bold: 1,
+          light: 2
+        }.freeze
 
+        COLORS = {
+          red: 31,
+          green: 32,
+          yellow: 33,
+          gray: 37,
+          default: 39,
+          white: 97
+        }.freeze
 
-      RESET = "\e[0m"
+        def to_s
+          "\e[#{weight};#{color}m#{content}#{reset}"
+        end
 
-      COLORS = {
-        default: 39,
-        red: 31,
-        green: 32,
-        yellow: 33,
-        gray: 37,
-        white: 97
-      }.freeze
+        private
 
-      WEIGHTS = {
-        default: 0,
-        bold: 1,
-        light: 2
-      }.freeze
+        def weight
+          WEIGHTS.fetch(style_components[0])
+        end
+
+        def color
+          COLORS.fetch(style_components[1])
+        end
+
+        def reset
+          "\e[0m"
+        end
+
+        def style_components
+          STYLES[style]
+        end
+      end
+
+      FORMATTERS = {
+        error: [
+          [ %i[error label], %i[subtle spacer], %i[error test_name], %i[subtle arrow], %i[error test_class] ],
+          [ %i[default summary], %i[subtle spacer], %i[subtle class], ],
+          [ %i[default backtrace_summary] ],
+        ],
+        failure: [
+          [ %i[failure label], %i[subtle spacer], %i[failure test_name], %i[subtle arrow], %i[failure test_class] ],
+          [ %i[default summary], %i[subtle spacer], %i[subtle class], ],
+          [ %i[default source_summary], ],
+        ],
+        skipped: [
+          [ %i[skipped label] ],
+        ],
+        turtle: [
+          [ %i[turtle label], %i[subtle spacer], %i[default test_name], %i[subtle arrow], %i[subtle test_class],],
+        ]
+      }
 
       attr_reader :stream
 
@@ -53,125 +91,36 @@ module Minitest
       def puts(*args)
         stream.puts(*args)
       end
+      alias newline puts
 
       def marker(value)
         case value
-        when 'E' then error_style(value)
-        when 'F' then failure_style(value)
-        when 'S' then skipped_style(value)
-        else          success_style(value)
+        when 'E' then text(:error, value)
+        when 'F' then text(:failure, value)
+        when 'S' then text(:skipped, value)
+        else          text(:success, value)
         end
-      end
-
-      def issue_formatter(issue)
-
       end
 
       def issue_details(issue)
-        if issue.error?
-          error_formatter(issue)
-        elsif issue.skipped?
-          skipped_formatter(issue)
-        elsif !issue.passed?
-          failure_formatter(issue)
-        elsif issue.turtle?
-          turtle_formatter(issue)
-        end
-      end
+        formatter = FORMATTERS[issue.formatter]
 
-      def error_formatter(issue)
-        error_style(issue.label)
-        spacer
-        error_style("#{issue.summary} in #{issue.in_test? ? issue.test_class : issue.class}")
-        puts
-        test_name_summary(issue)
+        formatter.each do |lines|
+          lines.each do |tokens|
+            style, content_method = *tokens
 
-        puts
-        default_style("#{issue.location.test_file}:#{issue.location.test_definition_line} > #{issue.location.test_failure_line}")
-        subtle_style("#{SPACER}#{issue.test_name}")
-        puts
-
-        puts "Backtrace:"
-        lines = issue.backtrace.project
-        lines.take(5).each do |line|
-          default_style("  #{line.path.delete_prefix(Dir.pwd)}/#{line.file}:#{line.number} ")
-          subtle_style("in `#{line.container}`")
-          if line == issue.freshest_file && lines.size > 1
-            default_style("#{SPACER}Most Recently Modified")
+            if issue.respond_to?(content_method)
+              # If it's an available method on issue, use that to get the content
+              content = issue.send(content_method)
+              text(style, content)
+            else
+              # Otherwise, fall back to output and pass issue to *it*
+              send(content_method, issue)
+            end
           end
           puts
         end
-      end
-
-      def skipped_formatter(issue)
-        skipped_style(issue.label)
-      end
-
-      def failure_formatter(issue)
-        failure_style(issue.label)
-        spacer
-        failure_style("#{issue.test_name}")
-        subtle_style(" (#{issue.test_class} > #{issue.location.test_definition_line})")
         puts
-        default_style("#{issue.location.test_file}:#{issue.location.test_failure_line}")
-        puts
-        lines = issue.relevant_lines_of_code
-        lines.each_index do |i|
-          line = "#{lines[i]}"
-          i == 1 ? default_style(line) : subtle_style(line)
-        end
-        puts
-        default_style(issue.summary)
-        puts
-      end
-
-      def turtle_formatter(issue)
-        turtle_style("Slow")
-        spacer
-        highlight_style("#{issue.time.round(3)}s")
-        spacer
-        test_name_summary(issue)
-        puts
-      end
-
-      def test_name_summary(issue)
-        default_style("#{issue.test_class} > #{issue.test_name}")
-      end
-
-      def spacer
-        subtle_style(SPACER)
-      end
-
-      def error_style(value)
-        text(:red, :bold) { value }
-      end
-
-      def failure_style(value)
-        text(:red) { value }
-      end
-
-      def skipped_style(value)
-        text(:yellow) { value }
-      end
-
-      def turtle_style(value)
-        text(:yellow, :bold) { value }
-      end
-
-      def success_style(value)
-        text(:green) { value }
-      end
-
-      def default_style(value)
-        text(:default) { value }
-      end
-
-      def highlight_style(value)
-        text(:white, :bold) { value }
-      end
-
-      def subtle_style(value)
-        text(:white, :light) { value }
       end
 
       def compact_summary(results)
@@ -181,37 +130,85 @@ module Minitest
         skip_count = results.skips.size
 
         if error_count.positive?
-          error_style(pluralize(error_count, 'error') + ' ')
-          failure_style(pluralize(failure_count, 'failure') + ' ') if failure_count.positive?
+          text(:error, pluralize(error_count, 'error') + ' ')
+          text(:failure, pluralize(failure_count, 'failure') + ' ') if failure_count.positive?
           if turtle_count.positive?
           end
           if skip_count.positive? || turtle_count.positive?
-            subtle_style(pluralize(skip_count, 'skip') + ' ') if skip_count.positive?
-            subtle_style(pluralize(turtle_count, 'slow') + ' ') if turtle_count.positive?
-            subtle_style("(Suppressing skips/slows to focus on failures.)")
+            text(:subtle, pluralize(skip_count, 'skip') + ' ') if skip_count.positive?
+            text(:subtle, pluralize(turtle_count, 'slow') + ' ') if turtle_count.positive?
+            text(:subtle, "(Suppressing skips/slows to focus on failures.)")
           end
         elsif failure_count.positive?
-          failure_style(pluralize(failure_count, 'failure') + ' ')
+          text(:failure, pluralize(failure_count, 'failure') + ' ')
           if skip_count.positive? || turtle_count.positive?
-            subtle_style(pluralize(skip_count, 'skip') + ' ') if skip_count.positive?
-            subtle_style(pluralize(turtle_count, 'slow') + ' ') if turtle_count.positive?
-            subtle_style("(Suppressing skips/slows to focus on failures.)")
+            text(:subtle, pluralize(skip_count, 'skip') + ' ') if skip_count.positive?
+            text(:subtle, pluralize(turtle_count, 'slow') + ' ') if turtle_count.positive?
+            text(:subtle, "(Suppressing skips/slows to focus on failures.)")
           end
         elsif skip_count.positive? || turtle_count.positive?
-          skipped_style(pluralize(skip_count, 'skip') + ' ')  if skip_count.positive?
-          subtle_style(pluralize(turtle_count, 'slow') + ' ') if turtle_count.positive?
+          text(:skipped, pluralize(skip_count, 'skip') + ' ')  if skip_count.positive?
+          text(:subtle, pluralize(turtle_count, 'slow') + ' ') if turtle_count.positive?
         end
 
         puts
-        subtle_style(pluralize(results.test_count, 'test') + ' & ')
-        subtle_style(pluralize(results.assertion_count, 'asserton'))
+        text(:subtle, pluralize(results.test_count, 'test') + ' & ')
+        text(:subtle, pluralize(results.assertion_count, 'assertion'))
 
         puts
-        highlight_style("#{results.total_time.round(2)}s ")
-        subtle_style("#{results.tests_per_second} tests/s, #{results.assertions_per_second} assertions/s")
+        text(:bold, "#{results.total_time.round(2)}s ")
+        text(:subtle, "#{results.tests_per_second} tests/s, #{results.assertions_per_second} assertions/s")
+
+        puts
+        puts
       end
 
       private
+
+      def test_name_summary(issue)
+        text(:default, "#{issue.test_class} > #{issue.test_name}")
+      end
+
+      def backtrace_summary(issue)
+        lines = issue.backtrace.project
+
+        max_container_length = lines.map(&:container).map(&:length).max
+
+        lines.take(5).each do |line|
+          text(:subtle, "#{line.path.delete_prefix(Dir.pwd)}/")
+          text(:default, "#{line.file}:#{line.number} ")
+          if line == issue.freshest_file && lines.size > 1
+            text(:subtle, "< Most Recently Modified")
+          end
+          newline
+
+          if line == lines.first || line == issue.freshest_file && lines.size > 1
+            filename = "#{line.path.delete_prefix(Dir.pwd)}/#{line.file}"
+            source = Minitest::Heat::Source.new(filename, line_number: line.number, max_line_count: 3)
+            # show_source(source, indentation: 2)
+          end
+        end
+      end
+
+      def source_summary(issue)
+        filename = issue.location.source_file
+        line_number = issue.location.source_failure_line
+
+        source = Minitest::Heat::Source.new(filename, line_number: line_number, max_line_count: 5)
+        show_source(source, highlight_line: true)
+      end
+
+      def show_source(source, indentation: 0, highlight_line: false)
+        max_line_number_length = source.line_numbers.map(&:to_s).map(&:length).max
+        source.lines.each_index do |i|
+          line_number = source.line_numbers[i]
+          line = source.lines[i]
+
+          style = line == source.line && highlight_line ? :default : :subtle
+          text(style, "#{' ' * indentation}#{line_number.to_s.rjust(max_line_number_length)}: #{line}")
+          puts
+        end
+      end
 
       def style_enabled?
         stream.tty?
@@ -224,21 +221,10 @@ module Minitest
         count > 1 ? "#{singular_style}s" : singular_style
       end
 
-      def text(color = nil, weight = nil, &block)
-        content = if style_enabled?
-                    "#{style(color, weight)}#{block.call}#{RESET}"
-                  else
-                    block.call
-                  end
+      def text(style, content)
+        formatted_content = style_enabled? ? Token.new(style, content).to_s : content
 
-        print content
-      end
-
-      def style(color, weight)
-        weight = WEIGHTS.fetch(weight) { WEIGHTS[:default] }
-        color = COLORS.fetch(color) { COLORS[:default] }
-
-        "\e[#{weight};#{color}m"
+        print formatted_content
       end
     end
   end

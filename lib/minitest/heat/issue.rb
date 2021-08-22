@@ -8,6 +8,11 @@ module Minitest
     class Issue
       extend Forwardable
 
+      SHARED_SYMBOLS = {
+        spacer: ' · ',
+        arrow: ' > '
+      }
+
       attr_reader :result, :location, :failure
 
       def_delegators :@result, :passed?, :error?, :skipped?
@@ -23,17 +28,25 @@ module Minitest
         Location.raise_example_error_in_location
       end
 
+      def spacer
+        SHARED_SYMBOLS[:spacer]
+      end
+
+      def arrow
+        SHARED_SYMBOLS[:arrow]
+      end
+
       def formatter
         if error?
-          Formatters::Error.new
+          :error
         elsif skipped?
-          Formatters::Skip.new
+          :skipped
         elsif !passed?
-          Formatters::Failure.new
+          :failure
         elsif turtle?
-          Formatters::Turtle.new
+          :turtle
         else
-          raise 'No Matching Formatter'
+          :success
         end
       end
 
@@ -47,23 +60,6 @@ module Minitest
 
       def in_source?
         location.failure_in_source?
-      end
-
-      def relevant_lines_of_code
-        filename = File.path(Pathname.new("#{Dir.pwd}#{location.source_file}"))
-        file = File.new(filename, "r")
-        lines = file.each_line.to_a
-
-        line_number = Integer(location.source_failure_line)
-        line_numbers = [line_number - 1, line_number, line_number + 1]
-
-        max_line_number_length = line_numbers.map(&:to_s).map(&:length).max
-
-        [
-          "#{line_numbers[0].to_s.rjust(max_line_number_length)}: #{lines[line_numbers[0] - 1]}",
-          "#{line_numbers[1].to_s.rjust(max_line_number_length)}: #{lines[line_numbers[1] - 1]}",
-          "#{line_numbers[2].to_s.rjust(max_line_number_length)}: #{lines[line_numbers[2] - 1]}",
-        ]
       end
 
       def test_class
@@ -96,14 +92,6 @@ module Minitest
 
       def freshest_file
         backtrace.recently_modified.first
-      end
-
-      def trace
-        location.backtrace.project.take(3).map do |line|
-          path = reduced_path("#{line[:path]}/#{line[:file]}")
-
-          "#{path}:#{line[:line]} - `#{line[:method]}`"
-        end
       end
 
       private

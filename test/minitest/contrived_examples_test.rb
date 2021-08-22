@@ -29,7 +29,7 @@ class Minitest::ContrivedExamplesTest < Minitest::Test
 
     def test_a_really_slow_one
       sleep 0.075
-      assert false
+      assert true
     end
 
     def test_a_custom_error_message_for_an_assertion
