@@ -30,6 +30,10 @@ module Minitest
         Location.raise_example_error_in_location
       end
 
+      def self.raise_another_example_error_from_issue
+        Location.raise_example_error_in_location
+      end
+
       def to_hit
         [
           location.source_file,
@@ -47,7 +51,9 @@ module Minitest
       end
 
       def type
-        if error?
+        if error? && in_test?
+          :broken
+        elsif error?
           :error
         elsif skipped?
           :skipped
@@ -89,11 +95,22 @@ module Minitest
       end
 
       def label
-        failure.result_label
+        if error? && in_test?
+          # When the exception came out of the test itself, that's a different kind of exception
+          # that really only indicates there's a problem with the code in the test. It's kind of
+          # between an error and a test.
+          'Broken Test'
+        else
+          failure.result_label
+        end
       end
 
       def marker
-        failure.result_code
+        if error? && in_test?
+          'B'
+        else
+          failure.result_code
+        end
       end
 
       def summary

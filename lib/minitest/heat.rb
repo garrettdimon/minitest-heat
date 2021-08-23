@@ -31,5 +31,9 @@ module Minitest
     def self.raise_example_error
       Issue.raise_example_error_from_issue
     end
+
+    def self.raise_another_example_error
+      Issue.raise_another_example_error_from_issue
+    end
   end
 end

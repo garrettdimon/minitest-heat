@@ -7,28 +7,39 @@ module Minitest
       Token = Struct.new(:style, :content) do
         STYLES = {
           error:   %i[bold red],
+          broken:  %i[italic red],
           failure: %i[default red],
           skipped: %i[bold yellow],
           success: %i[default green],
           turtle:  %i[bold yellow],
+          source:  %i[italic default],
           bold:    %i[bold default],
           default: %i[default default],
-          subtle:  %i[light default],
+          subtle:  %i[light white],
+          muted:   %i[light gray],
         }.freeze
 
         WEIGHTS = {
           default: 0,
           bold: 1,
-          light: 2
+          light: 2,
+          italic: 3,
+          underline: 4,
+          frame: 51,
+          encircle: 52,
+          overline: 53,
         }.freeze
 
         COLORS = {
+          black: 30,
           red: 31,
           green: 32,
           yellow: 33,
-          gray: 37,
+          blue: 34,
+          magenta: 35,
+          cyan: 36,
+          gray: 37, white: 97,
           default: 39,
-          white: 97
         }.freeze
 
         def to_s
@@ -56,20 +67,25 @@ module Minitest
 
       FORMATTERS = {
         error: [
-          [ %i[error label], %i[subtle spacer], %i[error test_name], %i[subtle arrow], %i[error test_class] ],
-          [ %i[default summary], %i[subtle spacer], %i[subtle class], ],
+          [ %i[error label], %i[muted spacer], %i[error class], %i[muted arrow], %i[error test_name] ],
+          [ %i[default summary], ],
+          [ %i[default backtrace_summary] ],
+        ],
+        broken: [
+          [ %i[broken label], %i[muted spacer], %i[broken test_class], %i[muted arrow], %i[broken test_name] ],
+          [ %i[default summary], ],
           [ %i[default backtrace_summary] ],
         ],
         failure: [
-          [ %i[failure label], %i[subtle spacer], %i[failure test_name], %i[subtle arrow], %i[failure test_class] ],
-          [ %i[default summary], %i[subtle spacer], %i[subtle class], ],
+          [ %i[failure label], %i[muted spacer], %i[failure test_class], %i[muted arrow], %i[failure test_name] ],
+          [ %i[default summary], %i[muted spacer], %i[muted class] ],
           [ %i[default source_summary], ],
         ],
         skipped: [
           [ %i[skipped label] ],
         ],
         turtle: [
-          [ %i[turtle label], %i[subtle spacer], %i[default test_name], %i[subtle arrow], %i[subtle test_class],],
+          [ %i[turtle label], %i[muted spacer], %i[default test_name], %i[muted arrow], %i[muted test_class],],
         ]
       }
 
@@ -94,6 +110,7 @@ module Minitest
       def marker(value)
         case value
         when 'E' then text(:error, value)
+        when 'B' then text(:failure, value)
         when 'F' then text(:failure, value)
         when 'S' then text(:skipped, value)
         else          text(:success, value)
@@ -118,61 +135,66 @@ module Minitest
           end
           newline
         end
-        newline
       end
 
       def heat_map(map)
-        text(:default, "Hot Spots:\n")
+        # text(:default, "🔥 Hot Spots 🔥\n")
         map.files.each do |file|
-          filename = file[0]
-          values = map.hits[filename]
+          file = file[0]
+          values = map.hits[file]
 
-          text(:bold, "#{filename} ")
-          text(:error, 'E' * values[:error].size) if values[:error].any?
-          text(:failure, 'F' * values[:failure].size) if values[:failure].any?
+          filename = file.split('/').last
+          path = file.delete_suffix(filename)
+
+          text(:error, 'E' * values[:error].size) if values[:error]&.any?
+          text(:broken, 'B' * values[:broken].size) if values[:broken]&.any?
+          text(:failure, 'F' * values[:failure].size) if values[:failure]&.any?
+          text(:skipped, 'S' * values[:skipped].size) if values[:skipped]&.any?
+
+          text(:muted, ' ')
+
+          text(:muted, "#{path.delete_prefix('/')}")
+          text(:default, "#{filename}")
+
+          text(:muted, ': ')
+
+          all_line_numbers = values.fetch(:error, []) + values.fetch(:failure, [])
+          all_line_numbers += values.fetch(:skipped, [])
+
+          line_numbers = all_line_numbers.compact.uniq.sort
+          line_numbers.each { |line_number| text(:subtle, "#{line_number} ") }
           newline
         end
-        puts
+        newline
       end
 
       def compact_summary(results)
         error_count = results.errors.size
+        broken_count = results.brokens.size
         failure_count = results.failures.size
         turtle_count = results.turtles.size
         skip_count = results.skips.size
 
-        if error_count.positive?
-          text(:error, pluralize(error_count, 'error') + ' ')
-          text(:failure, pluralize(failure_count, 'failure') + ' ') if failure_count.positive?
-          if turtle_count.positive?
-          end
-          if skip_count.positive? || turtle_count.positive?
-            text(:subtle, pluralize(skip_count, 'skip') + ' ') if skip_count.positive?
-            text(:subtle, pluralize(turtle_count, 'slow') + ' ') if turtle_count.positive?
-            text(:subtle, "(Suppressing skips/slows to focus on failures.)")
-          end
-        elsif failure_count.positive?
-          text(:failure, pluralize(failure_count, 'failure') + ' ')
-          if skip_count.positive? || turtle_count.positive?
-            text(:subtle, pluralize(skip_count, 'skip') + ' ') if skip_count.positive?
-            text(:subtle, pluralize(turtle_count, 'slow') + ' ') if turtle_count.positive?
-            text(:subtle, "(Suppressing skips/slows to focus on failures.)")
-          end
-        elsif skip_count.positive? || turtle_count.positive?
-          text(:skipped, pluralize(skip_count, 'skip') + ' ')  if skip_count.positive?
-          text(:subtle, pluralize(turtle_count, 'slow') + ' ') if turtle_count.positive?
-        end
+        counts = []
+        counts << pluralize(error_count, 'Error') if error_count.positive?
+        counts << pluralize(broken_count, 'Broken') if broken_count.positive?
+        counts << pluralize(failure_count, 'Failure') if failure_count.positive?
+        counts << pluralize(skip_count, 'Skip') if skip_count.positive?
+        counts << pluralize(turtle_count, 'Slow') if turtle_count.positive?
 
-        puts
-        text(:subtle, pluralize(results.test_count, 'test') + ' & ')
-        text(:subtle, pluralize(results.assertion_count, 'assertion'))
+        text(:default, counts.join(', '))
+        text(:subtle, "(Suppressing skips/slows to focus on failures.)") if skip_count.positive? || turtle_count.positive?
 
-        puts
-        text(:bold, "#{results.total_time.round(2)}s ")
-        text(:subtle, "#{results.tests_per_second} tests/s, #{results.assertions_per_second} assertions/s")
+        newline
+        text(:subtle, "#{results.tests_per_second} tests/s and #{results.assertions_per_second} assertions/s ")
 
-        puts
-        puts
+        newline
+        text(:muted, pluralize(results.test_count, 'Test') + ' & ')
+        text(:muted, pluralize(results.assertion_count, 'Assertion'))
+        text(:muted, " in #{results.total_time.round(2)}s")
+
+        newline
+        newline
       end
 
       private
@@ -184,19 +206,20 @@ module Minitest
       def backtrace_summary(issue)
         lines = issue.backtrace.project
 
-        lines.take(5).each do |line|
-          text(:subtle, "#{line.path.delete_prefix(Dir.pwd)}/")
-          text(:default, "#{line.file}:#{line.number} ")
+        line = lines.first
+        filename = "#{line.path.delete_prefix(Dir.pwd)}/#{line.file}"
+        source = Minitest::Heat::Source.new(filename, line_number: line.number, max_line_count: 1)
+        text(:default, "  from ")
+        text(:source, "`#{source.line.strip}`")
+        newline
+
+        lines.take(3).each do |line|
+          text(:muted, "#{line.path.delete_prefix("#{Dir.pwd}/")}/")
+          text(:subtle, "#{line.file}:#{line.number}")
           if line == issue.freshest_file && lines.size > 1
-            text(:subtle, "< Most Recently Modified")
+            text(:muted, " < Most Recently Modified")
           end
           newline
-
-          if line == lines.first || line == issue.freshest_file && lines.size > 1
-            # filename = "#{line.path.delete_prefix(Dir.pwd)}/#{line.file}"
-            # source = Minitest::Heat::Source.new(filename, line_number: line.number, max_line_count: 3)
-            # show_source(source, indentation: 2)
-          end
         end
       end
 
@@ -204,7 +227,7 @@ module Minitest
         filename = issue.location.source_file
         line_number = issue.location.source_failure_line
 
-        source = Minitest::Heat::Source.new(filename, line_number: line_number, max_line_count: 5)
+        source = Minitest::Heat::Source.new(filename, line_number: line_number, max_line_count: 3)
         show_source(source, highlight_line: true)
       end
 
@@ -214,7 +237,7 @@ module Minitest
           line_number = source.line_numbers[i]
           line = source.lines[i]
 
-          style = line == source.line && highlight_line ? :default : :subtle
+          style = line == source.line && highlight_line ? :subtle : :muted
           text(style, "#{' ' * indentation}#{line_number.to_s.rjust(max_line_number_length)}: #{line}")
           puts
         end

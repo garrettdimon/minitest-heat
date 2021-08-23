@@ -17,6 +17,7 @@ module Minitest
         @success_count = 0
         @issues = {
           error: [],
+          broken: [],
           failure: [],
           skip: [],
           turtle: []
@@ -56,6 +57,10 @@ module Minitest
         issues.fetch(:error) { [] }
       end
 
+      def brokens
+        issues.fetch(:broken) { [] }
+      end
+
       def failures
         issues.fetch(:failure) { [] }
       end
@@ -70,6 +75,10 @@ module Minitest
 
       def errors?
         errors.any?
+      end
+
+      def brokens?
+        brokens.any?
       end
 
       def failures?

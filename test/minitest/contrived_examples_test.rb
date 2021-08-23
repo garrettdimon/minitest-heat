@@ -24,7 +24,11 @@ class Minitest::ContrivedExamplesTest < Minitest::Test
     end
 
     def test_internal_exception
-      assert ::Minitest::Heat.raise_example_error
+      ::Minitest::Heat.raise_example_error
+    end
+
+    def test_another_internal_exception
+      ::Minitest::Heat.raise_another_example_error
     end
 
     def test_a_really_slow_one

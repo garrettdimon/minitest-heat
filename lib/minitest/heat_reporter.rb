@@ -63,9 +63,10 @@ module Minitest
       unless result.passed?
         issue = @results.record_issue(result)
         @map.add(*issue.to_hit)
+        output.marker(issue.marker)
+      else
+        output.marker(result.result_code)
       end
-
-      output.marker(result.result_code)
     end
 
     # Outputs the summary of the run.
@@ -75,16 +76,17 @@ module Minitest
       output.newline
       output.newline
 
-      if results.errors.empty? && results.failures.empty?
+      if results.errors.empty? && results.brokens.empty? && results.failures.empty?
         results.skips.each { |issue| output.issue_details(issue) }
         results.turtles.each { |issue| output.issue_details(issue) }
       end
       results.failures.each { |issue| output.issue_details(issue) }
+      results.brokens.each { |issue| output.issue_details(issue) }
       results.errors.each { |issue| output.issue_details(issue) }
 
-      output.heat_map(map)
-
       output.compact_summary(results)
+
+      output.heat_map(map)
     end
 
     # Did this run pass?

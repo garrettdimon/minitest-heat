@@ -5,6 +5,31 @@ module Minitest
     class Map
       attr_reader :hits
 
+      # Score as Weighted number?
+      #   E = 5, B = 4, F = 3, S = 1, T = 1
+      #   Could/should more recently modified files be bumped?
+      #   On failures, the affected class is generatelly more important than source of the failure.
+      # EXAMPLE_FORMAT = {
+      #   '<class_name>': {
+      #     score: 0,
+      #     hits: 0,
+      #     error: [],
+      #     failure: [],
+      #     skip: [],
+      #     turtle: [],
+      #   }
+      #   '<filename>': {
+      #     total: 0,
+      #     error: [],
+      #     failure: [],
+      #     skip: [],
+      #     turtle: [],
+      #     lines: {
+      #       '93': ['F', 'E', 'E']
+      #     }
+      #   }
+      # }
+
       def initialize
         @hits = {}
       end
