@@ -19,12 +19,18 @@ if ENV['FORCE_FAILURES']
       assert false, 'This custom error messages explains why this is bad.'
     end
 
-    def test_fail_after
-      fail_after Time.now - 1.minute
+    def test_demonstrate_fail_after_yesterday
+      seconds_in_a_day = 24 * 60 * 60
+      time = Time.now - seconds_in_a_day
+      fail_after time.year, time.month, time.day, "This explicitly failed because it was after #{time}"
     end
 
     def test_explicit_failures
       flunk 'The test was explicitly flunked'
+    end
+
+    def test_explicitly_skipped_example
+      skip 'The test was explicitly skipped'
     end
 
     def test_errors_raised_directly_from_test
@@ -48,10 +54,6 @@ if ENV['FORCE_FAILURES']
     def test_a_really_slow_one
       sleep 0.075
       assert true
-    end
-
-    def test_skips
-      skip 'The test was explicitly skipped'
     end
 
     private

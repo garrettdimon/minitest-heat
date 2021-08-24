@@ -20,7 +20,7 @@ module Minitest
           broken: [],
           failure: [],
           skipped: [],
-          turtle: []
+          slow: []
         }
         @start_time = nil
         @stop_time = nil
@@ -69,8 +69,8 @@ module Minitest
         issues.fetch(:skipped) { [] }
       end
 
-      def turtles
-        issues.fetch(:turtle) { [] }
+      def slows
+        issues.fetch(:slow) { [] }
       end
 
       def errors?

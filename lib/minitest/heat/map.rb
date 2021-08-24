@@ -16,14 +16,14 @@ module Minitest
       #     error: [],
       #     failure: [],
       #     skip: [],
-      #     turtle: [],
+      #     slow: [],
       #   }
       #   '<filename>': {
       #     total: 0,
       #     error: [],
       #     failure: [],
       #     skip: [],
-      #     turtle: [],
+      #     slow: [],
       #     lines: {
       #       '93': ['F', 'E', 'E']
       #     }

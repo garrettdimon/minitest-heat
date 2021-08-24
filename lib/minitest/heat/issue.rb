@@ -52,14 +52,14 @@ module Minitest
           :skipped
         elsif !passed?
           :failure
-        elsif turtle?
-          :turtle
+        elsif slow?
+          :slow
         else
           :success
         end
       end
 
-      def turtle?
+      def slow?
         time > SLOW_THRESHOLD
       end
 
@@ -87,6 +87,10 @@ module Minitest
         result.time
       end
 
+      def slowness
+        "#{time.round(2)}s"
+      end
+
       def label
         if error? && in_test?
           # When the exception came out of the test itself, that's a different kind of exception
@@ -95,7 +99,7 @@ module Minitest
           'Broken Test'
         elsif error? || !passed?
           failure.result_label
-        elsif turtle?
+        elsif slow?
           'Passed but Slow'
         else
 
@@ -108,7 +112,7 @@ module Minitest
         when :error then   'E'
         when :skipped then 'S'
         when :failure then 'F'
-        when :turtle then  'T'
+        when :slow then  'T'
         else               '.'
         end
       end

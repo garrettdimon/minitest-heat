@@ -11,7 +11,7 @@ module Minitest
   #   -- Everything else...
   #   3. Coverage (If using Simplecov) - If things are passing but coverage isn't up to par
   #   4. Skips - Don't want to skip tests.
-  #   5. Turtles (If everything good, but there's )
+  #   5. Slows (If everything good, but there's )
   # - Colorize the Output
   # - What files had the most errors?
   # - Show the most impacted areas first.
@@ -80,11 +80,8 @@ module Minitest
       #   pressing issues are displayed at the bottom of the report in order to reduce scrolling.
       #   This way, as you fix issues, the list gets shorter, and eventually the least critical
       #   issues will be displayed without scrolling once more problematic issues are resolved.
-      results.turtles.each { |issue| output.issue_details(issue) }
+      results.slows.each { |issue| output.issue_details(issue) }
       results.skips.each { |issue| output.issue_details(issue) }
-
-      output.newline
-
       results.failures.each { |issue| output.issue_details(issue) }
       results.brokens.each { |issue| output.issue_details(issue) }
       results.errors.each { |issue| output.issue_details(issue) }

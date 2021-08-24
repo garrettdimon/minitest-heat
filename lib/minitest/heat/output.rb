@@ -11,7 +11,7 @@ module Minitest
           failure: %i[default red],
           skipped: %i[bold yellow],
           success: %i[default green],
-          turtle:  %i[bold green],
+          slow:    %i[bold green],
           source:  %i[italic default],
           bold:    %i[bold default],
           default: %i[default default],
@@ -77,15 +77,19 @@ module Minitest
           [ %i[default backtrace_summary] ],
         ],
         failure: [
-          [ %i[failure label], %i[muted spacer], %i[failure test_class], %i[muted arrow], %i[failure test_name] ],
-          [ %i[default summary], %i[muted spacer], %i[muted class] ],
+          [ %i[failure label], %i[muted spacer], %i[failure test_class], %i[muted arrow], %i[failure test_name], %i[muted spacer], %i[muted class] ],
+          [ %i[default summary] ],
           [ %i[default source_summary], ],
         ],
         skipped: [
-          [ %i[skipped label], %i[muted spacer], %i[default summary], %i[muted spacer], %i[muted class] ],
+          [ %i[skipped label], %i[muted spacer], %i[skipped test_class], %i[muted arrow], %i[skipped test_name] ],
+          [ %i[default summary], %i[muted spacer], %i[default class] ],
+          [], # New Line
         ],
-        turtle: [
-          [ %i[turtle label], %i[muted spacer], %i[default test_name], %i[muted arrow], %i[muted test_class],],
+        slow: [
+          [ %i[slow label], %i[muted spacer], %i[bold slowness], %i[muted spacer], %i[default test_class], %i[muted arrow], %i[default test_class], ],
+          [ %i[default class], %i[muted spacer], %i[default location], ],
+          [], # New Line
         ]
       }
 
@@ -113,7 +117,7 @@ module Minitest
         when 'B' then text(:failure, value)
         when 'F' then text(:failure, value)
         when 'S' then text(:skipped, value)
-        when 'T' then text(:turtle, value)
+        when 'T' then text(:slow, value)
         else          text(:success, value)
         end
       end
@@ -151,13 +155,14 @@ module Minitest
           text(:broken, 'B' * values[:broken].size) if values[:broken]&.any?
           text(:failure, 'F' * values[:failure].size) if values[:failure]&.any?
           text(:skipped, 'S' * values[:skipped].size) if values[:skipped]&.any?
+          text(:slow, 'S' * values[:skipped].size) if values[:skipped]&.any?
 
           text(:muted, ' ')
 
           text(:muted, "#{path.delete_prefix('/')}")
           text(:default, "#{filename}")
 
-          text(:muted, ': ')
+          text(:muted, ':')
 
           all_line_numbers = values.fetch(:error, []) + values.fetch(:failure, [])
           all_line_numbers += values.fetch(:skipped, [])
@@ -173,7 +178,7 @@ module Minitest
         error_count = results.errors.size
         broken_count = results.brokens.size
         failure_count = results.failures.size
-        turtle_count = results.turtles.size
+        slow_count = results.slows.size
         skip_count = results.skips.size
 
         counts = []
@@ -181,10 +186,8 @@ module Minitest
         counts << pluralize(broken_count, 'Broken') if broken_count.positive?
         counts << pluralize(failure_count, 'Failure') if failure_count.positive?
         counts << pluralize(skip_count, 'Skip') if skip_count.positive?
-        counts << pluralize(turtle_count, 'Slow') if turtle_count.positive?
-
+        counts << pluralize(slow_count, 'Slow') if slow_count.positive?
         text(:default, counts.join(', '))
-        text(:subtle, "(Suppressing skips/slows to focus on failures.)") if skip_count.positive? || turtle_count.positive?
 
         newline
         text(:subtle, "#{results.tests_per_second} tests/s and #{results.assertions_per_second} assertions/s ")
@@ -238,8 +241,13 @@ module Minitest
           line_number = source.line_numbers[i]
           line = source.lines[i]
 
-          style = line == source.line && highlight_line ? :subtle : :muted
-          text(style, "#{' ' * indentation}#{line_number.to_s.rjust(max_line_number_length)}: #{line}")
+          number_style, line_style = if line == source.line && highlight_line
+                                       [:default, :default]
+                                     else
+                                       [:subtle, :subtle]
+                                     end
+          text(number_style, "#{' ' * indentation}#{line_number.to_s.rjust(max_line_number_length)} ")
+          text(line_style, line)
           puts
         end
       end

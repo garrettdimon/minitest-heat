@@ -10,6 +10,10 @@ module Minitest
         @backtrace = Backtrace.new(backtrace)
       end
 
+      def to_s
+        "#{source_file}:#{source_failure_line}"
+      end
+
       def failure_in_test?
         !test_file.nil? && test_file == source_file
       end
