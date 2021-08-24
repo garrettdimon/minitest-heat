@@ -70,7 +70,11 @@ module Minitest
       end
 
       def slows
-        issues.fetch(:slow) { [] }
+        issues
+          .fetch(:slow) { [] }
+          .sort { |issue| issue.time }
+          .reverse
+          .take(3)
       end
 
       def errors?

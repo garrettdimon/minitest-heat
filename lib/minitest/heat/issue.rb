@@ -8,7 +8,7 @@ module Minitest
     class Issue
       extend Forwardable
 
-      SLOW_THRESHOLD = 0.05
+      SLOW_THRESHOLD = 0.5
 
       SHARED_SYMBOLS = {
         spacer: ' · ',
@@ -112,7 +112,7 @@ module Minitest
         when :error then   'E'
         when :skipped then 'S'
         when :failure then 'F'
-        when :slow then  'T'
+        when :slow then    'S'
         else               '.'
         end
       end

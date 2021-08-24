@@ -6,16 +6,18 @@ module Minitest
       attr_reader :hits
 
       # So we can sort hot spots by liklihood of being the most important spot to check out before
-      #   trying to fix something. For example, if there's an exception in the file, start there.
-      #   if a test is broken, fix it before worrying about tests that have failing assertions.
-      #   skipped and slow are shown but don't carry weight because they aren't preventing the test
-      #   suite from completing successfuly.
+      #   trying to fix something. These are ranked based on the possibility they represent ripple
+      #   effects where fixing one problem could potentially fix multiple other failures.
+      #
+      #   For example, if there's an exception in the file, start there. Broken code can't run. If a
+      #   test is broken (i.e. raising an exception), that's a special sort of failure that would be
+      #   misleading. It doesn't represent a proper failure, but rather a test that doesn't work.
       WEIGHTS = {
-        error: 5,
-        broken: 3,
-        failure: 1,
-        skipped: 0,
-        slow: 0
+        error: 3,   # exceptions from source code have the highest liklihood of a ripple effect
+        broken: 1,  # broken tests won't have ripple effects but can't help if they can't run
+        failure: 1, # failures are kind of the whole point, and they could have ripple effects
+        skipped: 0, # skips aren't failures, but they shouldn't go ignored
+        slow: 0     # slow tests aren't failures, but they shouldn't be ignored
       }
 
       def initialize
