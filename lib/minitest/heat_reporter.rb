@@ -60,7 +60,7 @@ module Minitest
     #   https://github.com/seattlerb/minitest/blob/f4f57afaeb3a11bd0b86ab0757704cb78db96cf4/lib/minitest.rb#L504
     def record(result)
       @results.count(result)
-      unless result.passed?
+      if !result.passed? || result.time > ::Minitest::Heat::Issue::SLOW_THRESHOLD
         issue = @results.record_issue(result)
         @map.add(*issue.to_hit)
         output.marker(issue.marker)
@@ -76,10 +76,15 @@ module Minitest
       output.newline
       output.newline
 
-      if results.errors.empty? && results.brokens.empty? && results.failures.empty?
-        results.skips.each { |issue| output.issue_details(issue) }
-        results.turtles.each { |issue| output.issue_details(issue) }
-      end
+      # Issues start with the least critical and go up to the most critical so that the most
+      #   pressing issues are displayed at the bottom of the report in order to reduce scrolling.
+      #   This way, as you fix issues, the list gets shorter, and eventually the least critical
+      #   issues will be displayed without scrolling once more problematic issues are resolved.
+      results.turtles.each { |issue| output.issue_details(issue) }
+      results.skips.each { |issue| output.issue_details(issue) }
+
+      output.newline
+
       results.failures.each { |issue| output.issue_details(issue) }
       results.brokens.each { |issue| output.issue_details(issue) }
       results.errors.each { |issue| output.issue_details(issue) }

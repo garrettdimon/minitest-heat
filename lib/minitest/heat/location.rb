@@ -5,17 +5,13 @@ module Minitest
     class Location
       attr_reader :test_location, :backtrace
 
-      def initialize(test_location, backtrace)
+      def initialize(test_location, backtrace = [])
         @test_location = test_location
         @backtrace = Backtrace.new(backtrace)
       end
 
-      def self.raise_example_error_in_location
-        raise StandardError.new('Invalid Location Exception') if ENV['FORCE_FAILURES']
-      end
-
       def failure_in_test?
-        test_file == source_file
+        !test_file.nil? && test_file == source_file
       end
 
       def failure_in_source?
@@ -35,12 +31,16 @@ module Minitest
       end
 
       def source_file
+        return test_file if backtrace.empty?
+
         source_line = backtrace.final_project_location
 
         reduced_path("#{source_line.path}/#{source_line.file}")
       end
 
       def source_failure_line
+        return test_definition_line if backtrace.empty?
+
         backtrace.final_project_location.number
       end
 

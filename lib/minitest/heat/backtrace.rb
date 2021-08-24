@@ -24,6 +24,10 @@ module Minitest
         @raw_backtrace = raw_backtrace
       end
 
+      def empty?
+        raw_backtrace.nil? || raw_backtrace.empty?
+      end
+
       def final_location
         parsed.first
       end
@@ -53,6 +57,8 @@ module Minitest
       end
 
       def parsed
+        return [] if raw_backtrace.nil?
+
         @parsed ||= raw_backtrace.map { |line| parse(line) }
       end
 

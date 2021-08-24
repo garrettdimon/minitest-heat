@@ -2,32 +2,46 @@
 
 require 'test_helper'
 
-class Minitest::ContrivedExamplesTest < Minitest::Test
-  # More info?
+require_relative 'contrived_exceptions'
 
-  # Only run these tests when we need to see representational failure types
-  if ENV['FORCE_FAILURES']
-    def test_errors_raised_directly_from_test
-      raise StandardError.new('Testing Errors Raised Directly from a Test')
-    end
+# rubocop:disable
 
+# This set of tests and related code only exists to force a range of failure types for improving the
+#   visual presentation of the various errors based on different contexts
+if ENV['FORCE_FAILURES']
+
+  class Minitest::ContrivedExamplesTest < Minitest::Test # rubocop:disable Style/ClassAndModuleChildren
     def test_incorrect_assertions
       assert false
     end
 
+    def test_a_custom_error_message_for_an_assertion
+      assert false, 'This custom error messages explains why this is bad.'
+    end
+
+    def test_fail_after
+      fail_after Time.now - 1.minute
+    end
+
     def test_explicit_failures
-      flunk 'Testing Flunking'
+      flunk 'The test was explicitly flunked'
     end
 
-    def test_skips
-      skip 'Testing Skipping'
+    def test_errors_raised_directly_from_test
+      raise StandardError, 'Testing Errors Raised Directly from a Test'
     end
 
-    def test_internal_exception
+    def test_assert_nothing_raised_but_raise_error
+      assert_raises SystemExit do
+        ::Minitest::Heat.raise_example_error
+      end
+    end
+
+    def test_raise_exception_from_issue
       ::Minitest::Heat.raise_example_error
     end
 
-    def test_another_internal_exception
+    def test_raise_another_exception_from_location
       ::Minitest::Heat.raise_another_example_error
     end
 
@@ -36,8 +50,16 @@ class Minitest::ContrivedExamplesTest < Minitest::Test
       assert true
     end
 
-    def test_a_custom_error_message_for_an_assertion
-      assert false, 'This custom error messages explains why this is bad.'
+    def test_skips
+      skip 'The test was explicitly skipped'
+    end
+
+    private
+
+    def raise_example_error(message)
+      -> { raise StandardError, message }
     end
   end
 end
+
+# rubocop:enable

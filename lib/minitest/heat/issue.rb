@@ -22,16 +22,9 @@ module Minitest
 
       def initialize(result)
         @result = result
-        @failure = result.failures.first
-        @location = Location.new(result.source_location, @failure.backtrace)
-      end
 
-      def self.raise_example_error_from_issue
-        Location.raise_example_error_in_location
-      end
-
-      def self.raise_another_example_error_from_issue
-        Location.raise_example_error_in_location
+        @failure = result.failures.any? ? result.failures.first : nil
+        @location = Location.new(result.source_location, @failure&.backtrace)
       end
 
       def to_hit
@@ -100,16 +93,23 @@ module Minitest
           # that really only indicates there's a problem with the code in the test. It's kind of
           # between an error and a test.
           'Broken Test'
-        else
+        elsif error? || !passed?
           failure.result_label
+        elsif turtle?
+          'Passed but Slow'
+        else
+
         end
       end
 
       def marker
-        if error? && in_test?
-          'B'
-        else
-          failure.result_code
+        case type
+        when :broken then  'B'
+        when :error then   'E'
+        when :skipped then 'S'
+        when :failure then 'F'
+        when :turtle then  'T'
+        else               '.'
         end
       end
 

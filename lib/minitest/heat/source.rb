@@ -8,7 +8,7 @@ module Minitest
 
       attr_accessor :line_number, :max_line_count, :context
 
-      CONTEXTS = %i[:before, :around, :after]
+      CONTEXTS = %i[before around after].freeze
 
       def initialize(filename, line_number:, max_line_count: 1, context: :around)
         @filename = filename
@@ -147,5 +147,3 @@ module Minitest
     end
   end
 end
-
-

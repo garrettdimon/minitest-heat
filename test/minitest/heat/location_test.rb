@@ -16,6 +16,11 @@ class Minitest::Heat::LocationTest < Minitest::Test
     @location = Minitest::Heat::Location.new(@test_location, @raw_backtrace)
   end
 
+  def test_can_be_initialized_without_backtrace
+    location = Minitest::Heat::Location.new(@test_location)
+    assert_nil location.source_file
+  end
+
   def test_knows_test_file_and_lines
     assert_equal '/test/minitest/heat_test.rb', @location.test_file
     assert_equal '23', @location.test_definition_line

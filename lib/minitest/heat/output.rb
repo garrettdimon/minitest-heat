@@ -11,7 +11,7 @@ module Minitest
           failure: %i[default red],
           skipped: %i[bold yellow],
           success: %i[default green],
-          turtle:  %i[bold yellow],
+          turtle:  %i[bold green],
           source:  %i[italic default],
           bold:    %i[bold default],
           default: %i[default default],
@@ -82,7 +82,7 @@ module Minitest
           [ %i[default source_summary], ],
         ],
         skipped: [
-          [ %i[skipped label] ],
+          [ %i[skipped label], %i[muted spacer], %i[default summary], %i[muted spacer], %i[muted class] ],
         ],
         turtle: [
           [ %i[turtle label], %i[muted spacer], %i[default test_name], %i[muted arrow], %i[muted test_class],],
@@ -113,6 +113,7 @@ module Minitest
         when 'B' then text(:failure, value)
         when 'F' then text(:failure, value)
         when 'S' then text(:skipped, value)
+        when 'T' then text(:turtle, value)
         else          text(:success, value)
         end
       end
