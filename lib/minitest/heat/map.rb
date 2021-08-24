@@ -5,38 +5,27 @@ module Minitest
     class Map
       attr_reader :hits
 
-      # Score as Weighted number?
-      #   E = 5, B = 4, F = 3, S = 1, T = 1
-      #   Could/should more recently modified files be bumped?
-      #   On failures, the affected class is generatelly more important than source of the failure.
-      # EXAMPLE_FORMAT = {
-      #   '<class_name>': {
-      #     score: 0,
-      #     hits: 0,
-      #     error: [],
-      #     failure: [],
-      #     skip: [],
-      #     slow: [],
-      #   }
-      #   '<filename>': {
-      #     total: 0,
-      #     error: [],
-      #     failure: [],
-      #     skip: [],
-      #     slow: [],
-      #     lines: {
-      #       '93': ['F', 'E', 'E']
-      #     }
-      #   }
-      # }
+      # So we can sort hot spots by liklihood of being the most important spot to check out before
+      #   trying to fix something. For example, if there's an exception in the file, start there.
+      #   if a test is broken, fix it before worrying about tests that have failing assertions.
+      #   skipped and slow are shown but don't carry weight because they aren't preventing the test
+      #   suite from completing successfuly.
+      WEIGHTS = {
+        error: 5,
+        broken: 3,
+        failure: 1,
+        skipped: 0,
+        slow: 0
+      }
 
       def initialize
         @hits = {}
       end
 
       def add(filename, line_number, type)
-        @hits[filename] ||= { total: 0 }
-        @hits[filename][:total] += 1 if type == :error || type == :failure
+        @hits[filename] ||= { weight: 0, total: 0 }
+        @hits[filename][:total] += 1
+        @hits[filename][:weight] += WEIGHTS[type]
 
         @hits[filename][type] ||= []
         @hits[filename][type] << line_number
@@ -44,7 +33,7 @@ module Minitest
 
       def files
         hot_files
-          .sort_by { |filename, count| count }
+          .sort_by { |filename, weight| weight }
           .reverse
           .take(5)
       end
@@ -57,7 +46,7 @@ module Minitest
           # Can't really be a "hot spot" with just a single issue
           next unless details[:total] > 1
 
-          files[filename] = details[:total]
+          files[filename] = details[:weight]
         end
         files
       end

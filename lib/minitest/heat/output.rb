@@ -7,7 +7,7 @@ module Minitest
       Token = Struct.new(:style, :content) do
         STYLES = {
           error:   %i[bold red],
-          broken:  %i[italic red],
+          broken:  %i[bold red],
           failure: %i[default red],
           skipped: %i[bold yellow],
           success: %i[default green],
@@ -88,7 +88,7 @@ module Minitest
           [], # New Line
         ],
         slow: [
-          [ %i[slow label], %i[muted spacer], %i[muted spacer], %i[default test_class], %i[muted arrow], %i[default test_name], %i[muted spacer], %i[muted class], ],
+          [ %i[slow label], %i[muted spacer], %i[default test_class], %i[muted arrow], %i[default test_name], %i[muted spacer], %i[muted class], ],
           [ %i[bold slowness], %i[muted spacer], %i[default location], ],
           [], # New Line
         ]
