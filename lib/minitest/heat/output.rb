@@ -79,6 +79,7 @@ module Minitest
         failure: [
           [ %i[failure label], %i[muted spacer], %i[failure test_class], %i[muted arrow], %i[failure test_name], %i[muted spacer], %i[muted class] ],
           [ %i[default summary] ],
+          [ %i[subtle location], ],
           [ %i[default source_summary], ],
         ],
         skipped: [
@@ -87,8 +88,8 @@ module Minitest
           [], # New Line
         ],
         slow: [
-          [ %i[slow label], %i[muted spacer], %i[bold slowness], %i[muted spacer], %i[default test_class], %i[muted arrow], %i[default test_class], ],
-          [ %i[default class], %i[muted spacer], %i[default location], ],
+          [ %i[slow label], %i[muted spacer], %i[muted spacer], %i[default test_class], %i[muted arrow], %i[default test_name], %i[muted spacer], %i[muted class], ],
+          [ %i[bold slowness], %i[muted spacer], %i[default location], ],
           [], # New Line
         ]
       }
@@ -212,17 +213,14 @@ module Minitest
 
         line = lines.first
         filename = "#{line.path.delete_prefix(Dir.pwd)}/#{line.file}"
-        source = Minitest::Heat::Source.new(filename, line_number: line.number, max_line_count: 1)
-        text(:default, "  from ")
-        text(:source, "`#{source.line.strip}`")
-        newline
 
         lines.take(3).each do |line|
-          text(:muted, "#{line.path.delete_prefix("#{Dir.pwd}/")}/")
+          source = Minitest::Heat::Source.new(filename, line_number: line.number, max_line_count: 1)
+
+          text(:muted, "  #{line.path.delete_prefix("#{Dir.pwd}/")}/")
           text(:subtle, "#{line.file}:#{line.number}")
-          if line == issue.freshest_file && lines.size > 1
-            text(:muted, " < Most Recently Modified")
-          end
+          text(:source, " `#{source.line.strip}`")
+
           newline
         end
       end
@@ -232,7 +230,7 @@ module Minitest
         line_number = issue.location.source_failure_line
 
         source = Minitest::Heat::Source.new(filename, line_number: line_number, max_line_count: 3)
-        show_source(source, highlight_line: true)
+        show_source(source, highlight_line: true, indentation: 2)
       end
 
       def show_source(source, indentation: 0, highlight_line: false)
