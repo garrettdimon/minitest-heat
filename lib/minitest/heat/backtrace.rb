@@ -49,7 +49,7 @@ module Minitest
       end
 
       def recently_modified
-        @recent ||= project.sort_by { |line| line[:mtime] }.reverse
+        @recently_modified ||= project.sort_by { |line| line[:mtime] }.reverse
       end
 
       def parsed
@@ -59,24 +59,24 @@ module Minitest
       private
 
       def reduce_container(container)
-        container.delete_prefix("in `").delete_suffix("'")
+        container.delete_prefix('in `').delete_suffix("'")
       end
 
       def parse(line)
+        Line.new(line_attributes(line))
+      end
+
+      def line_attributes(line)
         parts = line.split(':')
+        pathname = Pathname.new(parts[0])
 
-        pathname    = Pathname.new(parts[0])
-        line_number = parts[1]
-        container   = reduce_container(parts[2])
-        mtime       = pathname.exist? ? pathname.mtime : nil
-
-        Line.new(
+        {
           path: pathname.dirname.to_s,
           file: pathname.basename.to_s,
-          number: line_number,
-          container: container,
-          mtime: mtime
-        )
+          number: parts[1],
+          container: reduce_container(parts[2]),
+          mtime: pathname.exist? ? pathname.mtime : nil
+        }
       end
 
       def test_file?(line)

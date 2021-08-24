@@ -13,7 +13,7 @@ module Minitest
       SHARED_SYMBOLS = {
         spacer: ' · ',
         arrow: ' > '
-      }
+      }.freeze
 
       attr_reader :result, :location, :failure
 
@@ -50,7 +50,7 @@ module Minitest
         SHARED_SYMBOLS[:arrow]
       end
 
-      def type
+      def type # rubocop:disable Metrics/MethodLength
         if error? && in_test?
           :broken
         elsif error?
@@ -83,7 +83,7 @@ module Minitest
       end
 
       def test_name
-        "#{result.name.delete_prefix('test_').gsub('_', ' ').capitalize}"
+        result.name.delete_prefix('test_').gsub('_', ' ').capitalize
       end
 
       def exception
