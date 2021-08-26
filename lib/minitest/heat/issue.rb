@@ -75,8 +75,12 @@ module Minitest
         result.klass.delete_prefix('Minitest::')
       end
 
+      def test_identifier
+        result.name
+      end
+
       def test_name
-        result.name.delete_prefix('test_').gsub('_', ' ').capitalize
+        test_identifier.delete_prefix('test_').gsub('_', ' ').capitalize
       end
 
       def exception
