@@ -41,7 +41,8 @@ class Minitest::Heat::BacktraceTest < Minitest::Test
     pathname = Pathname.new(test_file_location)
     pathname.utime(Time.now, Time.now)
 
-    refute_equal @backtrace.project.reverse, @backtrace.recently_modified
+    assert @backtrace.project.size > 1
+    refute_equal @backtrace.project, @backtrace.recently_modified
     assert_equal @backtrace.recently_modified.first, @backtrace.freshest_project_location
   end
 
