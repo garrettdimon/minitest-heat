@@ -18,7 +18,7 @@ class Minitest::Heat::LocationTest < Minitest::Test
 
   def test_can_be_initialized_without_backtrace
     location = Minitest::Heat::Location.new(@test_location)
-    assert_nil location.source_file
+    refute_nil location.source_file
   end
 
   def test_knows_test_file_and_lines
