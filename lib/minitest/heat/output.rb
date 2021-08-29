@@ -209,12 +209,12 @@ module Minitest
       end
 
       def backtrace_summary(issue)
-        lines = issue.backtrace.project
+        backtrace_lines = issue.backtrace.project
 
-        line = lines.first
-        filename = "#{line.path.delete_prefix(Dir.pwd)}/#{line.file}"
+        backtrace_line = backtrace_lines.first
+        filename = "#{backtrace_line.path.delete_prefix(Dir.pwd)}/#{backtrace_line.file}"
 
-        lines.take(3).each do |line|
+        backtrace_lines.take(3).each do |line|
           source = Minitest::Heat::Source.new(filename, line_number: line.number, max_line_count: 1)
 
           text(:muted, "  #{line.path.delete_prefix("#{Dir.pwd}/")}/")
