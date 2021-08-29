@@ -48,14 +48,10 @@ module Minitest
         backtrace.final_project_location.number
       end
 
-      def project_directory_name
-        Dir.pwd.split('/').last
-      end
-
       private
 
       def reduced_path(path)
-        "/#{path.split("/#{project_directory_name}/").last}"
+        path.delete_prefix(Dir.pwd)
       end
     end
   end
