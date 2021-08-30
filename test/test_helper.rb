@@ -28,7 +28,8 @@ end
 require 'pry'
 
 $LOAD_PATH.unshift File.expand_path('../lib', __dir__)
+require 'dead_end'
+
 require 'minitest/heat'
 
 require 'minitest/autorun'
-require 'dead_end'
