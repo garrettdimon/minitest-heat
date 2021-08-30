@@ -118,7 +118,7 @@ module Minitest
         when 'B' then text(:failure, value)
         when 'F' then text(:failure, value)
         when 'S' then text(:skipped, value)
-        when 'T' then text(:slow, value)
+        when 'T' then text(:success, '_')
         else          text(:success, value)
         end
       end
@@ -251,7 +251,8 @@ module Minitest
       end
 
       def style_enabled?
-        stream.tty?
+        # stream.tty?
+        true
       end
 
       def pluralize(count, singular)
