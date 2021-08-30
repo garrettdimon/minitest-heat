@@ -100,7 +100,7 @@ module Minitest
           # When the exception came out of the test itself, that's a different kind of exception
           # that really only indicates there's a problem with the code in the test. It's kind of
           # between an error and a test.
-          'Broken Test'
+          'Test Error'
         elsif error? || !passed?
           failure.result_label
         elsif slow?
@@ -116,7 +116,7 @@ module Minitest
         when :error then   'E'
         when :skipped then 'S'
         when :failure then 'F'
-        when :slow then    'S'
+        when :slow then    '_'
         else               '.'
         end
       end
