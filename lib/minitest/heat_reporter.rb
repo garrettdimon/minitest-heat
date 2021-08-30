@@ -80,8 +80,11 @@ module Minitest
       #   pressing issues are displayed at the bottom of the report in order to reduce scrolling.
       #   This way, as you fix issues, the list gets shorter, and eventually the least critical
       #   issues will be displayed without scrolling once more problematic issues are resolved.
-      results.slows.each { |issue| output.issue_details(issue) }
-      results.skips.each { |issue| output.issue_details(issue) }
+      if results.failures.empty? && results.brokens.empty? && results.errors.empty?
+        results.slows.each { |issue| output.issue_details(issue) }
+        results.skips.each { |issue| output.issue_details(issue) }
+      end
+
       results.failures.each { |issue| output.issue_details(issue) }
       results.brokens.each { |issue| output.issue_details(issue) }
       results.errors.each { |issue| output.issue_details(issue) }
