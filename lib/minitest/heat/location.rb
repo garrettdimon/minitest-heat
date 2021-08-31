@@ -37,7 +37,7 @@ module Minitest
       def source_file
         return test_file if backtrace.empty?
 
-        source_line = backtrace.final_project_location
+        source_line = backtrace.final_project_location || backtrace.final_location
 
         reduced_path("#{source_line.path}/#{source_line.file}")
       end
