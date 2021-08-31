@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    minitest-heat (0.0.3)
+    minitest-heat (0.0.4)
       minitest
 
 GEM
