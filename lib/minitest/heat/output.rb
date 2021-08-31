@@ -58,13 +58,12 @@ module Minitest
 
         def style_components
           {
-            success_bold: %i[bold green],
             success: %i[default green],
-            slow: %i[default green],
+            slow: %i[bold green],
             error: %i[bold red],
             broken: %i[bold red],
             failure: %i[default red],
-            skipped: %i[bold yellow],
+            skipped: %i[default yellow],
             warning_light: %i[light yellow],
             source: %i[italic default],
             bold: %i[bold default],
@@ -127,7 +126,6 @@ module Minitest
         when 'B' then text(:failure, value)
         when 'F' then text(:failure, value)
         when 'S' then text(:skipped, value)
-        when '_' then text(:success, value)
         else          text(:success, value)
         end
       end
@@ -165,7 +163,7 @@ module Minitest
           text(:broken, 'B' * values[:broken].size) if values[:broken]&.any?
           text(:failure, 'F' * values[:failure].size) if values[:failure]&.any?
           text(:skipped, 'S' * values[:skipped].size) if values[:skipped]&.any?
-          text(:muted, ' ')
+          text(:muted, ' ') if values[:error]&.any? || values[:broken]&.any? || values[:failure]&.any? || values[:skipped]&.any?
 
           text(:muted, "#{path.delete_prefix('/')}")
           text(:default, "#{filename}")

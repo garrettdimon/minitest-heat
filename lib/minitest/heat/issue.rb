@@ -8,7 +8,20 @@ module Minitest
     class Issue
       extend Forwardable
 
-      SLOW_THRESHOLD = 0.5
+      SLOW_THRESHOLDS = {
+        slow: 1.0,
+        painful: 3.0
+      }
+
+      MARKERS = {
+        success:  '·',
+        slow:     '–',
+        painful:  '—',
+        broken:   'B',
+        error:    'E',
+        skipped:  'S',
+        failure:  'F',
+      }
 
       SHARED_SYMBOLS = {
         spacer: ' · ',
@@ -52,6 +65,8 @@ module Minitest
           :skipped
         elsif !passed?
           :failure
+        elsif painful?
+          :painful
         elsif slow?
           :slow
         else
@@ -59,8 +74,16 @@ module Minitest
         end
       end
 
+      def hit?
+        !passed? || slow?
+      end
+
       def slow?
-        time > SLOW_THRESHOLD
+        time >= SLOW_THRESHOLDS[:slow]
+      end
+
+      def painful?
+        time >= SLOW_THRESHOLDS[:painful]
       end
 
       def in_test?
@@ -111,14 +134,7 @@ module Minitest
       end
 
       def marker
-        case type
-        when :broken then  'B'
-        when :error then   'E'
-        when :skipped then 'S'
-        when :failure then 'F'
-        when :slow then    '_'
-        else               '.'
-        end
+        MARKERS.fetch(type.to_sym)
       end
 
       def summary

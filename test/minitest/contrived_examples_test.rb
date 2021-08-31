@@ -63,22 +63,22 @@ if ENV['FORCE_FAILURES']
     end
 
     def test_exposes_when_tests_are_slow
-      sleep 0.75
+      sleep Minitest::Heat::Issue::SLOW_THRESHOLDS[:slow] + 0.1
       assert true
     end
 
     def test_exposes_when_tests_are_very_slow
-      sleep 0.85
+      sleep Minitest::Heat::Issue::SLOW_THRESHOLDS[:sluggish] + 0.1
       assert true
     end
 
     def test_exposes_when_tests_are_top_three_slow
-      sleep 0.52
+      sleep Minitest::Heat::Issue::SLOW_THRESHOLDS[:painful] + 0.1
       assert true
     end
 
     def test_exposes_when_tests_are_slow_but_not_top_three
-      sleep 0.51
+      sleep Minitest::Heat::Issue::SLOW_THRESHOLDS[:slow] + 0.05
       assert true
     end
 

@@ -13,11 +13,12 @@ module Minitest
       #   test is broken (i.e. raising an exception), that's a special sort of failure that would be
       #   misleading. It doesn't represent a proper failure, but rather a test that doesn't work.
       WEIGHTS = {
-        error: 3,   # exceptions from source code have the highest liklihood of a ripple effect
-        broken: 1,  # broken tests won't have ripple effects but can't help if they can't run
-        failure: 1, # failures are kind of the whole point, and they could have ripple effects
-        skipped: 0, # skips aren't failures, but they shouldn't go ignored
-        slow: 0     # slow tests aren't failures, but they shouldn't be ignored
+        error: 3,    # exceptions from source code have the highest liklihood of a ripple effect
+        broken: 1,   # broken tests won't have ripple effects but can't help if they can't run
+        failure: 1,  # failures are kind of the whole point, and they could have ripple effects
+        skipped: 0,  # skips aren't failures, but they shouldn't go ignored
+        painful: 0,  # slow tests aren't failures, but they shouldn't be ignored
+        slow: 0,
       }
 
       def initialize
@@ -46,7 +47,7 @@ module Minitest
         files = {}
         @hits.each_pair do |filename, details|
           # Can't really be a "hot spot" with just a single issue
-          next unless details[:total] > 1
+          next unless details[:weight] > 1
 
           files[filename] = details[:weight]
         end
