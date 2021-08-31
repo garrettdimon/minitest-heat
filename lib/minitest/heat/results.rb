@@ -49,8 +49,8 @@ module Minitest
         (assertion_count / total_time).round(2)
       end
 
-      def issues?
-        errors? || failures? || skips?
+      def problems?
+        errors? || brokens? || failures? || skips?
       end
 
       def errors
@@ -93,19 +93,13 @@ module Minitest
         skips.any?
       end
 
-      def count(result)
+      def record(issue)
         @test_count += 1
-        @assertion_count += result.assertions
-        @success_count += 1 if result.passed?
-      end
-
-      def record_issue(result)
-        issue = Heat::Issue.new(result)
+        @assertion_count += issue.result.assertions
+        @success_count += 1 if issue.result.passed?
 
         @issues[issue.type] ||= []
         @issues[issue.type] << issue
-
-        issue
       end
     end
   end

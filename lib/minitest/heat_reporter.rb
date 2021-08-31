@@ -59,14 +59,13 @@ module Minitest
     # Minitest::Result source:
     #   https://github.com/seattlerb/minitest/blob/f4f57afaeb3a11bd0b86ab0757704cb78db96cf4/lib/minitest.rb#L504
     def record(result)
-      @results.count(result)
-      if !result.passed? || result.time > ::Minitest::Heat::Issue::SLOW_THRESHOLD
-        issue = @results.record_issue(result)
-        @map.add(*issue.to_hit)
-        output.marker(issue.marker)
-      else
-        output.marker(result.result_code)
-      end
+      issue = Heat::Issue.new(result)
+
+      @results.record(issue)
+
+      @map.add(*issue.to_hit) if issue.hit?
+
+      output.marker(issue.marker)
     end
 
     # Outputs the summary of the run.
