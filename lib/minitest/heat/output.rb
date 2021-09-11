@@ -1,5 +1,12 @@
 # frozen_string_literal: true
 
+require_relative 'output/backtrace'
+require_relative 'output/issue'
+require_relative 'output/location'
+require_relative 'output/map'
+require_relative 'output/results'
+require_relative 'output/source_code'
+
 module Minitest
   module Heat
     # Friendly API for printing nicely-formatted output to the console
@@ -60,6 +67,7 @@ module Minitest
           {
             success: %i[default green],
             slow: %i[bold green],
+            painful: %i[bold green],
             error: %i[bold red],
             broken: %i[bold red],            failure: %i[default red],
             skipped: %i[default yellow],
@@ -150,7 +158,6 @@ module Minitest
       end
 
       def heat_map(map)
-        # text(:default, "🔥 Hot Spots 🔥\n")
         map.files.each do |file|
           file = file[0]
           values = map.hits[file]
@@ -158,11 +165,17 @@ module Minitest
           filename = file.split('/').last
           path = file.delete_suffix(filename)
 
-          text(:error, 'E' * values[:error].size) if values[:error]&.any?
-          text(:broken, 'B' * values[:broken].size) if values[:broken]&.any?
+          text(:error, 'E' * values[:error].size)     if values[:error]&.any?
+          text(:broken, 'B' * values[:broken].size)   if values[:broken]&.any?
           text(:failure, 'F' * values[:failure].size) if values[:failure]&.any?
-          text(:skipped, 'S' * values[:skipped].size) if values[:skipped]&.any?
-          text(:muted, ' ') if values[:error]&.any? || values[:broken]&.any? || values[:failure]&.any? || values[:skipped]&.any?
+
+          unless values[:error]&.any? || values[:broken]&.any? || values[:failure]&.any?
+            text(:skipped, 'S' * values[:skipped].size) if values[:skipped]&.any?
+            text(:painful, '—' * values[:painful].size) if values[:painful]&.any?
+            text(:slow, '–' * values[:slow].size)       if values[:slow]&.any?
+          end
+
+          text(:muted, ' ') if map.hits.any?
 
           text(:muted, "#{path.delete_prefix('/')}")
           text(:default, "#{filename}")

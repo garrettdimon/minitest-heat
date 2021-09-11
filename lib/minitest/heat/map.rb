@@ -47,7 +47,7 @@ module Minitest
         files = {}
         @hits.each_pair do |filename, details|
           # Can't really be a "hot spot" with just a single issue
-          next unless details[:weight] > 1
+          # next unless details[:weight] > 1
 
           files[filename] = details[:weight]
         end

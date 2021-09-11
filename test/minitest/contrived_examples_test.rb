@@ -40,10 +40,6 @@ if ENV['FORCE_FAILURES']
       flunk 'The test was explicitly flunked'
     end
 
-    def test_skips_the_test_because_its_not_ready
-      skip 'The test was explicitly skipped'
-    end
-
     def test_raises_an_exception_from_directly_in_a_test
       raise StandardError, 'Testing Errors Raised Directly from a Test'
     end
@@ -60,26 +56,6 @@ if ENV['FORCE_FAILURES']
 
     def test_raises_another_exception_from_a_different_location
       ::Minitest::Heat.raise_another_example_error
-    end
-
-    def test_exposes_when_tests_are_slow
-      sleep Minitest::Heat::Issue::SLOW_THRESHOLDS[:slow] + 0.1
-      assert true
-    end
-
-    def test_exposes_when_tests_are_very_slow
-      sleep Minitest::Heat::Issue::SLOW_THRESHOLDS[:sluggish] + 0.1
-      assert true
-    end
-
-    def test_exposes_when_tests_are_top_three_slow
-      sleep Minitest::Heat::Issue::SLOW_THRESHOLDS[:painful] + 0.1
-      assert true
-    end
-
-    def test_exposes_when_tests_are_slow_but_not_top_three
-      sleep Minitest::Heat::Issue::SLOW_THRESHOLDS[:slow] + 0.05
-      assert true
     end
 
     private
