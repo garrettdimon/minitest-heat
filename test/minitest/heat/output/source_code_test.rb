@@ -9,12 +9,12 @@ class Minitest::Heat::Output::SourceCodeTest < Minitest::Test
     @source_code = ::Minitest::Heat::Output::SourceCode.new(@filename, @line_number)
   end
 
-  def test_knows_max_line_number_length
+  def test_knows_max_line_number_digits
     @source_code = ::Minitest::Heat::Output::SourceCode.new(@filename, 3)
-    assert_equal 1, @source_code.max_line_number_length
+    assert_equal 1, @source_code.max_line_number_digits
 
     @source_code = ::Minitest::Heat::Output::SourceCode.new(@filename, 10)
-    assert_equal 2, @source_code.max_line_number_length
+    assert_equal 2, @source_code.max_line_number_digits
   end
 
   def test_defaults_to_three_lines_of_code
