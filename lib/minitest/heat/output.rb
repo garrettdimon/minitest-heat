@@ -6,80 +6,12 @@ require_relative 'output/location'
 require_relative 'output/map'
 require_relative 'output/results'
 require_relative 'output/source_code'
+require_relative 'output/token'
 
 module Minitest
   module Heat
     # Friendly API for printing nicely-formatted output to the console
     class Output
-      ESC = "\e["
-
-      Token = Struct.new(:style, :content) do
-        def to_s
-          [
-            style_string,
-            content,
-            reset_string
-          ].join
-        end
-
-        private
-
-        def style_string
-          "#{ESC}#{weight};#{color}m"
-        end
-
-        def reset_string
-          "#{ESC}0m"
-        end
-
-        def weight_key
-          style_components[0]
-        end
-
-        def color_key
-          style_components[1]
-        end
-
-        def weight
-          {
-            default: 0,
-            bold: 1,
-            light: 2,
-            italic: 3
-          }.fetch(weight_key)
-        end
-
-        def color
-          {
-            black: 30,
-            red: 31,
-            green: 32,
-            yellow: 33,
-            blue: 34,
-            magenta: 35,
-            cyan: 36,
-            gray: 37,
-            default: 39
-          }.fetch(color_key)
-        end
-
-        def style_components
-          {
-            success: %i[default green],
-            slow: %i[bold green],
-            painful: %i[bold green],
-            error: %i[bold red],
-            broken: %i[bold red],            failure: %i[default red],
-            skipped: %i[default yellow],
-            warning_light: %i[light yellow],
-            source: %i[italic default],
-            bold: %i[bold default],
-            default: %i[default default],
-            muted: %i[light gray]
-          }.fetch(style)
-        end
-      end
-
       FORMATTERS = {
         error: [
           [ %i[error label], %i[muted arrow], %i[default test_name] ],
@@ -242,6 +174,13 @@ module Minitest
         end
       end
 
+      # def source_summary_new(issue)
+      #   # Don't show source code if it's not part of the project
+      #   return unless issue.location.local?
+
+      #   SourceCode.new(issue.location.project_file, issue.location.project_failure_line).print
+      # end
+
       def source_summary(issue)
         filename = issue.location.project_file
         line_number = issue.location.project_failure_line
@@ -279,9 +218,11 @@ module Minitest
       end
 
       def text(style, content)
-        formatted_content = style_enabled? ? Token.new(style, content).to_s : content
+        token = Token.new(style, content)
 
-        print formatted_content
+        token_format = style_enabled? ? :styled : :unstyled
+
+        print token.to_s(token_format)
       end
     end
   end

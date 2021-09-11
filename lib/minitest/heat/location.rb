@@ -29,6 +29,10 @@ module Minitest
         "#{most_relevant_file}:#{most_relevant_failure_line}"
       end
 
+      def local?
+        broken_test? || proper_failure?
+      end
+
       # Knows if the failure is contained within the test. For example, if there's bad code in a
       #   test, and it raises an exception, then it's really a broken test rather than a proper
       #   faiure.
