@@ -10,7 +10,7 @@ module Minitest
           @issue = issue
         end
 
-        def print
+        def tokens
         end
       end
     end

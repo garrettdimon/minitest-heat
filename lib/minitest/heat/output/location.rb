@@ -10,7 +10,7 @@ module Minitest
           @location = location
         end
 
-        def print
+        def tokens
         end
 
         private

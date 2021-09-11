@@ -10,7 +10,7 @@ module Minitest
           @results = results
         end
 
-        def print
+        def tokens
         end
 
         private

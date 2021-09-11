@@ -10,7 +10,7 @@ module Minitest
           @map = map
         end
 
-        def print
+        def tokens
         end
 
         private

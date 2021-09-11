@@ -3,6 +3,7 @@
 module Minitest
   module Heat
     class Output
+      # Builds the collection of tokens representing a specific set of source code lines
       class SourceCode
         DEFAULT_LINE_COUNT = 3
         DEFAULT_INDENTATION_SPACES = 2
