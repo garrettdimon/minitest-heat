@@ -6,11 +6,15 @@ module Minitest
     class Backtrace
       Line = Struct.new(:path, :file, :number, :container, :mtime, keyword_init: true) do
         def to_s
-          "#{path}/#{file}:#{line} in `#{container}` #{age_in_seconds}"
+          "#{to_location} in `#{container}`"
         end
 
         def to_file
           "#{path}/#{file}"
+        end
+
+        def to_location
+          "#{to_file}:#{number}"
         end
 
         def age_in_seconds
@@ -29,37 +33,45 @@ module Minitest
       end
 
       def final_location
-        parsed.first
+        parsed_lines.first
       end
 
       def final_project_location
-        project.first
-      end
-
-      def final_test_location
-        tests.first
+        project_lines.first
       end
 
       def freshest_project_location
-        recently_modified.first
+        recently_modified_lines.first
       end
 
-      def project
-        @project ||= parsed.select { |line| line[:path].include?(Dir.pwd) }
+      def final_source_code_location
+        source_code_lines.first
       end
 
-      def tests
-        @tests ||= project.select { |line| test_file?(line) }
+      def final_test_location
+        test_lines.first
       end
 
-      def recently_modified
-        @recently_modified ||= project.sort_by { |line| line[:mtime] }.reverse
+      def project_lines
+        @project_lines ||= parsed_lines.select { |line| line[:path].include?(Dir.pwd) }
       end
 
-      def parsed
+      def recently_modified_lines
+        @recently_modified_lines ||= project_lines.sort_by { |line| line[:mtime] }.reverse
+      end
+
+      def test_lines
+        @tests_lines ||= project_lines.select { |line| test_file?(line) }
+      end
+
+      def source_code_lines
+        @source_code_lines ||= project_lines - test_lines
+      end
+
+      def parsed_lines
         return [] if raw_backtrace.nil?
 
-        @parsed ||= raw_backtrace.map { |line| parse(line) }
+        @parsed_lines ||= raw_backtrace.map { |line| parse(line) }
       end
 
       private

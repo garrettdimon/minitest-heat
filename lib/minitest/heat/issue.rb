@@ -42,8 +42,8 @@ module Minitest
 
       def to_hit
         [
-          location.source_file,
-          location.source_failure_line,
+          location.source_code_file,
+          location.source_code_failure_line,
           type
         ]
       end
@@ -87,11 +87,11 @@ module Minitest
       end
 
       def in_test?
-        location.failure_in_test?
+        location.broken_test?
       end
 
       def in_source?
-        location.failure_in_source?
+        location.proper_failure?
       end
 
       def test_class

@@ -92,8 +92,7 @@ module Minitest
       results.errors.each { |issue| output.issue_details(issue) }
 
       output.compact_summary(results)
-
-      output.heat_map(map)
+      # output.heat_map(map)
     end
 
     # Did this run pass?

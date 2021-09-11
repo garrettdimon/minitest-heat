@@ -18,7 +18,10 @@ class Minitest::Heat::LocationTest < Minitest::Test
 
   def test_can_be_initialized_without_backtrace
     location = Minitest::Heat::Location.new(@test_location)
-    refute_nil location.source_file
+    assert_nil location.source_code_file
+    refute_nil location.project_file
+    refute_nil location.test_file
+    refute_nil location.final_file
   end
 
   def test_knows_test_file_and_lines
@@ -27,13 +30,13 @@ class Minitest::Heat::LocationTest < Minitest::Test
     assert_equal '27', @location.test_failure_line
   end
 
-  def test_knows_source_file_and_line
-    assert_equal '/lib/minitest/heat.rb', @location.source_file
-    assert_equal '29', @location.source_failure_line
+  def test_knows_source_code_file_and_line
+    assert_equal '/lib/minitest/heat.rb', @location.source_code_file
+    assert_equal '29', @location.source_code_failure_line
   end
 
   def test_knows_when_problem_is_in_source
-    assert @location.failure_in_source?
+    assert @location.proper_failure?
   end
 
   def test_knows_when_problem_is_in_test
@@ -41,6 +44,27 @@ class Minitest::Heat::LocationTest < Minitest::Test
     @raw_backtrace.shift
     @location = Minitest::Heat::Location.new(@test_location, @raw_backtrace)
 
-    assert @location.failure_in_test?
+    assert @location.broken_test?
+  end
+
+  def test_backtrace_without_source_code_lines
+    # Remove the project source line so the test is the last location
+    @raw_backtrace.shift
+    assert_nil @location.source_code_file
+    refute_nil @location.project_file
+    refute_nil @location.test_file
+    refute_nil @location.final_file
+  end
+
+  def test_backtrace_without_source_or_test_lines
+    # Remove the project source line so the test is the last location
+    @raw_backtrace.shift
+
+    # Remove the project test line so an external file is the last location
+    @raw_backtrace.shift
+
+    assert_nil @location.source_code_file
+    refute_nil @location.test_file
+    refute_nil @location.final_file
   end
 end

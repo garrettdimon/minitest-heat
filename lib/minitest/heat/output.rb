@@ -61,8 +61,7 @@ module Minitest
             success: %i[default green],
             slow: %i[bold green],
             error: %i[bold red],
-            broken: %i[bold red],
-            failure: %i[default red],
+            broken: %i[bold red],            failure: %i[default red],
             skipped: %i[default yellow],
             warning_light: %i[light yellow],
             source: %i[italic default],
@@ -214,7 +213,7 @@ module Minitest
       end
 
       def backtrace_summary(issue)
-        backtrace_lines = issue.backtrace.project
+        backtrace_lines = issue.backtrace.project_lines
 
         backtrace_line = backtrace_lines.first
         filename = "#{backtrace_line.path.delete_prefix(Dir.pwd)}/#{backtrace_line.file}"
@@ -231,8 +230,8 @@ module Minitest
       end
 
       def source_summary(issue)
-        filename = issue.location.source_file
-        line_number = issue.location.source_failure_line
+        filename = issue.location.project_file
+        line_number = issue.location.project_failure_line
 
         source = Minitest::Heat::Source.new(filename, line_number: line_number, max_line_count: 3)
         show_source(source, highlight_line: true, indentation: 2)
