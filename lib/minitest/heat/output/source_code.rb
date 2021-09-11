@@ -8,29 +8,16 @@ module Minitest
         DEFAULT_INDENTATION_SPACES = 2
         HIGHLIGHT_KEY_LINE = true
 
-        attr_reader :filename, :line_number
+        attr_reader :filename, :line_number, :max_line_count
 
-        def initialize(filename, line_number)
+        def initialize(filename, line_number, max_line_count: DEFAULT_LINE_COUNT)
           @filename = filename
           @line_number = line_number
+          @max_line_count = max_line_count
           @tokens = []
         end
 
-        def print
-          show_source
-        end
-
-        private
-
-        def source
-          @source ||= Minitest::Heat::Source.new(
-            filename,
-            line_number: line_number,
-            max_line_count: DEFAULT_LINE_COUNT
-          )
-        end
-
-        def show_source
+        def tokens
           source.lines.each_index do |i|
             current_line_number  = source.line_numbers[i]
             current_line_of_code = source.lines[i]
@@ -42,6 +29,7 @@ module Minitest
               line_of_code_token(line_style, current_line_of_code)
             ]
           end
+          @tokens
         end
 
         def max_line_number_length
@@ -58,6 +46,16 @@ module Minitest
 
         def indentation
           DEFAULT_INDENTATION_SPACES
+        end
+
+        private
+
+        def source
+          @source ||= Minitest::Heat::Source.new(
+            filename,
+            line_number: line_number,
+            max_line_count: max_line_count
+          )
         end
 
         def styles_for(line_of_code)

@@ -72,7 +72,7 @@ module Minitest
       #
       # @return [String] the relative path to the file from the project root
       def final_file
-        final_location[0]
+        reduced_path(final_location[0])
       end
 
       # The line number of the `final_file` where the failure originated
@@ -135,8 +135,6 @@ module Minitest
         backtrace.final_test_location.number
       end
 
-      private
-
       # The line number from within the `test_file` test definition where the failure occurred
       #
       # @return [Location] the last location from the backtrace or the test location if a backtrace
@@ -159,6 +157,10 @@ module Minitest
         ].compact.first
       end
 
+      def project_location
+        source_code_location || test_location
+      end
+
       def source_code_location
         backtrace.final_source_code_location
       end
@@ -166,6 +168,8 @@ module Minitest
       def backtrace?
         backtrace.parsed_lines.any?
       end
+
+      private
 
       def reduced_path(path)
         path.delete_prefix(Dir.pwd)

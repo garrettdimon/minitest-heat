@@ -164,7 +164,7 @@ module Minitest
         filename = "#{backtrace_line.path.delete_prefix(Dir.pwd)}/#{backtrace_line.file}"
 
         backtrace_lines.take(3).each do |line|
-          source = Minitest::Heat::Source.new(filename, line_number: line.number, max_line_count: 1)
+          source = Minitest::Heat::Source.new("#{backtrace_line.path}/#{backtrace_line.file}", line_number: line.number, max_line_count: 1)
 
           text(:muted, "  #{line.path.delete_prefix("#{Dir.pwd}/")}/")
           text(:muted, "#{line.file}:#{line.number}")
@@ -185,7 +185,7 @@ module Minitest
         filename = issue.location.project_file
         line_number = issue.location.project_failure_line
 
-        source = Minitest::Heat::Source.new(filename, line_number: line_number, max_line_count: 3)
+        source = Minitest::Heat::Source.new("#{Dir.pwd}#{filename}", line_number: line_number, max_line_count: 3)
         show_source(source, highlight_line: true, indentation: 2)
       end
 

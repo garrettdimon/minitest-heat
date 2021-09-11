@@ -37,6 +37,11 @@ module Minitest
           ].join
         end
 
+        def eql?(other)
+          style_key == other.style_key &&  content == other.content
+        end
+        alias :== eql?
+
         private
 
         ESC_SEQUENCE = "\e["

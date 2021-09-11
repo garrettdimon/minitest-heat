@@ -22,4 +22,25 @@ class Minitest::Heat::Output::TokenTest < Minitest::Test
       token.to_s
     end
   end
+
+  def test_considers_tokens_equivalent_with_same_style_and_content
+    token = ::Minitest::Heat::Output::Token.new(:success, 'Success')
+    other_token = ::Minitest::Heat::Output::Token.new(:success, 'Success')
+
+    assert_equal token, other_token
+  end
+
+  def test_considers_tokens_different_with_different_styles
+    token = ::Minitest::Heat::Output::Token.new(:success, 'Success')
+    other_token = ::Minitest::Heat::Output::Token.new(:failure, 'Success')
+
+    refute_equal token, other_token
+  end
+
+  def test_considers_tokens_different_with_different_content
+    token = ::Minitest::Heat::Output::Token.new(:success, 'Success')
+    other_token = ::Minitest::Heat::Output::Token.new(:success, 'Failure')
+
+    refute_equal token, other_token
+  end
 end

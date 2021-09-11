@@ -51,7 +51,7 @@ module Minitest
       #
       # @return [type] [description]
       def file_lines
-        @raw_lines ||= File.readlines("#{Dir.pwd}#{filename}", chomp: true)
+        @raw_lines ||= File.readlines(filename, chomp: true)
         @raw_lines.pop while @raw_lines.last.strip.empty?
 
         @raw_lines
