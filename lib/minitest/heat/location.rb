@@ -172,7 +172,9 @@ module Minitest
       private
 
       def reduced_path(path)
-        path.delete_prefix(Dir.pwd)
+        # path.delete_prefix(Dir.pwd)
+
+        path
       end
     end
   end

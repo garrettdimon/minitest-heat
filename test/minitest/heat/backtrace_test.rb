@@ -4,15 +4,19 @@ require 'test_helper'
 
 class Minitest::Heat::BacktraceTest < Minitest::Test
   def setup
-    @source_code_line = "#{Dir.pwd}/lib/minitest/heat.rb:29:in `method_name'"
-    @test_line = "#{Dir.pwd}/test/minitest/heat_test.rb:27:in `other_method_name'"
+    project_dir = Dir.pwd
+    gem_dir = Gem.dir
+
+
+    @source_code_line = "#{project_dir}/lib/minitest/heat.rb:29:in `method_name'"
+    @test_line = "#{project_dir}/test/minitest/heat_test.rb:27:in `other_method_name'"
 
     @raw_backtrace = [
       @source_code_line,
       @test_line,
-      "#{Gem.dir}/gems/minitest-5.14.4/lib/minitest/test.rb:98:in `block (3 levels) in run'",
-      "#{Gem.dir}/gems/minitest-5.14.4/lib/minitest/test.rb:195:in `capture_exceptions'",
-      "#{Gem.dir}/gems/minitest-5.14.4/lib/minitest/test.rb:95:in `block (2 levels) in run'"
+      "#{gem_dir}/gems/minitest-5.14.4/lib/minitest/test.rb:98:in `block (3 levels) in run'",
+      "#{gem_dir}/gems/minitest-5.14.4/lib/minitest/test.rb:195:in `capture_exceptions'",
+      "#{gem_dir}/gems/minitest-5.14.4/lib/minitest/test.rb:95:in `block (2 levels) in run'"
     ]
     @key_file = @raw_backtrace.first.split(':').first
 

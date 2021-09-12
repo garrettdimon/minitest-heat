@@ -4,13 +4,16 @@ require 'test_helper'
 
 class Minitest::Heat::LocationTest < Minitest::Test
   def setup
-    @test_location = ["#{Dir.pwd}/test/minitest/heat_test.rb", 23]
+    project_dir = Dir.pwd
+    gem_dir = Gem.dir
+
+    @test_location = ["#{project_dir}/test/minitest/heat_test.rb", 23]
     @raw_backtrace = [
-      "#{Dir.pwd}/lib/minitest/heat.rb:29:in `method_name'",
-      "#{Dir.pwd}/test/minitest/heat_test.rb:27:in `other_method_name'",
-      "#{Gem.dir}/gems/minitest-5.14.4/lib/minitest/test.rb:98:in `block (3 levels) in run'",
-      "#{Gem.dir}/gems/minitest-5.14.4/lib/minitest/test.rb:195:in `capture_exceptions'",
-      "#{Gem.dir}/gems/minitest-5.14.4/lib/minitest/test.rb:95:in `block (2 levels) in run'"
+      "#{project_dir}/lib/minitest/heat.rb:29:in `method_name'",
+      "#{project_dir}/test/minitest/heat_test.rb:27:in `other_method_name'",
+      "#{gem_dir}/gems/minitest-5.14.4/lib/minitest/test.rb:98:in `block (3 levels) in run'",
+      "#{gem_dir}/gems/minitest-5.14.4/lib/minitest/test.rb:195:in `capture_exceptions'",
+      "#{gem_dir}/gems/minitest-5.14.4/lib/minitest/test.rb:95:in `block (2 levels) in run'"
     ]
 
     @location = Minitest::Heat::Location.new(@test_location, @raw_backtrace)

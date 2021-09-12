@@ -13,41 +13,89 @@ module Minitest
         def initialize(location)
           @location = location
           @backtrace = location.backtrace
+          @tokens = []
         end
 
         def tokens
+          # There could be option to expand and display more than one line of source code for the
+          # final backtrace line if it might be relevant/helpful?
+
+          # Iterate over the selected lines from the backtrace
+          backtrace_lines.each do |backtrace_line|
+            # Get the source code for the line from the backtrace
+            source_code = source_code_for(backtrace_line)
+
+            @tokens << [
+              indentation_token,
+              path_token(backtrace_line),
+              file_and_line_number_token(backtrace_line),
+              source_code_line_token(source_code)
+            ]
+          end
+
+          @tokens
+        end
+
+        def line_count
+          DEFAULT_LINE_COUNT
+        end
+
+        # This should probably be smart about what lines are displayed in a backtrace.
+        # Maybe...
+        # ...it could intelligently display the full back trace?
+        # ...only the backtrace from the first/last line of project source?
+        # ...it behaves a little different when it's a broken test vs. a true exception?
+        # ...it could be smart about subtly flagging the lines that show up in the heat map frequently?
+        # ...it could be influenced by a "compact" or "robust" reporter super-style?
+        # ...it's smart about exceptions that were raised outside of the project?
+        # ...it's smart about highlighting lines of code differently based on whether it's source code, test code, or external code?
+        def backtrace_lines
+          all_lines
         end
 
         private
 
-
-        def lines
-          # This should probably be smart about what lines are displayed in a backtrace.
-          # - Does it display a full back trace?
-          # - Maybe only the backtrace from the first/last line of projet source?
-          # - Maybe it behaves a little different when it's a broken test vs. a true exception?
-          # - Maybe it could be smart about subtly flagging the lines that show up in the heat map frequently?
-          # - Maybe it could be influenced by a "compact" or "robust" reporter super-style?
-          # - Maybe it's smart about exceptions that were raised outside of the project?
-          # - Maybe it's smart about highlighting lines of code differently based on whether it's source code, test code, or external code?
+        def project_lines
+          backtrace.project_lines.take(line_count)
         end
 
-        # def something
-        #   backtrace_lines = issue.backtrace.project_lines
+        def all_lines
+          backtrace.parsed_lines.take(line_count)
+        end
 
-        #   backtrace_line = backtrace_lines.first
-        #   filename = "#{backtrace_line.path.delete_prefix(Dir.pwd)}/#{backtrace_line.file}"
+        def source_code_for(line)
+          filename = "#{line.path}/#{line.file}"
 
-        #   backtrace_lines.take(3).each do |line|
-        #     source = Minitest::Heat::Source.new("#{backtrace_line.path}/#{backtrace_line.file}", line_number: line.number, max_line_count: 1)
+          Minitest::Heat::Source.new(filename, line_number: line.number, max_line_count: 1)
+        end
 
-        #     text(:muted, "  #{line.path.delete_prefix("#{Dir.pwd}/")}/")
-        #     text(:muted, "#{line.file}:#{line.number}")
-        #     text(:source, " `#{source.line.strip}`")
+        def indentation_token
+          [:default, ' ' * indentation]
+        end
 
-        #     newline
-        #   end
-        # end
+        def path_token(line)
+          [:muted, "#{line.path}/"]
+        end
+
+        def file_and_line_number_token(backtrace_line)
+          [:muted, backtrace_line.to_location]
+        end
+
+        def source_code_line_token(source_code)
+          [:source, " `#{source_code.line.strip}`"]
+        end
+
+        # The number of spaces each line of code should be indented. Currently defaults to 2 in
+        #   order to provide visual separation between test failures, but in the future, it could
+        #   be configurable in order to save horizontal space and create more compact output. For
+        #   example, it could be smart based on line length and total available horizontal terminal
+        #   space, or there could be higher-level "display" setting that could have a `:compact`
+        #   option that would reduce the space used.
+        #
+        # @return [type] [description]
+        def indentation
+          DEFAULT_INDENTATION_SPACES
+        end
       end
     end
   end

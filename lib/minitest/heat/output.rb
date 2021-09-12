@@ -158,52 +158,33 @@ module Minitest
       end
 
       def backtrace_summary(issue)
-        backtrace_lines = issue.backtrace.project_lines
+        # backtrace_lines = issue.backtrace.project_lines
 
-        backtrace_line = backtrace_lines.first
-        filename = "#{backtrace_line.path.delete_prefix(Dir.pwd)}/#{backtrace_line.file}"
+        # backtrace_line = backtrace_lines.first
+        # filename = "#{backtrace_line.path.delete_prefix(Dir.pwd)}/#{backtrace_line.file}"
 
-        backtrace_lines.take(3).each do |line|
-          source = Minitest::Heat::Source.new("#{backtrace_line.path}/#{backtrace_line.file}", line_number: line.number, max_line_count: 1)
+        # backtrace_lines.take(3).each do |line|
+        #   source = Minitest::Heat::Source.new("#{backtrace_line.path}/#{backtrace_line.file}", line_number: line.number, max_line_count: 1)
 
-          text(:muted, "  #{line.path.delete_prefix("#{Dir.pwd}/")}/")
-          text(:muted, "#{line.file}:#{line.number}")
-          text(:source, " `#{source.line.strip}`")
+        #   text(:muted, "  #{line.path.delete_prefix("#{Dir.pwd}/")}/")
+        #   text(:muted, "#{line.file}:#{line.number}")
+        #   text(:source, " `#{source.line.strip}`")
 
-          newline
-        end
+        #   newline
+        # end
+
+        backtrace_tokens = ::Minitest::Heat::Output::Backtrace.new(issue.location).tokens
+        pp backtrace_tokens.inspect
+        print_tokens(backtrace_tokens)
       end
-
-      # def source_summary_new(issue)
-      #   # Don't show source code if it's not part of the project
-      #   return unless issue.location.local?
-
-      #   SourceCode.new(issue.location.project_file, issue.location.project_failure_line).print
-      # end
 
       def source_summary(issue)
         filename = issue.location.project_file
         line_number = issue.location.project_failure_line
 
-        source = Minitest::Heat::Source.new("#{Dir.pwd}#{filename}", line_number: line_number, max_line_count: 3)
-        show_source(source, highlight_line: true, indentation: 2)
-      end
+        source_code_tokens = ::Minitest::Heat::Output::SourceCode.new(filename, line_number).tokens
 
-      def show_source(source, indentation: 0, highlight_line: false)
-        max_line_number_length = source.line_numbers.map(&:to_s).map(&:length).max
-        source.lines.each_index do |i|
-          line_number = source.line_numbers[i]
-          line = source.lines[i]
-
-          number_style, line_style = if line == source.line && highlight_line
-                                       [:default, :default]
-                                     else
-                                       [:muted, :muted]
-                                     end
-          text(number_style, "#{' ' * indentation}#{line_number.to_s.rjust(max_line_number_length)} ")
-          text(line_style, line)
-          puts
-        end
+        print_tokens(source_code_tokens)
       end
 
       def style_enabled?
@@ -223,6 +204,17 @@ module Minitest
         token_format = style_enabled? ? :styled : :unstyled
 
         print token.to_s(token_format)
+      end
+
+      def print_tokens(lines_of_tokens)
+        token_format = style_enabled? ? :styled : :unstyled
+
+        lines_of_tokens.each do |tokens|
+          tokens.each do |token|
+            print token.to_s(token_format)
+          end
+          newline
+        end
       end
     end
   end
