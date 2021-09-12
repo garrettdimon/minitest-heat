@@ -174,7 +174,7 @@ module Minitest
         # end
 
         backtrace_tokens = ::Minitest::Heat::Output::Backtrace.new(issue.location).tokens
-        pp backtrace_tokens.inspect
+        # pp backtrace_tokens.inspect
         print_tokens(backtrace_tokens)
       end
 
@@ -200,18 +200,17 @@ module Minitest
 
       def text(style, content)
         token = Token.new(style, content)
-
-        token_format = style_enabled? ? :styled : :unstyled
-
         print token.to_s(token_format)
       end
 
-      def print_tokens(lines_of_tokens)
-        token_format = style_enabled? ? :styled : :unstyled
+      def token_format
+        style_enabled? ? :styled : :unstyled
+      end
 
+      def print_tokens(lines_of_tokens)
         lines_of_tokens.each do |tokens|
           tokens.each do |token|
-            print token.to_s(token_format)
+            print Token.new(*token).to_s(token_format)
           end
           newline
         end

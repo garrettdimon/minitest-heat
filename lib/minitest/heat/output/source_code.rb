@@ -112,18 +112,18 @@ module Minitest
         # @param style [Symbol] the symbol representing the style for the line number token
         # @param line_number [Integer,String] the digits representing the line number
         #
-        # @return [Token] the style/content token for the current line number
+        # @return [Array] the style/content token for the current line number
         def line_number_token(style, line_number)
-          Output::Token.new(style, "#{' ' * indentation}#{line_number.to_s.rjust(max_line_number_digits)} ")
+          [style, "#{' ' * indentation}#{line_number.to_s.rjust(max_line_number_digits)} "]
         end
 
         # The token representing the content of a given line of code.
         # @param style [Symbol] the symbol representing the style for the line of code token
         # @param line_number [Integer,String] the content of the line of code
         #
-        # @return [Token] the style/content token for the current line of code
+        # @return [Array] the style/content token for the current line of code
         def line_of_code_token(style, line_of_code)
-          Output::Token.new(style, line_of_code)
+          [style, line_of_code]
         end
       end
     end

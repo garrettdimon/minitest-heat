@@ -4,16 +4,16 @@ require 'test_helper'
 
 class Minitest::Heat::LocationTest < Minitest::Test
   def setup
-    project_dir = Dir.pwd
-    gem_dir = Gem.dir
+    @project_dir = Dir.pwd
+    @gem_dir = Gem.dir
 
-    @test_location = ["#{project_dir}/test/minitest/heat_test.rb", 23]
+    @test_location = ["#{@project_dir}/test/minitest/heat_test.rb", 23]
     @raw_backtrace = [
-      "#{project_dir}/lib/minitest/heat.rb:29:in `method_name'",
-      "#{project_dir}/test/minitest/heat_test.rb:27:in `other_method_name'",
-      "#{gem_dir}/gems/minitest-5.14.4/lib/minitest/test.rb:98:in `block (3 levels) in run'",
-      "#{gem_dir}/gems/minitest-5.14.4/lib/minitest/test.rb:195:in `capture_exceptions'",
-      "#{gem_dir}/gems/minitest-5.14.4/lib/minitest/test.rb:95:in `block (2 levels) in run'"
+      "#{@project_dir}/lib/minitest/heat.rb:29:in `method_name'",
+      "#{@project_dir}/test/minitest/heat_test.rb:27:in `other_method_name'",
+      "#{@gem_dir}/gems/minitest-5.14.4/lib/minitest/test.rb:98:in `block (3 levels) in run'",
+      "#{@gem_dir}/gems/minitest-5.14.4/lib/minitest/test.rb:195:in `capture_exceptions'",
+      "#{@gem_dir}/gems/minitest-5.14.4/lib/minitest/test.rb:95:in `block (2 levels) in run'"
     ]
 
     @location = Minitest::Heat::Location.new(@test_location, @raw_backtrace)
@@ -28,13 +28,13 @@ class Minitest::Heat::LocationTest < Minitest::Test
   end
 
   def test_knows_test_file_and_lines
-    assert_equal '/test/minitest/heat_test.rb', @location.test_file
+    assert_equal "#{@project_dir}/test/minitest/heat_test.rb", @location.test_file
     assert_equal '23', @location.test_definition_line
     assert_equal '27', @location.test_failure_line
   end
 
   def test_knows_source_code_file_and_line
-    assert_equal '/lib/minitest/heat.rb', @location.source_code_file
+    assert_equal "#{@project_dir}/lib/minitest/heat.rb", @location.source_code_file
     assert_equal '29', @location.source_code_failure_line
   end
 

@@ -50,7 +50,7 @@ module Minitest
         # ...it's smart about exceptions that were raised outside of the project?
         # ...it's smart about highlighting lines of code differently based on whether it's source code, test code, or external code?
         def backtrace_lines
-          all_lines
+          project_lines
         end
 
         private
@@ -74,11 +74,11 @@ module Minitest
         end
 
         def path_token(line)
-          [:muted, "#{line.path}/"]
+          [:muted, "#{line.path.delete_prefix(Dir.pwd)}/"]
         end
 
         def file_and_line_number_token(backtrace_line)
-          [:muted, backtrace_line.to_location]
+          [:muted, "#{backtrace_line.file}:#{backtrace_line.number}"]
         end
 
         def source_code_line_token(source_code)
