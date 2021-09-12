@@ -58,7 +58,7 @@ module Minitest
       #
       # @return [String] the relative path to the file from the project root
       def most_relevant_file
-        most_relevant_location[0]
+        Pathname(most_relevant_location[0])
       end
 
       # The line number of the `most_relevant_file` where the failure originated
@@ -72,7 +72,7 @@ module Minitest
       #
       # @return [String] the relative path to the file from the project root
       def final_file
-        final_location[0]
+        Pathname(final_location[0])
       end
 
       # The line number of the `final_file` where the failure originated
@@ -102,7 +102,7 @@ module Minitest
       def source_code_file
         return nil unless backtrace.source_code_lines.any?
 
-        backtrace.final_source_code_location.pathname.to_s
+        backtrace.final_source_code_location.pathname
       end
 
       # The line number of the `source_code_file` where the failure originated
@@ -118,7 +118,7 @@ module Minitest
       #
       # @return [String, nil] the relative path to the file from the project root
       def test_file
-        test_location[0]
+        Pathname(test_location[0])
       end
 
       # The line number of the `test_file` where the test is defined

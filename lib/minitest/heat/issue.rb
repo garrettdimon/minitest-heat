@@ -42,7 +42,7 @@ module Minitest
 
       def to_hit
         [
-          location.most_relevant_file,
+          location.most_relevant_file.to_s,
           location.most_relevant_failure_line,
           type
         ]

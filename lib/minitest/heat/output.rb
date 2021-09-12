@@ -91,11 +91,13 @@ module Minitest
 
       def heat_map(map)
         map.files.each do |file|
-          file = file[0]
-          values = map.hits[file]
+          pathname = Pathname(file[0])
 
-          filename = file.split('/').last
-          path = file.delete_suffix(filename)
+          path = pathname.dirname.to_s
+          filename = pathname.basename.to_s
+
+          values = map.hits[pathname.to_s]
+
 
           text(:error, 'E' * values[:error].size)     if values[:error]&.any?
           text(:broken, 'B' * values[:broken].size)   if values[:broken]&.any?

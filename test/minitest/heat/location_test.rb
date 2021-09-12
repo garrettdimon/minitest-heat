@@ -28,13 +28,13 @@ class Minitest::Heat::LocationTest < Minitest::Test
   end
 
   def test_knows_test_file_and_lines
-    assert_equal "#{@project_dir}/test/minitest/heat_test.rb", @location.test_file
+    assert_equal Pathname("#{@project_dir}/test/minitest/heat_test.rb"), @location.test_file
     assert_equal '23', @location.test_definition_line
     assert_equal '27', @location.test_failure_line
   end
 
   def test_knows_source_code_file_and_line
-    assert_equal "#{@project_dir}/lib/minitest/heat.rb", @location.source_code_file
+    assert_equal Pathname("#{@project_dir}/lib/minitest/heat.rb"), @location.source_code_file
     assert_equal '29', @location.source_code_failure_line
   end
 
