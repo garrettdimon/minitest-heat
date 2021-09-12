@@ -74,7 +74,7 @@ module Minitest
         end
 
         def path_token(line)
-          [:muted, "#{line.path.delete_prefix(Dir.pwd)}/"]
+          [:muted, "#{line.path}/"]
         end
 
         def file_and_line_number_token(backtrace_line)

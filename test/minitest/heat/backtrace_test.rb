@@ -52,8 +52,9 @@ class Minitest::Heat::BacktraceTest < Minitest::Test
     )
 
     assert_match(/test\/minitest\/heat\/backtrace_test\.rb\:29 in `method_name`/, parsed_backtrace_line.to_s)
-    assert_match(/test\/minitest\/heat\/backtrace_test\.rb\:29/, parsed_backtrace_line.to_location)
-    assert_match(/test\/minitest\/heat\/backtrace_test\.rb/, parsed_backtrace_line.to_file)
+    assert_match(/test\/minitest\/heat\/backtrace_test\.rb\:29/, parsed_backtrace_line.location)
+    assert_match(/test\/minitest\/heat\/backtrace_test\.rb/, parsed_backtrace_line.pathname.to_s)
+    assert_match(/backtrace_test\.rb\:29/, parsed_backtrace_line.short_location)
   end
 
   def test_keeping_only_project_lines

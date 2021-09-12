@@ -6,15 +6,19 @@ module Minitest
     class Backtrace
       Line = Struct.new(:path, :file, :number, :container, :mtime, keyword_init: true) do
         def to_s
-          "#{to_location} in `#{container}`"
+          "#{location} in `#{container}`"
         end
 
-        def to_file
-          "#{path}/#{file}"
+        def pathname
+          Pathname("#{path}/#{file}")
         end
 
-        def to_location
-          "#{to_file}:#{number}"
+        def location
+          "#{pathname.to_s}:#{number}"
+        end
+
+        def short_location
+          "#{pathname.basename.to_s}:#{number}"
         end
 
         def age_in_seconds
