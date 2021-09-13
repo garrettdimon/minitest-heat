@@ -1,8 +1,9 @@
 # Minitest::Heat
+**Important:** As of September 13, 2021, Minitest::Heat is an early work-in-progress. It's usable, but it can still ocasionally be buggy as it takes shape.
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/minitest/heat`. To experiment with that code, run `bin/console` for an interactive prompt.
+Minitest::Heat aims to surface context around test failures to help you more efficiently identify and prioritize fixing failed tests to help save time.
 
-TODO: Delete this and the text above, and describe your gem
+For some early insight about priorities and how it works, this [Twitter thread](https://twitter.com/garrettdimon/status/1432703746526560266) is currently the best place to start.
 
 ## Installation
 
@@ -20,9 +21,17 @@ Or install it yourself as:
 
     $ gem install minitest-heat
 
+And add this line to your `test/test_helper.rb` file:
+
+```ruby
+require 'minitest/heat'
+```
+
 ## Usage
 
-TODO: Write usage instructions here
+**Important:** In its current state, `Minitest::Heat` replaces any other reporter plugins you may have. Long-term, it should play nicer with other reporters, but during the initial heavy development cycle, it's been easier to have a high confidence that other reporters aren't the source of unexpected behavior.
+
+Otherwise, once it's bundled and added to your `test_helper`, it shold "just work" whenever you run your test suite.
 
 ## Development
 
