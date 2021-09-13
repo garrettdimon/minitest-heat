@@ -93,6 +93,10 @@ module Minitest
         skips.any?
       end
 
+      def slows?
+        slows.any?
+      end
+
       def record(issue)
         @test_count += 1
         @assertion_count += issue.result.assertions

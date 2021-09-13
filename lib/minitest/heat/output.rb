@@ -26,7 +26,7 @@ module Minitest
         failure: [
           [ %i[failure label], %i[muted spacer], %i[default test_class], %i[muted arrow], %i[default test_name], %i[muted spacer], %i[muted class] ],
           [ %i[default summary] ],
-          [ %i[muted location], ],
+          [ %i[muted short_location], ],
           [ %i[default source_summary], ],
         ],
         skipped: [
@@ -111,8 +111,8 @@ module Minitest
 
           text(:muted, ' ') if map.hits.any?
 
-          text(:muted, "#{path.delete_prefix('/')}")
-          text(:default, "#{filename}")
+          text(:muted, "#{path.delete_prefix(Dir.pwd)}/")
+          text(:default, filename)
 
           text(:muted, ':')
 
@@ -127,29 +127,10 @@ module Minitest
       end
 
       def compact_summary(results)
-        error_count = results.errors.size
-        broken_count = results.brokens.size
-        failure_count = results.failures.size
-        slow_count = results.slows.size
-        skip_count = results.skips.size
-
-        counts = []
-        counts << pluralize(error_count, 'Error') if error_count.positive?
-        counts << pluralize(broken_count, 'Broken') if broken_count.positive?
-        counts << pluralize(failure_count, 'Failure') if failure_count.positive?
-        counts << pluralize(skip_count, 'Skip') if skip_count.positive?
-        counts << pluralize(slow_count, 'Slow') if slow_count.positive?
-        text(:default, counts.join(', '))
+        results_tokens = ::Minitest::Heat::Output::Results.new(results).tokens
 
         newline
-        text(:muted, "#{results.tests_per_second} tests/s and #{results.assertions_per_second} assertions/s ")
-
-        newline
-        text(:muted, pluralize(results.test_count, 'Test') + ' & ')
-        text(:muted, pluralize(results.assertion_count, 'Assertion'))
-        text(:muted, " in #{results.total_time.round(2)}s")
-
-        newline
+        print_tokens(results_tokens)
         newline
       end
 
@@ -160,32 +141,17 @@ module Minitest
       end
 
       def backtrace_summary(issue)
-        # backtrace_lines = issue.backtrace.project_lines
+        location = issue.location
 
-        # backtrace_line = backtrace_lines.first
-        # filename = "#{backtrace_line.path.delete_prefix(Dir.pwd)}/#{backtrace_line.file}"
-
-        # backtrace_lines.take(3).each do |line|
-        #   source = Minitest::Heat::Source.new("#{backtrace_line.path}/#{backtrace_line.file}", line_number: line.number, max_line_count: 1)
-
-        #   text(:muted, "  #{line.path.delete_prefix("#{Dir.pwd}/")}/")
-        #   text(:muted, "#{line.file}:#{line.number}")
-        #   text(:source, " `#{source.line.strip}`")
-
-        #   newline
-        # end
-
-        backtrace_tokens = ::Minitest::Heat::Output::Backtrace.new(issue.location).tokens
-        # pp backtrace_tokens.inspect
+        backtrace_tokens = ::Minitest::Heat::Output::Backtrace.new(location).tokens
         print_tokens(backtrace_tokens)
       end
 
       def source_summary(issue)
-        filename = issue.location.project_file
+        filename    = issue.location.project_file
         line_number = issue.location.project_failure_line
 
         source_code_tokens = ::Minitest::Heat::Output::SourceCode.new(filename, line_number).tokens
-
         print_tokens(source_code_tokens)
       end
 

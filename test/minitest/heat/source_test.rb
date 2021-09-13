@@ -9,6 +9,13 @@ class Minitest::Heat::SourceTest < Minitest::Test
     @file_lines = File.readlines(@filename, chomp: true)
   end
 
+  def test_fails_gracefully_when_it_cannot_read_a_file
+    @filename = "/file/does/not/exist.rb"
+    @source = Minitest::Heat::Source.new(@filename, line_number: 1)
+
+    assert_equal [], @source.file_lines
+  end
+
   def test_converts_to_hash
     @source.max_line_count = 1
     source_hash = {"5"=>"else"}

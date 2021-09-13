@@ -86,14 +86,14 @@ module Minitest
       #
       # @return [String] the relative path to the file from the project root
       def project_file
-        source_code_file || test_file
+        broken_test? ? test_file : source_code_file
       end
 
       # The line number of the `project_file` where the failure originated
       #
       # @return [Integer] line number
       def project_failure_line
-        source_code_failure_line || test_failure_line
+        broken_test? ? test_failure_line || test_definition_line : source_code_failure_line
       end
 
       # The final location from the stacktrace that is within the project directory
@@ -132,7 +132,7 @@ module Minitest
       #
       # @return [Integer] line number
       def test_failure_line
-        backtrace.final_test_location.number
+        backtrace.final_test_location&.number || test_definition_line
       end
 
       # The line number from within the `test_file` test definition where the failure occurred

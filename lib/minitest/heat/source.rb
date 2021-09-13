@@ -55,6 +55,11 @@ module Minitest
         @raw_lines.pop while @raw_lines.last.strip.empty?
 
         @raw_lines
+      rescue Errno::ENOENT => e
+        # Occasionally, for a variety of reasons, a file can't be read. In those cases, it's best to
+        # return no source code lines rather than have the test suite raise an error unrelated to
+        # the code being tested becaues that gets confusing.
+        []
       end
 
       private

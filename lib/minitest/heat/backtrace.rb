@@ -17,6 +17,10 @@ module Minitest
           "#{pathname.to_s}:#{number}"
         end
 
+        def short_pathname
+          pathname.delete_prefix(Dir.pwd)
+        end
+
         def short_location
           "#{pathname.basename.to_s}:#{number}"
         end

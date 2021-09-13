@@ -55,6 +55,14 @@ module Minitest
 
         private
 
+        def all_backtrace_lines_from_project?
+          backtrace_lines.all? { |line| line.path.include?(project_root_dir) }
+        end
+
+        def project_root_dir
+          Dir.pwd
+        end
+
         def project_lines
           backtrace.project_lines.take(line_count)
         end
@@ -74,15 +82,21 @@ module Minitest
         end
 
         def path_token(line)
-          [:muted, "#{line.path}/"]
+          path = "#{line.path}/"
+
+          # If all of the backtrace lines are from the project, no point in the added redundant
+          #  noise of showing the project root directory over and over again
+          path = path.delete_prefix(project_root_dir) if all_backtrace_lines_from_project?
+
+          [:muted, path]
         end
 
         def file_and_line_number_token(backtrace_line)
-          [:muted, "#{backtrace_line.file}:#{backtrace_line.number}"]
+          [:default, "#{backtrace_line.file}:#{backtrace_line.number}"]
         end
 
         def source_code_line_token(source_code)
-          [:source, " `#{source_code.line.strip}`"]
+          [:muted, " `#{source_code.line.strip}`"]
         end
 
         # The number of spaces each line of code should be indented. Currently defaults to 2 in
