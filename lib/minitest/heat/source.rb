@@ -51,10 +51,15 @@ module Minitest
       #
       # @return [type] [description]
       def file_lines
-        @raw_lines ||= File.readlines("#{Dir.pwd}#{filename}", chomp: true)
+        @raw_lines ||= File.readlines(filename, chomp: true)
         @raw_lines.pop while @raw_lines.last.strip.empty?
 
         @raw_lines
+      rescue Errno::ENOENT
+        # Occasionally, for a variety of reasons, a file can't be read. In those cases, it's best to
+        # return no source code lines rather than have the test suite raise an error unrelated to
+        # the code being tested becaues that gets confusing.
+        []
       end
 
       private

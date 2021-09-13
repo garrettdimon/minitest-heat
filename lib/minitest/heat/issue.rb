@@ -40,10 +40,14 @@ module Minitest
         @location = Location.new(result.source_location, @failure&.backtrace)
       end
 
+      def short_location
+        location.to_s.delete_prefix(Dir.pwd)
+      end
+
       def to_hit
         [
-          location.source_file,
-          location.source_failure_line,
+          location.project_file.to_s,
+          location.project_failure_line,
           type
         ]
       end
@@ -87,15 +91,15 @@ module Minitest
       end
 
       def in_test?
-        location.failure_in_test?
+        location.broken_test?
       end
 
       def in_source?
-        location.failure_in_source?
+        location.proper_failure?
       end
 
       def test_class
-        result.klass.delete_prefix('Minitest::')
+        result.klass
       end
 
       def test_identifier

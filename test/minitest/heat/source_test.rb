@@ -4,9 +4,16 @@ require 'test_helper'
 
 class Minitest::Heat::SourceTest < Minitest::Test
   def setup
-    @filename = '/test/files/source.rb'
+    @filename = "#{Dir.pwd}/test/files/source.rb"
     @source = Minitest::Heat::Source.new(@filename, line_number: 5)
-    @file_lines = File.readlines("#{Dir.pwd}#{@filename}", chomp: true)
+    @file_lines = File.readlines(@filename, chomp: true)
+  end
+
+  def test_fails_gracefully_when_it_cannot_read_a_file
+    @filename = "/file/does/not/exist.rb"
+    @source = Minitest::Heat::Source.new(@filename, line_number: 1)
+
+    assert_equal [], @source.file_lines
   end
 
   def test_converts_to_hash
@@ -16,7 +23,7 @@ class Minitest::Heat::SourceTest < Minitest::Test
   end
 
   def test_chomps_lines
-    raw_file_lines = File.readlines("#{Dir.pwd}#{@filename}", chomp: false)
+    raw_file_lines = File.readlines(@filename, chomp: false)
     assert_equal 14, raw_file_lines.length
     assert_equal 9, @source.file_lines.length
   end

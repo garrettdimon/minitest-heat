@@ -35,10 +35,4 @@ class Minitest::Heat::MapTest < Minitest::Test
     smallest_hit_count = files[2][1]
     assert largest_hit_count > smallest_hit_count
   end
-
-  def test_ignores_files_with_one_hit
-    @map.add(@filename, 1, :error)
-    refute_empty @map.hits
-    assert_empty @map.files
-  end
 end

@@ -62,7 +62,6 @@ module Minitest
       issue = Heat::Issue.new(result)
 
       @results.record(issue)
-
       @map.add(*issue.to_hit) if issue.hit?
 
       output.marker(issue.marker)
@@ -92,7 +91,6 @@ module Minitest
       results.errors.each { |issue| output.issue_details(issue) }
 
       output.compact_summary(results)
-
       output.heat_map(map)
     end
 
