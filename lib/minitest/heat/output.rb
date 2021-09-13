@@ -14,28 +14,28 @@ module Minitest
     class Output
       FORMATTERS = {
         error: [
-          [ %i[error label], %i[muted arrow], %i[default test_name] ],
-          [ %i[default summary], ],
+          [ %i[error label], %i[muted spacer], %i[default test_name] ],
+          [ %i[italicized summary], ],
           [ %i[default backtrace_summary] ],
         ],
         broken: [
-          [ %i[broken label], %i[muted spacer], %i[default test_class], %i[muted arrow], %i[default test_name] ],
-          [ %i[default summary], ],
+          [ %i[broken label], %i[muted spacer], %i[default test_name], %i[muted spacer], %i[muted test_class] ],
+          [ %i[italicized summary], ],
           [ %i[default backtrace_summary] ],
         ],
         failure: [
-          [ %i[failure label], %i[muted spacer], %i[default test_class], %i[muted arrow], %i[default test_name], %i[muted spacer], %i[muted class] ],
-          [ %i[default summary] ],
+          [ %i[failure label], %i[muted spacer], %i[default test_name], %i[muted spacer], %i[muted test_class] ],
+          [ %i[italicized summary] ],
           [ %i[muted short_location], ],
           [ %i[default source_summary], ],
         ],
         skipped: [
-          [ %i[skipped label], %i[muted spacer], %i[default test_class], %i[muted arrow], %i[default test_name] ],
-          [ %i[default summary] ],
+          [ %i[skipped label], %i[muted spacer], %i[default test_name], %i[muted spacer], %i[muted test_class] ],
+          [ %i[italicized summary] ],
           [], # New Line
         ],
         slow: [
-          [ %i[slow label], %i[muted spacer], %i[default test_class], %i[muted arrow], %i[default test_name], %i[muted spacer], %i[muted class], ],
+          [ %i[slow label], %i[muted spacer], %i[default test_name], %i[muted spacer], %i[default test_class] ],
           [ %i[bold slowness], %i[muted spacer], %i[default location], ],
           [], # New Line
         ]
@@ -59,6 +59,9 @@ module Minitest
       end
       alias newline puts
 
+      # TOOD: Convert to output class
+      #       - This should likely live in the output/issue class
+      #       - Add a 'fail_fast' option that shows the issue as soon as the failure occurs
       def marker(value)
         case value
         when 'E' then text(:error, value)
@@ -69,6 +72,9 @@ module Minitest
         end
       end
 
+      # TOOD: Convert to output class
+      #       - This should likely live in the output/issue class
+      #       - There may be justification for creating different "strategies" for the various types
       def issue_details(issue)
         formatter = FORMATTERS[issue.type]
 
@@ -89,6 +95,7 @@ module Minitest
         end
       end
 
+      # TOOD: Convert to output class
       def heat_map(map)
         map.files.each do |file|
           pathname = Pathname(file[0])
@@ -126,18 +133,17 @@ module Minitest
         newline
       end
 
+      # TOOD: Convert to output class
+      def test_name_summary(issue)
+        text(:default, "#{issue.test_class} > #{issue.test_name}")
+      end
+
       def compact_summary(results)
         results_tokens = ::Minitest::Heat::Output::Results.new(results).tokens
 
         newline
         print_tokens(results_tokens)
         newline
-      end
-
-      private
-
-      def test_name_summary(issue)
-        text(:default, "#{issue.test_class} > #{issue.test_name}")
       end
 
       def backtrace_summary(issue)
@@ -155,15 +161,10 @@ module Minitest
         print_tokens(source_code_tokens)
       end
 
+      private
+
       def style_enabled?
         stream.tty?
-      end
-
-      def pluralize(count, singular)
-        singular_style = "#{count} #{singular}"
-
-        # Given the narrow scope, pluralization can be relatively naive here
-        count > 1 ? "#{singular_style}s" : singular_style
       end
 
       def text(style, content)

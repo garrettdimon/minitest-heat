@@ -99,7 +99,7 @@ module Minitest
       end
 
       def test_class
-        result.klass.delete_prefix('Minitest::')
+        result.klass
       end
 
       def test_identifier

@@ -25,12 +25,18 @@ module Minitest
             # Get the source code for the line from the backtrace
             source_code = source_code_for(backtrace_line)
 
-            @tokens << [
+            parts = [
               indentation_token,
               path_token(backtrace_line),
               file_and_line_number_token(backtrace_line),
               source_code_line_token(source_code)
             ]
+
+            parts << file_freshness(backtrace_line) if most_recently_modified?(backtrace_line)
+
+            @tokens << parts
+
+
           end
 
           @tokens
@@ -77,6 +83,11 @@ module Minitest
           Minitest::Heat::Source.new(filename, line_number: line.number, max_line_count: 1)
         end
 
+        def most_recently_modified?(line)
+          # If there's more than one line being displayed, and the current line is the freshest
+          backtrace_lines.size > 1 && line == backtrace.freshest_project_location
+        end
+
         def indentation_token
           [:default, ' ' * indentation]
         end
@@ -97,6 +108,10 @@ module Minitest
 
         def source_code_line_token(source_code)
           [:muted, " `#{source_code.line.strip}`"]
+        end
+
+        def file_freshness(line)
+          [:bold, " < Most Recently Modified"]
         end
 
         # The number of spaces each line of code should be indented. Currently defaults to 2 in

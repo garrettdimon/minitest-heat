@@ -98,7 +98,7 @@ module Minitest
         end
 
         def separator_token
-          [:muted, ', ']
+          [:muted, ' · ']
         end
       end
     end

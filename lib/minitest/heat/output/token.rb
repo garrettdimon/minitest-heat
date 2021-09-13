@@ -14,7 +14,7 @@ module Minitest
           failure:       %i[default red],
           skipped:       %i[default yellow],
           warning_light: %i[light yellow],
-          source:        %i[italic gray],
+          italicized:    %i[italic gray],
           bold:          %i[bold default],
           default:       %i[default default],
           muted:         %i[light gray]

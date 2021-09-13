@@ -30,6 +30,16 @@ module Minitest
         end
       end
 
+      UNREADABLE_FILE_ATTRIBUTES = {
+        path: '(Unknown Path)',
+        file: '(Unknown File)',
+        number: '(Unknown Line Number)',
+        container: '(Unknown Method)',
+        mtime: '(Unknown Modification Time)'
+      }
+
+      UNREADABLE_LINE = Line.new(UNREADABLE_FILE_ATTRIBUTES)
+
       attr_reader :raw_backtrace
 
       def initialize(raw_backtrace)
@@ -103,6 +113,8 @@ module Minitest
           container: reduce_container(parts[2]),
           mtime: pathname.exist? ? pathname.mtime : nil
         }
+      rescue
+        UNREADABLE_FILE_ATTRIBUTES
       end
 
       def test_file?(line)

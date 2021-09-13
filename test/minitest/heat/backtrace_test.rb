@@ -23,6 +23,13 @@ class Minitest::Heat::BacktraceTest < Minitest::Test
     @backtrace = Minitest::Heat::Backtrace.new(@raw_backtrace)
   end
 
+  def test_fails_gracefully_when_it_cannot_read_a_file
+    @raw_backtrace = ["/file/does/not/exist.rb"]
+    @backtrace = Minitest::Heat::Backtrace.new(@raw_backtrace)
+
+    assert_equal Minitest::Heat::Backtrace::UNREADABLE_LINE, @backtrace.parsed_lines.first
+  end
+
   def test_parsing
     parsed_backtrace_line = Minitest::Heat::Backtrace::Line.new(
       path: "#{Dir.pwd}/lib/minitest",
