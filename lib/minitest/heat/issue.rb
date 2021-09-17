@@ -8,6 +8,8 @@ module Minitest
     class Issue
       extend Forwardable
 
+      TYPES = %i[error broken failure skipped painful slow]
+
       SLOW_THRESHOLDS = {
         slow: 1.0,
         painful: 3.0

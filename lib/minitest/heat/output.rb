@@ -133,11 +133,6 @@ module Minitest
         newline
       end
 
-      # TOOD: Convert to output class
-      def test_name_summary(issue)
-        text(:default, "#{issue.test_class} > #{issue.test_name}")
-      end
-
       def compact_summary(results)
         results_tokens = ::Minitest::Heat::Output::Results.new(results).tokens
 

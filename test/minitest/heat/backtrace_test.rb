@@ -27,41 +27,16 @@ class Minitest::Heat::BacktraceTest < Minitest::Test
     @raw_backtrace = ["/file/does/not/exist.rb"]
     @backtrace = Minitest::Heat::Backtrace.new(@raw_backtrace)
 
-    assert_equal Minitest::Heat::Backtrace::UNREADABLE_LINE, @backtrace.parsed_lines.first
+    refute_nil @backtrace.parsed_lines.first
   end
 
-  def test_parsing
-    parsed_backtrace_line = Minitest::Heat::Backtrace::Line.new(
-      path: "#{Dir.pwd}/lib/minitest",
-      file: 'heat.rb',
-      number: '29',
-      container: 'method_name',
-      mtime: Pathname.new(@key_file).mtime
-    )
+  def test_parsing_backtrace_entries
+    backtrace_entry_string = "/dirname/basename.rb:5:in `<main>'"
+    entry = Minitest::Heat::Backtrace::Entry.new(backtrace_entry_string)
 
-    assert_equal parsed_backtrace_line, @backtrace.parsed_lines.first
-    assert_equal @backtrace.parsed_lines.first, @backtrace.final_location
-  end
-
-  def test_backtrace_line
-    file = __FILE__.split('/').last
-    path = __FILE__.delete_suffix("/#{file}")
-    number = '29'
-    container = 'method_name'
-    mtime = Pathname.new(@key_file).mtime
-
-    parsed_backtrace_line = Minitest::Heat::Backtrace::Line.new(
-      path: path,
-      file: file,
-      number: number,
-      container: container,
-      mtime: mtime
-    )
-
-    assert_match(/test\/minitest\/heat\/backtrace_test\.rb\:29 in `method_name`/, parsed_backtrace_line.to_s)
-    assert_match(/test\/minitest\/heat\/backtrace_test\.rb\:29/, parsed_backtrace_line.location)
-    assert_match(/test\/minitest\/heat\/backtrace_test\.rb/, parsed_backtrace_line.pathname.to_s)
-    assert_match(/backtrace_test\.rb\:29/, parsed_backtrace_line.short_location)
+    assert_equal '/dirname/basename.rb', entry.pathname.to_s
+    assert_equal 5, entry.line_number
+    assert_equal '<main>', entry.container
   end
 
   def test_keeping_only_project_lines
@@ -84,7 +59,6 @@ class Minitest::Heat::BacktraceTest < Minitest::Test
     pathname.utime(Time.now, Time.now)
 
     assert @backtrace.project_lines.size > 1
-    refute_equal @backtrace.project_lines, @backtrace.recently_modified_lines
     assert_equal @backtrace.recently_modified_lines.first, @backtrace.freshest_project_location
   end
 

@@ -35,8 +35,6 @@ module Minitest
             parts << file_freshness(backtrace_line) if most_recently_modified?(backtrace_line)
 
             @tokens << parts
-
-
           end
 
           @tokens
@@ -62,7 +60,7 @@ module Minitest
         private
 
         def all_backtrace_lines_from_project?
-          backtrace_lines.all? { |line| line.path.include?(project_root_dir) }
+          backtrace_lines.all? { |line| line.path.to_s.include?(project_root_dir) }
         end
 
         def project_root_dir
@@ -77,10 +75,12 @@ module Minitest
           backtrace.parsed_lines.take(line_count)
         end
 
-        def source_code_for(line)
-          filename = "#{line.path}/#{line.file}"
-
-          Minitest::Heat::Source.new(filename, line_number: line.number, max_line_count: 1)
+        def source_code_for(backtrace_entry)
+          Minitest::Heat::Source.new(
+            "#{backtrace_entry.path}/#{backtrace_entry.file}",
+            line_number: backtrace_entry.line_number,
+            max_line_count: 1
+          )
         end
 
         def most_recently_modified?(line)
@@ -102,8 +102,8 @@ module Minitest
           [:muted, path]
         end
 
-        def file_and_line_number_token(backtrace_line)
-          [:default, "#{backtrace_line.file}:#{backtrace_line.number}"]
+        def file_and_line_number_token(backtrace_entry)
+          [:default, "#{backtrace_entry.file}:#{backtrace_entry.line_number}"]
         end
 
         def source_code_line_token(source_code)

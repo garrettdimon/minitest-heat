@@ -111,7 +111,7 @@ module Minitest
       def source_code_failure_line
         return nil unless backtrace.source_code_lines.any?
 
-        backtrace.final_source_code_location.number
+        backtrace.final_source_code_location.line_number
       end
 
       # The final location from the stacktrace that is within the project's test directory
@@ -125,14 +125,14 @@ module Minitest
       #
       # @return [Integer] line number
       def test_definition_line
-        test_location[1].to_s
+        test_location[1]
       end
 
       # The line number from within the `test_file` test definition where the failure occurred
       #
       # @return [Integer] line number
       def test_failure_line
-        backtrace.final_test_location&.number || test_definition_line
+        backtrace.final_test_location&.line_number || test_definition_line
       end
 
       # The line number from within the `test_file` test definition where the failure occurred
