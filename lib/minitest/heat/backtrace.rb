@@ -4,61 +4,6 @@ module Minitest
   module Heat
     # Wrapper for separating backtrace into component parts
     class Backtrace
-      # Struct for breaking a backtrace line into component parts so they're usable
-      Entry = Struct.new(:raw_text) do
-        def to_h
-          {
-            pathname: pathname.to_s,
-            number: number,
-            container: container,
-          }
-        end
-
-        def pathname
-          Pathname(raw_pathname)
-        end
-
-        def path
-          pathname.dirname
-        end
-
-        def file
-          pathname.basename
-        end
-
-        def line_number
-          Integer(raw_line_number)
-        end
-
-        def container
-          raw_container
-            .delete_prefix('in `')
-            .delete_suffix("'")
-        end
-
-        def mtime
-          pathname.mtime
-        end
-
-        private
-
-        def raw_pathname
-          components[0]
-        end
-
-        def raw_line_number
-          components[1]
-        end
-
-        def raw_container
-          components[2]
-        end
-
-        def components
-          @comonents ||= raw_text.split(':')
-        end
-      end
-
       attr_reader :raw_backtrace
 
       def initialize(raw_backtrace)
@@ -70,55 +15,55 @@ module Minitest
       end
 
       def final_location
-        parsed_lines.first
+        parsed_entries.first
       end
 
       def final_project_location
-        project_lines.first
+        project_entries.first
       end
 
       def freshest_project_location
-        recently_modified_lines.first
+        recently_modified_entries.first
       end
 
       def final_source_code_location
-        source_code_lines.first
+        source_code_entries.first
       end
 
       def final_test_location
-        test_lines.first
+        test_entries.first
       end
 
-      def project_lines
-        @project_lines ||= parsed_lines.select { |line| line.path.to_s.include?(Dir.pwd) }
+      def project_entries
+        @project_entries ||= parsed_entries.select { |entry| entry.path.to_s.include?(Dir.pwd) }
       end
 
-      def recently_modified_lines
-        @recently_modified_lines ||= project_lines.sort_by { |line| line.mtime }.reverse
+      def recently_modified_entries
+        @recently_modified_entries ||= project_entries.sort_by { |entry| entry.mtime }.reverse
       end
 
-      def test_lines
-        @tests_lines ||= project_lines.select { |line| test_file?(line) }
+      def test_entries
+        @tests_entries ||= project_entries.select { |entry| test_file?(entry) }
       end
 
-      def source_code_lines
-        @source_code_lines ||= project_lines - test_lines
+      def source_code_entries
+        @source_code_entries ||= project_entries - test_entries
       end
 
-      def parsed_lines
+      def parsed_entries
         return [] if raw_backtrace.nil?
 
-        @parsed_lines ||= raw_backtrace.map { |line| parse(line) }
+        @parsed_entries ||= raw_backtrace.map { |entry| Line.parse_backtrace(entry) }
       end
 
       private
 
-      def parse(line)
-        Entry.new(line)
+      def parse(entry)
+        Line.parse_backtrace(entry)
       end
 
-      def test_file?(line)
-        line.file.to_s.end_with?('_test.rb') || line.file.to_s.start_with?('test_')
+      def test_file?(entry)
+        entry.file.to_s.end_with?('_test.rb') || entry.file.to_s.start_with?('test_')
       end
     end
   end

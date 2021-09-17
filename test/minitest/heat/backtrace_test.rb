@@ -24,33 +24,24 @@ class Minitest::Heat::BacktraceTest < Minitest::Test
   end
 
   def test_fails_gracefully_when_it_cannot_read_a_file
-    @raw_backtrace = ["/file/does/not/exist.rb"]
+    @raw_backtrace = ["/file/does/not/exist.rb:5:in `capture_exceptions'"]
     @backtrace = Minitest::Heat::Backtrace.new(@raw_backtrace)
 
-    refute_nil @backtrace.parsed_lines.first
+    refute_nil @backtrace.parsed_entries.first
   end
 
-  def test_parsing_backtrace_entries
-    backtrace_entry_string = "/dirname/basename.rb:5:in `<main>'"
-    entry = Minitest::Heat::Backtrace::Entry.new(backtrace_entry_string)
-
-    assert_equal '/dirname/basename.rb', entry.pathname.to_s
-    assert_equal 5, entry.line_number
-    assert_equal '<main>', entry.container
+  def test_keeping_only_project_entries
+    refute_equal @backtrace.parsed_entries, @backtrace.project_entries
+    assert_equal @backtrace.parsed_entries.first, @backtrace.project_entries.first
+    refute_equal @backtrace.parsed_entries.last, @backtrace.project_entries.last
+    assert_equal @backtrace.project_entries.first, @backtrace.final_project_location
   end
 
-  def test_keeping_only_project_lines
-    refute_equal @backtrace.parsed_lines, @backtrace.project_lines
-    assert_equal @backtrace.parsed_lines.first, @backtrace.project_lines.first
-    refute_equal @backtrace.parsed_lines.last, @backtrace.project_lines.last
-    assert_equal @backtrace.project_lines.first, @backtrace.final_project_location
-  end
-
-  def test_keeping_only_source_code_lines
-    refute_equal @backtrace.parsed_lines, @backtrace.source_code_lines
-    assert_equal @backtrace.parsed_lines.first, @backtrace.source_code_lines.first
-    refute_equal @backtrace.parsed_lines.last, @backtrace.source_code_lines.last
-    assert_equal @backtrace.project_lines.first, @backtrace.final_source_code_location
+  def test_keeping_only_source_code_entries
+    refute_equal @backtrace.parsed_entries, @backtrace.source_code_entries
+    assert_equal @backtrace.parsed_entries.first, @backtrace.source_code_entries.first
+    refute_equal @backtrace.parsed_entries.last, @backtrace.source_code_entries.last
+    assert_equal @backtrace.project_entries.first, @backtrace.final_source_code_location
   end
 
   def test_sorting_by_modified_time
@@ -58,13 +49,13 @@ class Minitest::Heat::BacktraceTest < Minitest::Test
     pathname = Pathname.new(test_file_location)
     pathname.utime(Time.now, Time.now)
 
-    assert @backtrace.project_lines.size > 1
-    assert_equal @backtrace.recently_modified_lines.first, @backtrace.freshest_project_location
+    assert @backtrace.project_entries.size > 1
+    assert_equal @backtrace.recently_modified_entries.first, @backtrace.freshest_project_location
   end
 
   def test_identifying_last_run_test_line
-    refute_equal @backtrace.project_lines, @backtrace.test_lines
+    refute_equal @backtrace.project_entries, @backtrace.test_entries
 
-    assert_equal @backtrace.project_lines[1], @backtrace.final_test_location
+    assert_equal @backtrace.project_entries[1], @backtrace.final_test_location
   end
 end

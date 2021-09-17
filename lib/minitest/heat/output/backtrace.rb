@@ -21,18 +21,16 @@ module Minitest
           # final backtrace line if it might be relevant/helpful?
 
           # Iterate over the selected lines from the backtrace
-          backtrace_lines.each do |backtrace_line|
+          backtrace_entries.each do |backtrace_entry|
             # Get the source code for the line from the backtrace
-            source_code = source_code_for(backtrace_line)
-
             parts = [
               indentation_token,
-              path_token(backtrace_line),
-              file_and_line_number_token(backtrace_line),
-              source_code_line_token(source_code)
+              path_token(backtrace_entry),
+              file_and_line_number_token(backtrace_entry),
+              source_code_line_token(backtrace_entry.source_code)
             ]
 
-            parts << file_freshness(backtrace_line) if most_recently_modified?(backtrace_line)
+            parts << file_freshness(backtrace_entry) if most_recently_modified?(backtrace_entry)
 
             @tokens << parts
           end
@@ -53,39 +51,31 @@ module Minitest
         # ...it could be influenced by a "compact" or "robust" reporter super-style?
         # ...it's smart about exceptions that were raised outside of the project?
         # ...it's smart about highlighting lines of code differently based on whether it's source code, test code, or external code?
-        def backtrace_lines
-          project_lines
+        def backtrace_entries
+          project_entries
         end
 
         private
 
-        def all_backtrace_lines_from_project?
-          backtrace_lines.all? { |line| line.path.to_s.include?(project_root_dir) }
+        def all_backtrace_entries_from_project?
+          backtrace_entries.all? { |line| line.path.to_s.include?(project_root_dir) }
         end
 
         def project_root_dir
           Dir.pwd
         end
 
-        def project_lines
-          backtrace.project_lines.take(line_count)
+        def project_entries
+          backtrace.project_entries.take(line_count)
         end
 
-        def all_lines
-          backtrace.parsed_lines.take(line_count)
-        end
-
-        def source_code_for(backtrace_entry)
-          Minitest::Heat::Source.new(
-            "#{backtrace_entry.path}/#{backtrace_entry.file}",
-            line_number: backtrace_entry.line_number,
-            max_line_count: 1
-          )
+        def all_entries
+          backtrace.parsed_entries.take(line_count)
         end
 
         def most_recently_modified?(line)
           # If there's more than one line being displayed, and the current line is the freshest
-          backtrace_lines.size > 1 && line == backtrace.freshest_project_location
+          backtrace_entries.size > 1 && line == backtrace.freshest_project_location
         end
 
         def indentation_token
@@ -97,7 +87,7 @@ module Minitest
 
           # If all of the backtrace lines are from the project, no point in the added redundant
           #  noise of showing the project root directory over and over again
-          path = path.delete_prefix(project_root_dir) if all_backtrace_lines_from_project?
+          path = path.delete_prefix(project_root_dir) if all_backtrace_entries_from_project?
 
           [:muted, path]
         end

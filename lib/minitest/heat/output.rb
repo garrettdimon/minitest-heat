@@ -14,7 +14,7 @@ module Minitest
     class Output
       FORMATTERS = {
         error: [
-          [ %i[error label], %i[muted spacer], %i[default test_name] ],
+          [ %i[error label], %i[muted spacer], %i[default test_name], %i[muted spacer], %i[muted test_class] ],
           [ %i[italicized summary], ],
           [ %i[default backtrace_summary] ],
         ],
