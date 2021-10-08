@@ -35,7 +35,7 @@ class Minitest::Heat::Output::SourceCodeTest < Minitest::Test
     @source_code = ::Minitest::Heat::Output::SourceCode.new(@filename, @line_number, max_line_count: 1)
 
     # Line number token has spacing
-    expected_line_number_token = [:default, "  #{@line_number.to_s} "]
+    expected_line_number_token = [:default, "  #{@line_number} "]
     expected_line_of_code_token = [:default, "require 'test_helper'"]
 
     line = @source_code.tokens.first

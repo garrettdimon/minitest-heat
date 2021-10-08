@@ -21,8 +21,6 @@ Gem::Specification.new do |spec|
   spec.metadata['source_code_uri'] = 'https://github.com/garrettdimon/minitest-heat'
   spec.metadata['wiki_uri'] = 'https://github.com/garrettdimon/minitest-heat/wiki'
 
-
-
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
   spec.files = Dir.chdir(File.expand_path(__dir__)) do
@@ -34,7 +32,11 @@ Gem::Specification.new do |spec|
 
   spec.add_runtime_dependency 'minitest'
 
+  spec.add_development_dependency 'awesome_print'
   spec.add_development_dependency 'dead_end'
   spec.add_development_dependency 'pry'
+  spec.add_development_dependency 'rubocop'
+  spec.add_development_dependency 'rubocop-minitest'
+  spec.add_development_dependency 'rubocop-rake'
   spec.add_development_dependency 'simplecov'
 end

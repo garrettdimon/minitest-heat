@@ -14,10 +14,18 @@ module Minitest
     #   - 'most_relevant' represents the most specific file to investigate starting with the source
     #     code and then looking to the test code with final line of the backtrace as a fallback
     class Location
+      TestDefinition = Struct.new(:pathname, :line_number) do
+        def initialize(pathname, line_number)
+          @pathname = Pathname(pathname)
+          @line_number = Integer(line_number)
+          super
+        end
+      end
+
       attr_reader :test_location, :backtrace
 
       def initialize(test_location, backtrace = [])
-        @test_location = test_location
+        @test_location = TestDefinition.new(*test_location)
         @backtrace = Backtrace.new(backtrace)
       end
 
@@ -58,28 +66,28 @@ module Minitest
       #
       # @return [String] the relative path to the file from the project root
       def most_relevant_file
-        Pathname(most_relevant_location[0])
+        Pathname(most_relevant_location.pathname)
       end
 
       # The line number of the `most_relevant_file` where the failure originated
       #
       # @return [Integer] line number
       def most_relevant_failure_line
-        most_relevant_location[1]
+        most_relevant_location.line_number
       end
 
       # The final location of the stacktrace regardless of whether it's from within the project
       #
       # @return [String] the relative path to the file from the project root
       def final_file
-        Pathname(final_location[0])
+        Pathname(final_location.pathname)
       end
 
       # The line number of the `final_file` where the failure originated
       #
       # @return [Integer] line number
       def final_failure_line
-        final_location[1]
+        final_location.line_number
       end
 
       # The final location of the stacktrace regardless of whether it's from within the project
@@ -100,7 +108,7 @@ module Minitest
       #
       # @return [String, nil] the relative path to the file from the project root
       def source_code_file
-        return nil unless backtrace.source_code_lines.any?
+        return nil unless backtrace.source_code_entries.any?
 
         backtrace.final_source_code_location.pathname
       end
@@ -109,30 +117,30 @@ module Minitest
       #
       # @return [Integer] line number
       def source_code_failure_line
-        return nil unless backtrace.source_code_lines.any?
+        return nil unless backtrace.source_code_entries.any?
 
-        backtrace.final_source_code_location.number
+        backtrace.final_source_code_location.line_number
       end
 
       # The final location from the stacktrace that is within the project's test directory
       #
       # @return [String, nil] the relative path to the file from the project root
       def test_file
-        Pathname(test_location[0])
+        Pathname(test_location.pathname)
       end
 
       # The line number of the `test_file` where the test is defined
       #
       # @return [Integer] line number
       def test_definition_line
-        test_location[1].to_s
+        test_location.line_number
       end
 
       # The line number from within the `test_file` test definition where the failure occurred
       #
       # @return [Integer] line number
       def test_failure_line
-        backtrace.final_test_location&.number || test_definition_line
+        backtrace.final_test_location&.line_number || test_definition_line
       end
 
       # The line number from within the `test_file` test definition where the failure occurred
@@ -166,10 +174,8 @@ module Minitest
       end
 
       def backtrace?
-        backtrace.parsed_lines.any?
+        backtrace.parsed_entries.any?
       end
     end
   end
 end
-
-

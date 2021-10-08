@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "heat"
+require_relative 'heat'
 
 module Minitest
   # Custom minitest reporter to proactively identify likely culprits in test failures by focusing on
@@ -29,31 +29,31 @@ module Minitest
   # Pulls from minitest-color as well:
   #   https://github.com/teoljungberg/minitest-color/blob/master/lib/minitest/color_plugin.rb
   class HeatReporter < AbstractReporter
-
     attr_reader :output,
                 :options,
                 :results,
                 :map
 
     def initialize(io = $stdout, options = {})
-      @output = Heat::Output.new(io)
       @options = options
 
-      @results = Heat::Results.new
-      @map = Heat::Map.new
+      @results =  Heat::Results.new
+      @map =      Heat::Map.new
+      @output =   Heat::Output.new(io)
     end
 
     # Starts reporting on the run.
     def start
-      output.puts
-      output.puts
-      @results.start_timer!
+      results.start_timer!
+
+      # A couple of blank lines to create some breathing room
+      output.newline
+      output.newline
     end
 
     # About to start running a test. This allows a reporter to show that it is starting or that we
     # are in the middle of a test run.
-    def prerecord(klass, name)
-    end
+    def prerecord(klass, name); end
 
     # Records the data from a result.
     # Minitest::Result source:
@@ -61,16 +61,17 @@ module Minitest
     def record(result)
       issue = Heat::Issue.new(result)
 
-      @results.record(issue)
-      @map.add(*issue.to_hit) if issue.hit?
+      results.record(issue)
+      map.add(*issue.to_hit) if issue.hit?
 
-      output.marker(issue.marker)
+      output.marker(issue.type)
     end
 
     # Outputs the summary of the run.
     def report
-      @results.stop_timer!
+      results.stop_timer!
 
+      # A couple of blank lines to create some breathing room
       output.newline
       output.newline
 
@@ -78,20 +79,20 @@ module Minitest
       #   pressing issues are displayed at the bottom of the report in order to reduce scrolling.
       #   This way, as you fix issues, the list gets shorter, and eventually the least critical
       #   issues will be displayed without scrolling once more problematic issues are resolved.
-      if results.failures.empty? && results.brokens.empty? && results.errors.empty? && results.skips.empty?
-        results.slows.each { |issue| output.issue_details(issue) }
+      %i[slows painfuls skips failures brokens errors].each do |issue_category|
+        results.send(issue_category).each { |issue| output.issue_details(issue) }
       end
 
-      if results.failures.empty? && results.brokens.empty? && results.errors.empty?
-        results.skips.each { |issue| output.issue_details(issue) }
-      end
-
-      results.failures.each { |issue| output.issue_details(issue) }
-      results.brokens.each { |issue| output.issue_details(issue) }
-      results.errors.each { |issue| output.issue_details(issue) }
-
+      # Display a short summary of the total issue counts fore ach category as well as performance
+      # details for the test suite as a whole
       output.compact_summary(results)
+
+      # If there were issues, shows a short heat map summary of which files and lines were the most
+      # common sources of issues
       output.heat_map(map)
+
+      # A blank line to create some breathing room
+      output.newline
     end
 
     # Did this run pass?

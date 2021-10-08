@@ -8,7 +8,7 @@ module Minitest
 
         attr_accessor :results
 
-        def_delegators :@results, :errors, :brokens, :failures, :slows, :skips, :problems?, :slows?
+        def_delegators :@results, :errors, :brokens, :failures, :skips, :painfuls, :slows, :problems?, :slows?
 
         def initialize(results)
           @results = results
@@ -17,8 +17,8 @@ module Minitest
 
         def tokens
           @tokens << [*issue_counts_tokens] if issue_counts_tokens&.any?
-          @tokens << [assertions_count_token, test_count_token]
           @tokens << [assertions_performance_token, tests_performance_token, timing_token]
+          @tokens << [assertions_count_token, test_count_token]
 
           @tokens
         end
@@ -35,14 +35,21 @@ module Minitest
         def issue_counts_tokens
           return unless problems? || slows?
 
-          counts = [error_count_token, broken_count_token, failure_count_token, skip_count_token, slow_count_token].compact
+          counts = [
+            error_count_token,
+            broken_count_token,
+            failure_count_token,
+            skip_count_token,
+            painful_count_token,
+            slow_count_token
+          ].compact
 
           # # Create an array of separator tokens one less than the total number of issue count tokens
           separator_tokens = Array.new(counts.size, separator_token)
 
           counts_with_separators = counts
-                                    .zip(separator_tokens) # Add separators between the counts
-                                    .flatten(1) # Flatten the zipped separators, but no more
+                                   .zip(separator_tokens) # Add separators between the counts
+                                   .flatten(1) # Flatten the zipped separators, but no more
 
           counts_with_separators.pop # Remove the final trailing zipped separator that's not needed
 
@@ -64,6 +71,11 @@ module Minitest
         def skip_count_token
           style = problems? ? :muted : :skipped
           issue_count_token(style, skips, name: 'Skip')
+        end
+
+        def painful_count_token
+          style = problems? ? :muted : :painful
+          issue_count_token(style, painfuls, name: 'Painfully Slow')
         end
 
         def slow_count_token

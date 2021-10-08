@@ -10,7 +10,7 @@ require_relative 'contrived_exceptions'
 #   visual presentation of the various errors based on different contexts
 if ENV['FORCE_FAILURES']
 
-  class Minitest::ContrivedExamplesTest < Minitest::Test # rubocop:disable Style/ClassAndModuleChildren
+  class Minitest::ContrivedExamplesTest < Minitest::Test
     def test_fails_because_of_an_incorrect_assertion
       assert false
     end
@@ -21,7 +21,7 @@ if ENV['FORCE_FAILURES']
 
     def test_fails_because_of_two_complex_objects_not_matching
       hash_one = {
-        one: 1,
+        one: 1
       }
       hash_two = {
         one: 1,

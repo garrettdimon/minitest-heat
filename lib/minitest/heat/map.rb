@@ -3,6 +3,8 @@
 module Minitest
   module Heat
     class Map
+      MAXIMUM_FILES_TO_SHOW = 5
+
       attr_reader :hits
 
       # So we can sort hot spots by liklihood of being the most important spot to check out before
@@ -14,44 +16,31 @@ module Minitest
       #   misleading. It doesn't represent a proper failure, but rather a test that doesn't work.
       WEIGHTS = {
         error: 3,    # exceptions from source code have the highest liklihood of a ripple effect
-        broken: 1,   # broken tests won't have ripple effects but can't help if they can't run
+        broken: 2,   # broken tests won't have ripple effects but can't help if they can't run
         failure: 1,  # failures are kind of the whole point, and they could have ripple effects
         skipped: 0,  # skips aren't failures, but they shouldn't go ignored
         painful: 0,  # slow tests aren't failures, but they shouldn't be ignored
-        slow: 0,
-      }
+        slow: 0
+      }.freeze
 
       def initialize
         @hits = {}
       end
 
       def add(filename, line_number, type)
-        @hits[filename] ||= { weight: 0, total: 0 }
-        @hits[filename][:total] += 1
-        @hits[filename][:weight] += WEIGHTS[type]
+        @hits[filename] ||= Hit.new(filename)
 
-        @hits[filename][type] ||= []
-        @hits[filename][type] << line_number
+        @hits[filename].log(type, line_number)
       end
 
-      def files
-        hot_files
-          .sort_by { |filename, weight| weight }
-          .reverse
-          .take(5)
+      def file_hits
+        hot_files.take(MAXIMUM_FILES_TO_SHOW)
       end
 
       private
 
       def hot_files
-        files = {}
-        @hits.each_pair do |filename, details|
-          # Can't really be a "hot spot" with just a single issue
-          # next unless details[:weight] > 1
-
-          files[filename] = details[:weight]
-        end
-        files
+        hits.values.sort_by(&:weight).reverse
       end
     end
   end
