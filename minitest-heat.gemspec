@@ -34,8 +34,9 @@ Gem::Specification.new do |spec|
 
   spec.add_runtime_dependency 'minitest'
 
+  spec.add_development_dependency 'awesome_print'
   spec.add_development_dependency 'dead_end'
   spec.add_development_dependency 'pry'
   spec.add_development_dependency 'simplecov'
-  spec.add_development_dependency 'awesome_print'
+  spec.add_development_dependency 'rubocop'
 end
