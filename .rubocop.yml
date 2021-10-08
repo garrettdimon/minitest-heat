@@ -1,0 +1,22 @@
+AllCops:
+  NewCops: enable
+  UseCache: true
+  CacheRootDirectory: './'
+  Exclude:
+    - 'bin/**/*'
+
+# Let's aim for 80, but we don't need to be nagged if we judiciously go over.
+Layout/LineLength:
+  Enabled: false
+
+# One case statement in a single method isn't complex.
+Metrics/CyclomaticComplexity:
+  IgnoredMethods: ['case']
+
+# 10 is a good goal but a little draconian
+Metrics/MethodLength:
+  CountAsOne: ['array', 'hash', 'heredoc']
+  Max: 15
+
+Style/ClassAndModuleChildren:
+  Enabled: false
