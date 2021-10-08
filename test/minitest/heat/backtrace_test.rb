@@ -45,7 +45,7 @@ class Minitest::Heat::BacktraceTest < Minitest::Test
   end
 
   def test_sorting_by_modified_time
-    test_file_location = File.expand_path(File.dirname(__FILE__))
+    test_file_location = File.expand_path(__dir__)
     pathname = Pathname.new(test_file_location)
     pathname.utime(Time.now, Time.now)
 

@@ -10,17 +10,17 @@ require_relative 'contrived_exceptions'
 #   visual presentation of the various errors based on different contexts
 if ENV['FORCE_SKIPS'] || ENV['FORCE_SLOWS'] || ENV['FORCE_FAILURES']
 
-  class Minitest::ContrivedSkipsAndSlowsTest < Minitest::Test # rubocop:disable Style/ClassAndModuleChildren
+  class Minitest::ContrivedSkipsAndSlowsTest < Minitest::Test
     def test_skips_the_test_because_its_not_ready
-      unless ENV['FORCE_SLOWS']
-        skip 'The test was explicitly skipped'
-      end
+      return if ENV['FORCE_SLOWS']
+
+      skip 'The test was explicitly skipped'
     end
 
     def test_skips_the_test_because_its_temporarily_broken
-      unless ENV['FORCE_SLOWS']
-        skip 'The test is temporarily broken'
-      end
+      return if ENV['FORCE_SLOWS']
+
+      skip 'The test is temporarily broken'
     end
 
     def test_exposes_when_tests_are_slow
