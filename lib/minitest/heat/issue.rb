@@ -15,11 +15,6 @@ module Minitest
         painful: 3.0
       }
 
-      SHARED_SYMBOLS = {
-        spacer: ' · ',
-        arrow: ' > '
-      }.freeze
-
       attr_reader :result, :location, :failure
 
       def_delegators :@result, :passed?, :error?, :skipped?
@@ -42,14 +37,6 @@ module Minitest
           location.project_failure_line,
           type
         ]
-      end
-
-      def spacer
-        SHARED_SYMBOLS[:spacer]
-      end
-
-      def arrow
-        SHARED_SYMBOLS[:arrow]
       end
 
       def type # rubocop:disable Metrics/MethodLength

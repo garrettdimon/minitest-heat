@@ -36,18 +36,19 @@ module Minitest
                 :map
 
     def initialize(io = $stdout, options = {})
-      @output = Heat::Output.new(io)
       @options = options
 
-      @results = Heat::Results.new
-      @map = Heat::Map.new
+      @results =  Heat::Results.new
+      @map =      Heat::Map.new
+      @output =   Heat::Output.new(io)
+
     end
 
     # Starts reporting on the run.
     def start
+      results.start_timer!
       output.puts
       output.puts
-      @results.start_timer!
     end
 
     # About to start running a test. This allows a reporter to show that it is starting or that we
@@ -61,15 +62,15 @@ module Minitest
     def record(result)
       issue = Heat::Issue.new(result)
 
-      @results.record(issue)
-      @map.add(*issue.to_hit) if issue.hit?
+      results.record(issue)
+      map.add(*issue.to_hit) if issue.hit?
 
       output.marker(issue.type)
     end
 
     # Outputs the summary of the run.
     def report
-      @results.stop_timer!
+      results.stop_timer!
 
       output.newline
       output.newline

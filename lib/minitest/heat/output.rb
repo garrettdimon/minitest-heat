@@ -2,7 +2,6 @@
 
 require_relative 'output/backtrace'
 require_relative 'output/issue'
-require_relative 'output/location'
 require_relative 'output/map'
 require_relative 'output/marker'
 require_relative 'output/results'
@@ -13,6 +12,7 @@ module Minitest
   module Heat
     # Friendly API for printing nicely-formatted output to the console
     class Output
+
       attr_reader :stream
 
       def initialize(stream = $stdout)
@@ -31,71 +31,16 @@ module Minitest
       end
       alias newline puts
 
-      # TOOD: Convert to output class
-      #       - This should likely live in the output/issue class
-      #       - There may be justification for creating different "strategies" for the various types
-      FORMATTERS = {
-        error: [
-          [ %i[error label], %i[muted spacer], %i[default test_name], %i[muted spacer], %i[muted test_class] ],
-          [ %i[italicized summary], ],
-          [ %i[default backtrace_summary] ],
-        ],
-        broken: [
-          [ %i[broken label], %i[muted spacer], %i[default test_name], %i[muted spacer], %i[muted test_class] ],
-          [ %i[italicized summary], ],
-          [ %i[default backtrace_summary] ],
-        ],
-        failure: [
-          [ %i[failure label], %i[muted spacer], %i[default test_name], %i[muted spacer], %i[muted test_class] ],
-          [ %i[italicized summary] ],
-          [ %i[muted short_location], ],
-          [ %i[default source_summary], ],
-        ],
-        skipped: [
-          [ %i[skipped label], %i[muted spacer], %i[default test_name], %i[muted spacer], %i[muted test_class] ],
-          [ %i[italicized summary] ],
-          [], # New Line
-        ],
-        slow: [
-          [ %i[slow label], %i[muted spacer], %i[default test_name], %i[muted spacer], %i[default test_class] ],
-          [ %i[bold slowness], %i[muted spacer], %i[default location], ],
-          [], # New Line
-        ]
-      }
-
       def issue_details(issue)
-        formatter = FORMATTERS[issue.type]
+        issue_details_lines = Minitest::Heat::Output::Issue.new(issue).tokens
 
-        formatter.each do |lines|
-          lines.each do |tokens|
-            style, content_method = *tokens
-
-            if issue.respond_to?(content_method)
-              # If it's an available method on issue, use that to get the content
-              content = issue.send(content_method)
-              text(style, content)
-            else
-              # Otherwise, fall back to output and pass issue to *it*
-              send(content_method, issue)
-            end
-          end
-          newline
-        end
+        print_tokens(issue_details_lines)
       end
 
       def marker(issue_type)
         marker_token = Minitest::Heat::Output::Marker.new(issue_type).token
 
         print_token(marker_token)
-      end
-
-      def heat_map(map)
-        map_tokens = ::Minitest::Heat::Output::Map.new(map).tokens
-
-        newline
-        # pp map_tokens
-        print_tokens(map_tokens)
-        newline
       end
 
       def compact_summary(results)
@@ -106,19 +51,12 @@ module Minitest
         newline
       end
 
-      def backtrace_summary(issue)
-        location = issue.location
+      def heat_map(map)
+        map_tokens = ::Minitest::Heat::Output::Map.new(map).tokens
 
-        backtrace_tokens = ::Minitest::Heat::Output::Backtrace.new(location).tokens
-        print_tokens(backtrace_tokens)
-      end
-
-      def source_summary(issue)
-        filename    = issue.location.project_file
-        line_number = issue.location.project_failure_line
-
-        source_code_tokens = ::Minitest::Heat::Output::SourceCode.new(filename, line_number).tokens
-        print_tokens(source_code_tokens)
+        newline
+        print_tokens(map_tokens)
+        newline
       end
 
       private
