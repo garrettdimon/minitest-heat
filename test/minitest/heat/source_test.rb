@@ -10,7 +10,7 @@ class Minitest::Heat::SourceTest < Minitest::Test
   end
 
   def test_fails_gracefully_when_it_cannot_read_a_file
-    @filename = "/file/does/not/exist.rb"
+    @filename = '/file/does/not/exist.rb'
     @source = Minitest::Heat::Source.new(@filename, line_number: 1)
 
     assert_equal [], @source.file_lines
@@ -18,7 +18,7 @@ class Minitest::Heat::SourceTest < Minitest::Test
 
   def test_converts_to_hash
     @source.max_line_count = 1
-    source_hash = { "5" => "       else" }
+    source_hash = { '5' => '       else' }
     assert_equal source_hash, @source.to_h
   end
 
@@ -29,7 +29,7 @@ class Minitest::Heat::SourceTest < Minitest::Test
   end
 
   def test_retrieves_source_line
-    assert_equal "       else", @source.line
+    assert_equal '       else', @source.line
   end
 
   def test_retrieves_array_of_one_line_by_default

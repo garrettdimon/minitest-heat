@@ -19,7 +19,7 @@ module Minitest
           map.file_hits.each do |file|
             @tokens << [
               *pathname(file),
-              *line_numbers(file),
+              *line_numbers(file)
             ]
           end
 
@@ -35,7 +35,7 @@ module Minitest
           [
             [:default, directory],
             [:bold, filename],
-            [:default, ' · '],
+            [:default, ' · ']
           ]
         end
 
@@ -46,7 +46,7 @@ module Minitest
 
           numbers = []
           issues.map do |line_number|
-            numbers << [issue_type, "#{line_number.to_s} "]
+            numbers << [issue_type, "#{line_number} "]
           end
           numbers
         end
@@ -58,7 +58,7 @@ module Minitest
             *hit_line_numbers(file, :failure),
             *hit_line_numbers(file, :skipped),
             *hit_line_numbers(file, :painful),
-            *hit_line_numbers(file, :slow),
+            *hit_line_numbers(file, :slow)
           ].compact
         end
       end

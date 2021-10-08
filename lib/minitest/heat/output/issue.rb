@@ -23,7 +23,6 @@ module Minitest
           when :skipped then skipped_tokens
           when :painful then painful_tokens
           when :slow then slow_tokens
-          else
           end
         end
 
@@ -82,11 +81,11 @@ module Minitest
         end
 
         def headline_tokens
-          [ [issue.type, issue.label], [:muted, spacer], [:default, issue.test_name], [:muted, spacer], [:muted, issue.test_class] ]
+          [[issue.type, issue.label], [:muted, spacer], [:default, issue.test_name], [:muted, spacer], [:muted, issue.test_class]]
         end
 
         def summary_tokens
-          [ [:italicized, issue.summary] ]
+          [[:italicized, issue.summary]]
         end
 
         def backtrace_tokens
@@ -96,7 +95,7 @@ module Minitest
         end
 
         def location_tokens
-          [ [:muted, issue.short_location] ]
+          [[:muted, issue.short_location]]
         end
 
         def source_tokens
@@ -109,7 +108,7 @@ module Minitest
         end
 
         def slowness_tokens
-          [ [:bold, issue.slowness], [:muted, spacer], [:default, issue.location] ]
+          [[:bold, issue.slowness], [:muted, spacer], [:default, issue.location]]
         end
 
         def newline_tokens

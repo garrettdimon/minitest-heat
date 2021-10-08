@@ -12,7 +12,6 @@ module Minitest
   module Heat
     # Friendly API for printing nicely-formatted output to the console
     class Output
-
       attr_reader :stream
 
       def initialize(stream = $stdout)

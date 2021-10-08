@@ -8,12 +8,12 @@ module Minitest
     class Issue
       extend Forwardable
 
-      TYPES = %i[error broken failure skipped painful slow]
+      TYPES = %i[error broken failure skipped painful slow].freeze
 
       SLOW_THRESHOLDS = {
         slow: 1.0,
         painful: 3.0
-      }
+      }.freeze
 
       attr_reader :result, :location, :failure
 
@@ -39,7 +39,7 @@ module Minitest
         ]
       end
 
-      def type # rubocop:disable Metrics/MethodLength
+      def type
         if error? && in_test?
           :broken
         elsif error?
@@ -113,8 +113,6 @@ module Minitest
           'Passed but Painfully Slow'
         elsif slow?
           'Passed but Slow'
-        else
-
         end
       end
 

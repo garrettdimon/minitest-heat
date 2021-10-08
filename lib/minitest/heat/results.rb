@@ -4,7 +4,6 @@ module Minitest
   module Heat
     # A collection of test failures
     class Results
-
       attr_reader :test_count,
                   :assertion_count,
                   :success_count,
@@ -74,7 +73,7 @@ module Minitest
       def painfuls
         issues
           .fetch(:painful) { [] }
-          .sort { |issue| issue.time }
+          .sort(&:time)
           .reverse
           .take(5)
       end
@@ -82,7 +81,7 @@ module Minitest
       def slows
         issues
           .fetch(:slow) { [] }
-          .sort { |issue| issue.time }
+          .sort(&:time)
           .reverse
           .take(5)
       end

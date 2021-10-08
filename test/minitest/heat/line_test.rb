@@ -55,7 +55,6 @@ class Minitest::Heat::LineTest < Minitest::Test
     assert_match %r{/test/minitest/heat/line_test.rb:29 in `method_name`}, line.to_s
     assert_match %r{/test/minitest/heat/line_test.rb}, line.pathname.to_s
     assert_match %r{/test/minitest/heat/line_test.rb:29}, line.location
-    assert_match %r{line_test.rb:29}, line.short_location
+    assert_match(/line_test.rb:29/, line.short_location)
   end
-
 end

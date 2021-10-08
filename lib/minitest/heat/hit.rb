@@ -20,8 +20,8 @@ module Minitest
         failure: 1,  # failures are kind of the whole point, and they could have ripple effects
         skipped: 0,  # skips aren't failures, but they shouldn't go ignored
         painful: 0,  # slow tests aren't failures, but they shouldn't be ignored
-        slow: 0,
-      }
+        slow: 0
+      }.freeze
 
       attr_reader :pathname, :issues
 
@@ -58,14 +58,14 @@ module Minitest
       def weight
         weight = 0
         issues.each_pair do |type, values|
-          weight += values.size * WEIGHTS.fetch(type) { 0 }
+          weight += values.size * WEIGHTS.fetch(type, 0)
         end
         weight
       end
 
       def count
         count = 0
-        issues.each_pair do |type, values|
+        issues.each_pair do |_type, values|
           count += values.size
         end
         count
@@ -73,7 +73,7 @@ module Minitest
 
       def line_numbers
         line_numbers = []
-        issues.each_pair do |type, values|
+        issues.each_pair do |_type, values|
           line_numbers += values
         end
         line_numbers.uniq.sort

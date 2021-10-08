@@ -4,6 +4,7 @@ AllCops:
   CacheRootDirectory: './'
   Exclude:
     - 'bin/**/*'
+    - 'test/files/source.rb' # An example test file for reading source code
 
 # Let's aim for 80, but we don't need to be nagged if we judiciously go over.
 Layout/LineLength:

@@ -7,7 +7,6 @@ class Minitest::Heat::BacktraceTest < Minitest::Test
     project_dir = Dir.pwd
     gem_dir = Gem.dir
 
-
     @source_code_line = "#{project_dir}/lib/minitest/heat.rb:29:in `method_name'"
     @test_line = "#{project_dir}/test/minitest/heat_test.rb:27:in `other_method_name'"
 

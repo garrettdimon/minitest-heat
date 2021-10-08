@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "heat"
+require_relative 'heat'
 
 module Minitest
   # Custom minitest reporter to proactively identify likely culprits in test failures by focusing on
@@ -29,7 +29,6 @@ module Minitest
   # Pulls from minitest-color as well:
   #   https://github.com/teoljungberg/minitest-color/blob/master/lib/minitest/color_plugin.rb
   class HeatReporter < AbstractReporter
-
     attr_reader :output,
                 :options,
                 :results,
@@ -41,7 +40,6 @@ module Minitest
       @results =  Heat::Results.new
       @map =      Heat::Map.new
       @output =   Heat::Output.new(io)
-
     end
 
     # Starts reporting on the run.
@@ -55,8 +53,7 @@ module Minitest
 
     # About to start running a test. This allows a reporter to show that it is starting or that we
     # are in the middle of a test run.
-    def prerecord(klass, name)
-    end
+    def prerecord(klass, name); end
 
     # Records the data from a result.
     # Minitest::Result source:

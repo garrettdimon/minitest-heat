@@ -21,7 +21,7 @@ if ENV['FORCE_FAILURES']
 
     def test_fails_because_of_two_complex_objects_not_matching
       hash_one = {
-        one: 1,
+        one: 1
       }
       hash_two = {
         one: 1,

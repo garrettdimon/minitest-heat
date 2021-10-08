@@ -48,8 +48,8 @@ module Minitest
           separator_tokens = Array.new(counts.size, separator_token)
 
           counts_with_separators = counts
-                                    .zip(separator_tokens) # Add separators between the counts
-                                    .flatten(1) # Flatten the zipped separators, but no more
+                                   .zip(separator_tokens) # Add separators between the counts
+                                   .flatten(1) # Flatten the zipped separators, but no more
 
           counts_with_separators.pop # Remove the final trailing zipped separator that's not needed
 

@@ -39,7 +39,7 @@ module Minitest
       end
 
       def recently_modified_entries
-        @recently_modified_entries ||= project_entries.sort_by { |entry| entry.mtime }.reverse
+        @recently_modified_entries ||= project_entries.sort_by(&:mtime).reverse
       end
 
       def test_entries

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Minitest
   module Heat
     # Friendly API for printing nicely-formatted output to the console
@@ -6,18 +8,18 @@ module Minitest
         class InvalidStyle < ArgumentError; end
 
         STYLES = {
-          success:       %i[default green],
-          slow:          %i[default green],
-          painful:       %i[bold green],
-          error:         %i[bold red],
-          broken:        %i[bold red],
-          failure:       %i[default red],
-          skipped:       %i[default yellow],
+          success: %i[default green],
+          slow: %i[default green],
+          painful: %i[bold green],
+          error: %i[bold red],
+          broken: %i[bold red],
+          failure: %i[default red],
+          skipped: %i[default yellow],
           warning_light: %i[light yellow],
-          italicized:    %i[italic gray],
-          bold:          %i[bold default],
-          default:       %i[default default],
-          muted:         %i[light gray]
+          italicized: %i[italic gray],
+          bold: %i[bold default],
+          default: %i[default default],
+          muted: %i[light gray]
         }.freeze
 
         attr_accessor :style_key, :content
@@ -38,14 +40,14 @@ module Minitest
         end
 
         def eql?(other)
-          style_key == other.style_key &&  content == other.content
+          style_key == other.style_key && content == other.content
         end
         alias :== eql?
 
         private
 
         ESC_SEQUENCE = "\e["
-        END_SEQUENCE = "m"
+        END_SEQUENCE = 'm'
 
         WEIGHTS = {
           default: 0,

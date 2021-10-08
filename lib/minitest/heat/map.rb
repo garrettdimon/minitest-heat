@@ -20,8 +20,8 @@ module Minitest
         failure: 1,  # failures are kind of the whole point, and they could have ripple effects
         skipped: 0,  # skips aren't failures, but they shouldn't go ignored
         painful: 0,  # slow tests aren't failures, but they shouldn't be ignored
-        slow: 0,
-      }
+        slow: 0
+      }.freeze
 
       def initialize
         @hits = {}

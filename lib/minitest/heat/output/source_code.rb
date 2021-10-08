@@ -101,9 +101,9 @@ module Minitest
         # @return [Array<Symbol>] the Token styles for the line number and line of code
         def styles_for(line_of_code)
           if line_of_code == source.line && highlight_key_line?
-            [:default, :default]
+            %i[default default]
           else
-            [:muted, :muted]
+            %i[muted muted]
           end
         end
 

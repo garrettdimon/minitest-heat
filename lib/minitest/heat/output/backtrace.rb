@@ -100,8 +100,8 @@ module Minitest
           [:muted, " `#{source_code.line.strip}`"]
         end
 
-        def file_freshness(line)
-          [:bold, " < Most Recently Modified"]
+        def file_freshness(_line)
+          [:bold, ' < Most Recently Modified']
         end
 
         # The number of spaces each line of code should be indented. Currently defaults to 2 in
