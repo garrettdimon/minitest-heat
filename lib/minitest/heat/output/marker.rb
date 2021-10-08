@@ -23,15 +23,14 @@ module Minitest
           failure:  :failure,
         }
 
-        attr_accessor :issue_type, :quantity
+        attr_accessor :issue_type
 
-        def initialize(issue_type, quantity = 1)
+        def initialize(issue_type)
           @issue_type = issue_type
-          @quantity = quantity
         end
 
         def token
-          [style, symbols]
+          [style, symbol]
         end
 
         private
@@ -40,8 +39,8 @@ module Minitest
           STYLES.fetch(issue_type) { :default }
         end
 
-        def symbols
-          SYMBOLS.fetch(issue_type) { '?' } * quantity
+        def symbol
+          SYMBOLS.fetch(issue_type) { '?' }
         end
       end
     end
