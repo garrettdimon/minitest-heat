@@ -73,7 +73,7 @@ module Minitest
       def painfuls
         issues
           .fetch(:painful) { [] }
-          .sort(&:time)
+          .sort_by(&:time)
           .reverse
           .take(5)
       end
@@ -81,7 +81,7 @@ module Minitest
       def slows
         issues
           .fetch(:slow) { [] }
-          .sort(&:time)
+          .sort_by(&:time)
           .reverse
           .take(5)
       end

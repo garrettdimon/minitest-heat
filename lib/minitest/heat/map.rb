@@ -40,9 +40,7 @@ module Minitest
       private
 
       def hot_files
-        hits.values.sort do |a, b|
-          a.weight <=> b.weight
-        end.reverse
+        hits.values.sort_by(&:weight).reverse
       end
     end
   end
