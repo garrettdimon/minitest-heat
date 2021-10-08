@@ -16,7 +16,7 @@ module Minitest
         end
 
         def tokens
-          map.files.each do |file|
+          map.file_hits.each do |file|
             @tokens << [
               *pathname(file),
               *line_numbers(file),

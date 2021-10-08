@@ -33,19 +33,9 @@ module Minitest
         @hits[filename].log(type, line_number)
       end
 
-      def files
+      def file_hits
         hot_files.take(MAXIMUM_FILES_TO_SHOW)
       end
-
-      # def max_issue_count
-      #   files.map(&:issue_count).max
-      # end
-
-      # def max_pathname_length
-      #   files.map do |file|
-      #     file.pathname.to_s.delete_prefix(Dir.pwd).size
-      #   end.max
-      # end
 
       private
 

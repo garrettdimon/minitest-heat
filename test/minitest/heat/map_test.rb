@@ -28,12 +28,12 @@ class Minitest::Heat::MapTest < Minitest::Test
     3.times { @map.add("three_#{@filename}", 1, :failure) }
     2.times { @map.add("two_#{@filename}", 1, :failure) }
 
-    files = @map.files
+    files = @map.file_hits
 
     assert_equal 3, files.size
-    largest_hit_count = files[0][1]
-    smallest_hit_count = files[2][1]
-    assert largest_hit_count > smallest_hit_count
+    largest_weight = files[0].weight
+    smallest_weight = files[2].weight
+    assert largest_weight > smallest_weight
   end
 
   def test_logs_issues
