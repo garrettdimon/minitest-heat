@@ -7,7 +7,7 @@ module Minitest
 
         STYLES = {
           success:       %i[default green],
-          slow:          %i[bold green],
+          slow:          %i[default green],
           painful:       %i[bold green],
           error:         %i[bold red],
           broken:        %i[bold red],

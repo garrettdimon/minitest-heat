@@ -4,6 +4,7 @@ require_relative 'output/backtrace'
 require_relative 'output/issue'
 require_relative 'output/location'
 require_relative 'output/map'
+require_relative 'output/marker'
 require_relative 'output/results'
 require_relative 'output/source_code'
 require_relative 'output/token'
@@ -12,6 +13,27 @@ module Minitest
   module Heat
     # Friendly API for printing nicely-formatted output to the console
     class Output
+      attr_reader :stream
+
+      def initialize(stream = $stdout)
+        @stream = stream.tap do |str|
+          # If the IO channel supports flushing the output immediately, then ensure it's enabled
+          str.sync = str.respond_to?(:sync=)
+        end
+      end
+
+      def print(*args)
+        stream.print(*args)
+      end
+
+      def puts(*args)
+        stream.puts(*args)
+      end
+      alias newline puts
+
+      # TOOD: Convert to output class
+      #       - This should likely live in the output/issue class
+      #       - There may be justification for creating different "strategies" for the various types
       FORMATTERS = {
         error: [
           [ %i[error label], %i[muted spacer], %i[default test_name], %i[muted spacer], %i[muted test_class] ],
@@ -41,40 +63,6 @@ module Minitest
         ]
       }
 
-      attr_reader :stream
-
-      def initialize(stream = $stdout)
-        @stream = stream.tap do |str|
-          # If the IO channel supports flushing the output immediately, then ensure it's enabled
-          str.sync = str.respond_to?(:sync=)
-        end
-      end
-
-      def print(*args)
-        stream.print(*args)
-      end
-
-      def puts(*args)
-        stream.puts(*args)
-      end
-      alias newline puts
-
-      # TOOD: Convert to output class
-      #       - This should likely live in the output/issue class
-      #       - Add a 'fail_fast' option that shows the issue as soon as the failure occurs
-      def marker(value)
-        case value
-        when 'E' then text(:error, value)
-        when 'B' then text(:failure, value)
-        when 'F' then text(:failure, value)
-        when 'S' then text(:skipped, value)
-        else          text(:success, value)
-        end
-      end
-
-      # TOOD: Convert to output class
-      #       - This should likely live in the output/issue class
-      #       - There may be justification for creating different "strategies" for the various types
       def issue_details(issue)
         formatter = FORMATTERS[issue.type]
 
@@ -95,41 +83,18 @@ module Minitest
         end
       end
 
-      # TOOD: Convert to output class
+      def marker(issue_type)
+        marker_token = Minitest::Heat::Output::Marker.new(issue_type).token
+
+        print_token(marker_token)
+      end
+
       def heat_map(map)
-        map.files.each do |file|
-          pathname = Pathname(file[0])
+        map_tokens = ::Minitest::Heat::Output::Map.new(map).tokens
 
-          path = pathname.dirname.to_s
-          filename = pathname.basename.to_s
-
-          values = map.hits[pathname.to_s]
-
-
-          text(:error, 'E' * values[:error].size)     if values[:error]&.any?
-          text(:broken, 'B' * values[:broken].size)   if values[:broken]&.any?
-          text(:failure, 'F' * values[:failure].size) if values[:failure]&.any?
-
-          unless values[:error]&.any? || values[:broken]&.any? || values[:failure]&.any?
-            text(:skipped, 'S' * values[:skipped].size) if values[:skipped]&.any?
-            text(:painful, '—' * values[:painful].size) if values[:painful]&.any?
-            text(:slow, '–' * values[:slow].size)       if values[:slow]&.any?
-          end
-
-          text(:muted, ' ') if map.hits.any?
-
-          text(:muted, "#{path.delete_prefix(Dir.pwd)}/")
-          text(:default, filename)
-
-          text(:muted, ':')
-
-          all_line_numbers = values.fetch(:error, []) + values.fetch(:failure, [])
-          all_line_numbers += values.fetch(:skipped, [])
-
-          line_numbers = all_line_numbers.compact.uniq.sort
-          line_numbers.each { |line_number| text(:muted, "#{line_number} ") }
-          newline
-        end
+        newline
+        # pp map_tokens
+        print_tokens(map_tokens)
         newline
       end
 
@@ -169,6 +134,10 @@ module Minitest
 
       def token_format
         style_enabled? ? :styled : :unstyled
+      end
+
+      def print_token(token)
+        print Token.new(*token).to_s(token_format)
       end
 
       def print_tokens(lines_of_tokens)

@@ -43,17 +43,29 @@ module Minitest
         (Time.now - mtime).to_i
       end
 
+      def critical_issues?
+        issues[:error].any? || issues[:broken].any? || issues[:failure].any?
+      end
+
+      def issue_count
+        count = 0
+        Issue::TYPES.each do |issue_type|
+          count += issues.fetch(issue_type) { [] }.size
+        end
+        count
+      end
+
       def weight
         weight = 0
-        @issues.each_pair do |type, values|
-          weight += values.size * WEIGHTS[type]
+        issues.each_pair do |type, values|
+          weight += values.size * WEIGHTS.fetch(type) { 0 }
         end
         weight
       end
 
       def count
         count = 0
-        @issues.each_pair do |type, values|
+        issues.each_pair do |type, values|
           count += values.size
         end
         count
@@ -61,7 +73,7 @@ module Minitest
 
       def line_numbers
         line_numbers = []
-        @issues.each_pair do |type, values|
+        issues.each_pair do |type, values|
           line_numbers += values
         end
         line_numbers.uniq.sort

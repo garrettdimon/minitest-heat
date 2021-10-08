@@ -18,71 +18,49 @@ module Minitest
         def tokens
           map.files.each do |file|
             @tokens << [
-              [*hits(file)],
-              [*pathname(file)],
-              [*line_numbers(file)]
+              *pathname(file),
+              *line_numbers(file),
             ]
           end
-
 
           @tokens
         end
 
         private
 
-        def max_hits_count
-          @max_hits_count = map.files
-        end
-
-        def hits(file)
-          []
-        end
-
         def pathname(file)
-          []
+          directory = "#{file.pathname.dirname.to_s.delete_prefix(Dir.pwd)}/"
+          filename = file.pathname.basename.to_s
+
+          [
+            [:default, directory],
+            [:bold, filename],
+            [:default, ' · '],
+          ]
+        end
+
+        def hit_line_numbers(file, issue_type)
+          issues = file.issues.fetch(issue_type) { [] }
+
+          return nil if issues.empty?
+
+          numbers = []
+          issues.map do |line_number|
+            numbers << [issue_type, "#{line_number.to_s} "]
+          end
+          numbers
         end
 
         def line_numbers(file)
-          []
+          [
+            *hit_line_numbers(file, :error),
+            *hit_line_numbers(file, :broken),
+            *hit_line_numbers(file, :failure),
+            *hit_line_numbers(file, :skipped),
+            *hit_line_numbers(file, :painful),
+            *hit_line_numbers(file, :slow),
+          ].compact
         end
-
-        def original
-          map.files.each do |file|
-            pathname = Pathname(file[0])
-
-            path = pathname.dirname.to_s
-            filename = pathname.basename.to_s
-
-            values = map.hits[pathname.to_s]
-
-
-            text(:error, 'E' * values[:error].size)     if values[:error]&.any?
-            text(:broken, 'B' * values[:broken].size)   if values[:broken]&.any?
-            text(:failure, 'F' * values[:failure].size) if values[:failure]&.any?
-
-            unless values[:error]&.any? || values[:broken]&.any? || values[:failure]&.any?
-              text(:skipped, 'S' * values[:skipped].size) if values[:skipped]&.any?
-              text(:painful, '—' * values[:painful].size) if values[:painful]&.any?
-              text(:slow, '–' * values[:slow].size)       if values[:slow]&.any?
-            end
-
-            text(:muted, ' ') if map.hits.any?
-
-            text(:muted, "#{path.delete_prefix(Dir.pwd)}/")
-            text(:default, filename)
-
-            text(:muted, ':')
-
-            all_line_numbers = values.fetch(:error, []) + values.fetch(:failure, [])
-            all_line_numbers += values.fetch(:skipped, [])
-
-            line_numbers = all_line_numbers.compact.uniq.sort
-            line_numbers.each { |line_number| text(:muted, "#{line_number} ") }
-            newline
-          end
-          newline
-        end
-
       end
     end
   end

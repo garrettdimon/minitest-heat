@@ -64,7 +64,7 @@ module Minitest
       @results.record(issue)
       @map.add(*issue.to_hit) if issue.hit?
 
-      output.marker(issue.marker)
+      output.marker(issue.type)
     end
 
     # Outputs the summary of the run.

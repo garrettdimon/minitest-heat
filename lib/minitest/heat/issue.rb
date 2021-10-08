@@ -15,16 +15,6 @@ module Minitest
         painful: 3.0
       }
 
-      MARKERS = {
-        success:  '·',
-        slow:     '–',
-        painful:  '—',
-        broken:   'B',
-        error:    'E',
-        skipped:  'S',
-        failure:  'F',
-      }
-
       SHARED_SYMBOLS = {
         spacer: ' · ',
         arrow: ' > '
@@ -129,7 +119,7 @@ module Minitest
           # When the exception came out of the test itself, that's a different kind of exception
           # that really only indicates there's a problem with the code in the test. It's kind of
           # between an error and a test.
-          'Test Error'
+          'Broken Test'
         elsif error? || !passed?
           failure.result_label
         elsif slow?
@@ -137,10 +127,6 @@ module Minitest
         else
 
         end
-      end
-
-      def marker
-        MARKERS.fetch(type.to_sym)
       end
 
       def summary

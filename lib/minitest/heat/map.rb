@@ -3,6 +3,8 @@
 module Minitest
   module Heat
     class Map
+      MAXIMUM_FILES_TO_SHOW = 5
+
       attr_reader :hits
 
       # So we can sort hot spots by liklihood of being the most important spot to check out before
@@ -26,32 +28,31 @@ module Minitest
       end
 
       def add(filename, line_number, type)
-        @hits[filename] ||= { weight: 0, total: 0 }
-        @hits[filename][:total] += 1
-        @hits[filename][:weight] += WEIGHTS[type]
+        @hits[filename] ||= Hit.new(filename)
 
-        @hits[filename][type] ||= []
-        @hits[filename][type] << line_number
+        @hits[filename].log(type, line_number)
       end
 
       def files
-        hot_files
-          .sort_by { |filename, weight| weight }
-          .reverse
-          .take(5)
+        hot_files.take(MAXIMUM_FILES_TO_SHOW)
       end
+
+      # def max_issue_count
+      #   files.map(&:issue_count).max
+      # end
+
+      # def max_pathname_length
+      #   files.map do |file|
+      #     file.pathname.to_s.delete_prefix(Dir.pwd).size
+      #   end.max
+      # end
 
       private
 
       def hot_files
-        files = {}
-        @hits.each_pair do |filename, details|
-          # Can't really be a "hot spot" with just a single issue
-          # next unless details[:weight] > 1
-
-          files[filename] = details[:weight]
-        end
-        files
+        hits.values.sort do |a, b|
+          a.weight <=> b.weight
+        end.reverse
       end
     end
   end
