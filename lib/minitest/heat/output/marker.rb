@@ -5,8 +5,8 @@ module Minitest
       class Marker
         SYMBOLS = {
           success:  '·',
-          slow:     '–',
-          painful:  '—',
+          slow:     '♦',
+          painful:  '♦',
           broken:   'B',
           error:    'E',
           skipped:  'S',

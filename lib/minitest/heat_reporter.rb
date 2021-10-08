@@ -47,8 +47,10 @@ module Minitest
     # Starts reporting on the run.
     def start
       results.start_timer!
-      output.puts
-      output.puts
+
+      # A couple of blank lines to create some breathing room
+      output.newline
+      output.newline
     end
 
     # About to start running a test. This allows a reporter to show that it is starting or that we
@@ -72,6 +74,7 @@ module Minitest
     def report
       results.stop_timer!
 
+      # A couple of blank lines to create some breathing room
       output.newline
       output.newline
 
@@ -79,20 +82,20 @@ module Minitest
       #   pressing issues are displayed at the bottom of the report in order to reduce scrolling.
       #   This way, as you fix issues, the list gets shorter, and eventually the least critical
       #   issues will be displayed without scrolling once more problematic issues are resolved.
-      if results.failures.empty? && results.brokens.empty? && results.errors.empty? && results.skips.empty?
-        results.slows.each { |issue| output.issue_details(issue) }
+      %i[slows painfuls skips failures brokens errors].each do |issue_category|
+        results.send(issue_category).each { |issue| output.issue_details(issue) }
       end
 
-      if results.failures.empty? && results.brokens.empty? && results.errors.empty?
-        results.skips.each { |issue| output.issue_details(issue) }
-      end
-
-      results.failures.each { |issue| output.issue_details(issue) }
-      results.brokens.each { |issue| output.issue_details(issue) }
-      results.errors.each { |issue| output.issue_details(issue) }
-
+      # Display a short summary of the total issue counts fore ach category as well as performance
+      # details for the test suite as a whole
       output.compact_summary(results)
+
+      # If there were issues, shows a short heat map summary of which files and lines were the most
+      # common sources of issues
       output.heat_map(map)
+
+      # A blank line to create some breathing room
+      output.newline
     end
 
     # Did this run pass?

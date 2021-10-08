@@ -32,31 +32,21 @@ module Minitest
       alias newline puts
 
       def issue_details(issue)
-        issue_details_lines = Minitest::Heat::Output::Issue.new(issue).tokens
-
-        print_tokens(issue_details_lines)
+        print_tokens Minitest::Heat::Output::Issue.new(issue).tokens
       end
 
       def marker(issue_type)
-        marker_token = Minitest::Heat::Output::Marker.new(issue_type).token
-
-        print_token(marker_token)
+        print_token Minitest::Heat::Output::Marker.new(issue_type).token
       end
 
       def compact_summary(results)
-        results_tokens = ::Minitest::Heat::Output::Results.new(results).tokens
-
         newline
-        print_tokens(results_tokens)
-        newline
+        print_tokens ::Minitest::Heat::Output::Results.new(results).tokens
       end
 
       def heat_map(map)
-        map_tokens = ::Minitest::Heat::Output::Map.new(map).tokens
-
         newline
-        print_tokens(map_tokens)
-        newline
+        print_tokens ::Minitest::Heat::Output::Map.new(map).tokens
       end
 
       private

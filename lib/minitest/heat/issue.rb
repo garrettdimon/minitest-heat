@@ -109,6 +109,8 @@ module Minitest
           'Broken Test'
         elsif error? || !passed?
           failure.result_label
+        elsif painful?
+          'Passed but Painfully Slow'
         elsif slow?
           'Passed but Slow'
         else

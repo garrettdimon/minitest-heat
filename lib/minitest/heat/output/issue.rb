@@ -21,6 +21,7 @@ module Minitest
           when :broken then broken_tokens
           when :failure then failure_tokens
           when :skipped then skipped_tokens
+          when :painful then painful_tokens
           when :slow then slow_tokens
           else
           end
@@ -60,6 +61,14 @@ module Minitest
           [
             headline_tokens,
             summary_tokens,
+            newline_tokens
+          ]
+        end
+
+        def painful_tokens
+          [
+            headline_tokens,
+            slowness_tokens,
             newline_tokens
           ]
         end

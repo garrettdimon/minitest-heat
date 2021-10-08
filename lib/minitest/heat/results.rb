@@ -2,6 +2,7 @@
 
 module Minitest
   module Heat
+    # A collection of test failures
     class Results
 
       attr_reader :test_count,
@@ -20,6 +21,7 @@ module Minitest
           broken: [],
           failure: [],
           skipped: [],
+          painful: [],
           slow: []
         }
         @start_time = nil
@@ -69,12 +71,20 @@ module Minitest
         issues.fetch(:skipped) { [] }
       end
 
+      def painfuls
+        issues
+          .fetch(:painful) { [] }
+          .sort { |issue| issue.time }
+          .reverse
+          .take(5)
+      end
+
       def slows
         issues
           .fetch(:slow) { [] }
           .sort { |issue| issue.time }
           .reverse
-          .take(3)
+          .take(5)
       end
 
       def errors?
@@ -91,6 +101,10 @@ module Minitest
 
       def skips?
         skips.any?
+      end
+
+      def painfuls?
+        painfuls.any?
       end
 
       def slows?
