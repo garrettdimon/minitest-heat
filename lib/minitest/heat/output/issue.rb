@@ -108,7 +108,7 @@ module Minitest
         end
 
         def slowness_tokens
-          [[:bold, issue.slowness], [:muted, spacer], [:default, issue.location]]
+          [[:bold, issue.slowness], [:muted, spacer], [:default, issue.short_location] ]
         end
 
         def newline_tokens

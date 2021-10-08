@@ -40,12 +40,12 @@ module Minitest
         end
 
         def hit_line_numbers(file, issue_type)
-          issues = file.issues.fetch(issue_type) { [] }
+          line_numbers_for_issue_type = file.issues.fetch(issue_type) { [] }
 
-          return nil if issues.empty?
+          return nil if line_numbers_for_issue_type.empty?
 
           numbers = []
-          issues.map do |line_number|
+          line_numbers_for_issue_type.sort.map do |line_number|
             numbers << [issue_type, "#{line_number} "]
           end
           numbers
@@ -59,7 +59,7 @@ module Minitest
             *hit_line_numbers(file, :skipped),
             *hit_line_numbers(file, :painful),
             *hit_line_numbers(file, :slow)
-          ].compact
+          ].compact.sort_by { |number_token| number_token[1] }
         end
       end
     end

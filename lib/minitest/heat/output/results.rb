@@ -17,8 +17,8 @@ module Minitest
 
         def tokens
           @tokens << [*issue_counts_tokens] if issue_counts_tokens&.any?
-          @tokens << [assertions_count_token, test_count_token]
           @tokens << [assertions_performance_token, tests_performance_token, timing_token]
+          @tokens << [assertions_count_token, test_count_token]
 
           @tokens
         end

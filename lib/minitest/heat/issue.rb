@@ -110,7 +110,7 @@ module Minitest
         elsif error? || !passed?
           failure.result_label
         elsif painful?
-          'Passed but Painfully Slow'
+          'Passed but Very Slow'
         elsif slow?
           'Passed but Slow'
         end
