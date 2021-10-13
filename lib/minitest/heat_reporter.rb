@@ -31,12 +31,14 @@ module Minitest
   class HeatReporter < AbstractReporter
     attr_reader :output,
                 :options,
+                :timer,
                 :results,
                 :map
 
     def initialize(io = $stdout, options = {})
       @options = options
 
+      @timer =    Heat::Timer.new
       @results =  Heat::Results.new
       @map =      Heat::Map.new
       @output =   Heat::Output.new(io)
@@ -44,7 +46,7 @@ module Minitest
 
     # Starts reporting on the run.
     def start
-      results.start_timer!
+      timer.start!
 
       # A couple of blank lines to create some breathing room
       output.newline
@@ -56,11 +58,15 @@ module Minitest
     def prerecord(klass, name); end
 
     # Records the data from a result.
+    #
     # Minitest::Result source:
     #   https://github.com/seattlerb/minitest/blob/f4f57afaeb3a11bd0b86ab0757704cb78db96cf4/lib/minitest.rb#L504
     def record(result)
+      # Convert a Minitest Result into an "issue" to more consistently expose the data needed to
+      # adjust the failure output to the type of failure
       issue = Heat::Issue.new(result)
 
+      timer.increment_counts(issue.result.assertions)
       results.record(issue)
       map.add(*issue.to_hit) if issue.hit?
 
@@ -69,7 +75,7 @@ module Minitest
 
     # Outputs the summary of the run.
     def report
-      results.stop_timer!
+      timer.stop!
 
       # A couple of blank lines to create some breathing room
       output.newline
@@ -80,12 +86,14 @@ module Minitest
       #   This way, as you fix issues, the list gets shorter, and eventually the least critical
       #   issues will be displayed without scrolling once more problematic issues are resolved.
       %i[slows painfuls skips failures brokens errors].each do |issue_category|
+        next unless show?(issue_category)
+
         results.send(issue_category).each { |issue| output.issue_details(issue) }
       end
 
       # Display a short summary of the total issue counts fore ach category as well as performance
       # details for the test suite as a whole
-      output.compact_summary(results)
+      output.compact_summary(results, timer)
 
       # If there were issues, shows a short heat map summary of which files and lines were the most
       # common sources of issues
@@ -98,6 +106,24 @@ module Minitest
     # Did this run pass?
     def passed?
       results.errors.empty? && results.failures.empty?
+    end
+
+    private
+
+    def no_problems?
+      !results.problems?
+    end
+
+    def no_problems_or_skips?
+      !results.problems? && !results.skips.any?
+    end
+
+    def show?(issue_category)
+      case issue_category
+      when :skips            then no_problems?
+      when :painfuls, :slows then no_problems_or_skips?
+      else true
+      end
     end
   end
 end

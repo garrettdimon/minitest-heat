@@ -6,19 +6,25 @@ module Minitest
       class Results
         extend Forwardable
 
-        attr_accessor :results
+        attr_accessor :results, :timer
 
-        def_delegators :@results, :errors, :brokens, :failures, :skips, :painfuls, :slows, :problems?, :slows?
+        def_delegators :@results, :issues, :errors, :brokens, :failures, :skips, :painfuls, :slows, :problems?
 
-        def initialize(results)
+        def initialize(results, timer)
           @results = results
+          @timer = timer
           @tokens = []
         end
 
         def tokens
+          # Only show the issue type counts if there are issues
           @tokens << [*issue_counts_tokens] if issue_counts_tokens&.any?
-          @tokens << [assertions_performance_token, tests_performance_token, timing_token]
-          @tokens << [assertions_count_token, test_count_token]
+
+          @tokens << [
+            timing_token, separator_token,
+            test_count_token, tests_performance_token, separator_token,
+            assertions_count_token, assertions_performance_token
+          ]
 
           @tokens
         end
@@ -33,7 +39,7 @@ module Minitest
         end
 
         def issue_counts_tokens
-          return unless problems? || slows?
+          return unless issues.any?
 
           counts = [
             error_count_token,
@@ -83,24 +89,24 @@ module Minitest
           issue_count_token(style, slows, name: 'Slow')
         end
 
-        def assertions_performance_token
-          [:bold, "#{results.assertions_per_second} assertions/s"]
+        def test_count_token
+          [:default, "#{pluralize(timer.test_count, 'test')}"]
         end
 
         def tests_performance_token
-          [:default, " and #{results.tests_per_second} tests/s"]
-        end
-
-        def timing_token
-          [:default, " in #{results.total_time.round(2)}s"]
+          [:default, " (#{timer.tests_per_second}/s)"]
         end
 
         def assertions_count_token
-          [:muted, pluralize(results.assertion_count, 'Assertion')]
+          [:default, "#{pluralize(timer.assertion_count, 'assertion')}"]
         end
 
-        def test_count_token
-          [:muted, " across #{pluralize(results.test_count, 'Test')}"]
+        def assertions_performance_token
+          [:default, " (#{timer.assertions_per_second}/s)"]
+        end
+
+        def timing_token
+          [:bold, "#{timer.total_time.round(2)}s"]
         end
 
         def issue_count_token(type, collection, name: type.capitalize)

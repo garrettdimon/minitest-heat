@@ -5,7 +5,7 @@ module Minitest
     # Provides a timer to keep track of the full test suite duration and provide convenient methods
     #   for calculating tests/second and assertions/second
     class Timer
-      attr_reader :test_count, :assertion_count, :start_time, :end_time
+      attr_reader :test_count, :assertion_count, :start_time, :stop_time
 
       # Creates an instance of a timer to be used for the duration of a test suite run
       #
@@ -15,7 +15,7 @@ module Minitest
         @assertion_count = 0
 
         @start_time = nil
-        @end_time = nil
+        @stop_time = nil
       end
 
       # Records the start time for the full test suite using `Minitest.clock_time`
@@ -29,7 +29,7 @@ module Minitest
       #
       # @return [Float] the Minitest.clock_time
       def stop!
-        @end_time = Minitest.clock_time
+        @stop_time = Minitest.clock_time
       end
 
       # Calculates the total time take for the full test suite to run while ensuring it never
@@ -72,9 +72,9 @@ module Minitest
       #
       # @return [Float] the time in seconds elapsed between starting the timer and stopping it
       def delta
-        return 0 unless start_time && end_time
+        return 0 unless start_time && stop_time
 
-        end_time - start_time
+        stop_time - start_time
       end
     end
   end

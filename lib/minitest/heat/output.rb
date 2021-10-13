@@ -38,9 +38,9 @@ module Minitest
         print_token Minitest::Heat::Output::Marker.new(issue_type).token
       end
 
-      def compact_summary(results)
+      def compact_summary(results, timer)
         newline
-        print_tokens ::Minitest::Heat::Output::Results.new(results).tokens
+        print_tokens ::Minitest::Heat::Output::Results.new(results, timer).tokens
       end
 
       def heat_map(map)
