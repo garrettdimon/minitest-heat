@@ -9,6 +9,7 @@ require_relative 'heat/map'
 require_relative 'heat/output'
 require_relative 'heat/results'
 require_relative 'heat/source'
+require_relative 'heat/timer'
 require_relative 'heat/version'
 
 module Minitest
