@@ -21,8 +21,8 @@ module Minitest
           @tokens << [*issue_counts_tokens] if issue_counts_tokens&.any?
 
           @tokens << [
-            timing_token, separator_token,
-            test_count_token, tests_performance_token, separator_token,
+            timing_token, spacer_token,
+            test_count_token, tests_performance_token, join_token,
             assertions_count_token, assertions_performance_token
           ]
 
@@ -51,10 +51,10 @@ module Minitest
           ].compact
 
           # # Create an array of separator tokens one less than the total number of issue count tokens
-          separator_tokens = Array.new(counts.size, separator_token)
+          spacer_tokens = Array.new(counts.size, spacer_token)
 
           counts_with_separators = counts
-                                   .zip(separator_tokens) # Add separators between the counts
+                                   .zip(spacer_tokens) # Add separators between the counts
                                    .flatten(1) # Flatten the zipped separators, but no more
 
           counts_with_separators.pop # Remove the final trailing zipped separator that's not needed
@@ -80,12 +80,12 @@ module Minitest
         end
 
         def painful_count_token
-          style = problems? ? :muted : :painful
+          style = problems? || skips.any? ? :muted : :painful
           issue_count_token(style, painfuls, name: 'Painfully Slow')
         end
 
         def slow_count_token
-          style = problems? ? :muted : :slow
+          style = problems? || skips.any? ? :muted : :slow
           issue_count_token(style, slows, name: 'Slow')
         end
 
@@ -115,8 +115,12 @@ module Minitest
           [type, pluralize(collection.size, name)]
         end
 
-        def separator_token
-          [:muted, ' · ']
+        def spacer_token
+          Output::TOKENS[:spacer]
+        end
+
+        def join_token
+          [:default, ' with ']
         end
       end
     end

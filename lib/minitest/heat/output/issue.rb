@@ -4,11 +4,6 @@ module Minitest
   module Heat
     class Output
       class Issue
-        SHARED_SYMBOLS = {
-          spacer: ' · ',
-          arrow: ' > '
-        }.freeze
-
         attr_accessor :issue
 
         def initialize(issue)
@@ -31,6 +26,7 @@ module Minitest
         def error_tokens
           [
             headline_tokens,
+            test_location_tokens,
             summary_tokens,
             *backtrace_tokens,
             newline_tokens
@@ -49,8 +45,8 @@ module Minitest
         def failure_tokens
           [
             headline_tokens,
-            summary_tokens,
-            location_tokens,
+            *failure_summary_tokens,
+            test_location_tokens,
             *source_tokens,
             newline_tokens
           ]
@@ -59,6 +55,7 @@ module Minitest
         def skipped_tokens
           [
             headline_tokens,
+            test_location_tokens,
             summary_tokens,
             newline_tokens
           ]
@@ -67,7 +64,7 @@ module Minitest
         def painful_tokens
           [
             headline_tokens,
-            slowness_tokens,
+            slowness_summary_tokens,
             newline_tokens
           ]
         end
@@ -75,23 +72,27 @@ module Minitest
         def slow_tokens
           [
             headline_tokens,
-            slowness_tokens,
+            slowness_summary_tokens,
             newline_tokens
           ]
         end
 
         def headline_tokens
-          [[issue.type, issue.label], [:muted, spacer], [:default, issue.test_name], [:muted, spacer], [:muted, issue.test_class]]
+          [[issue.type, issue.label], spacer_token, [:default, issue.test_name]]
         end
 
-        def summary_tokens
-          [[:italicized, issue.summary]]
+        def test_name_and_class_tokens
+          [[:default, issue.test_class], *test_location_tokens ]
         end
 
         def backtrace_tokens
           backtrace = ::Minitest::Heat::Output::Backtrace.new(issue.location)
 
           backtrace.tokens
+        end
+
+        def test_location_tokens
+          [[:default, test_file_short_location], [:muted, ':'], [:default, issue.test_definition_line], arrow_token, [:default, issue.test_failure_line]]
         end
 
         def location_tokens
@@ -102,26 +103,53 @@ module Minitest
           filename    = issue.location.project_file
           line_number = issue.location.project_failure_line
 
-          source_code = ::Minitest::Heat::Output::SourceCode.new(filename, line_number)
+          source_code = ::Minitest::Heat::Output::SourceCode.new(filename, line_number, max_line_count: 3)
 
           source_code.tokens
         end
 
-        def slowness_tokens
-          [[:bold, issue.slowness], [:muted, spacer], [:default, issue.short_location] ]
+        def summary_tokens
+          [[:italicized, issue.summary]]
+        end
+
+        def slowness_summary_tokens
+          [[:bold, issue.slowness], spacer_token, [:default, issue.short_location]]
         end
 
         def newline_tokens
           []
         end
 
-        def spacer
-          SHARED_SYMBOLS[:spacer]
+        def test_file_short_location
+          issue.location.test_file.to_s.delete_prefix("#{Dir.pwd}/")
         end
 
-        def arrow
-          SHARED_SYMBOLS[:arrow]
+        def failure_summary_tokens
+          return unless issue_summary_lines.any?
+
+          # Sometimes, the exception message is multiple lines, so this adjusts the lines to
+          # visually group them together a bit
+          # if issue_summary_lines.one?
+          #   [[[:italicized, issue_summary_lines.first]]]
+          # else
+            issue_summary_lines.map do |line|
+              [Output::TOKENS[:muted_lead], [:italicized, line]]
+            end
+          # end
         end
+
+        def issue_summary_lines
+          @issue_summary_lines ||= issue.summary.split("\n")
+        end
+
+        def spacer_token
+          Output::TOKENS[:spacer]
+        end
+
+        def arrow_token
+          Output::TOKENS[:muted_arrow]
+        end
+
       end
     end
   end

@@ -11,13 +11,13 @@ require_relative 'contrived_exceptions'
 if ENV['FORCE_SKIPS'] || ENV['FORCE_SLOWS'] || ENV['FORCE_FAILURES']
 
   class Minitest::ContrivedSkipsAndSlowsTest < Minitest::Test
-    def test_skips_the_test_because_its_not_ready
+    def test_something_that_is_not_ready_yet
       return if ENV['FORCE_SLOWS']
 
       skip 'The test was explicitly skipped'
     end
 
-    def test_skips_the_test_because_its_temporarily_broken
+    def test_something_temporarily_broken
       return if ENV['FORCE_SLOWS']
 
       skip 'The test is temporarily broken'

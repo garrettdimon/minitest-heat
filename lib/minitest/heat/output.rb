@@ -12,6 +12,18 @@ module Minitest
   module Heat
     # Friendly API for printing nicely-formatted output to the console
     class Output
+      SYMBOLS = {
+        middot: '·',
+        arrow: '➜',
+        lead: '|',
+      }.freeze
+
+      TOKENS = {
+        spacer:      [:muted, " #{SYMBOLS[:middot]} "],
+        muted_arrow: [:muted, " #{SYMBOLS[:arrow]} "],
+        muted_lead:  [:muted, "#{SYMBOLS[:lead]} "],
+      }
+
       attr_reader :stream
 
       def initialize(stream = $stdout)

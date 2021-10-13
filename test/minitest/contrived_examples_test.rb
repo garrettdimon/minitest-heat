@@ -11,11 +11,11 @@ require_relative 'contrived_exceptions'
 if ENV['FORCE_FAILURES']
 
   class Minitest::ContrivedExamplesTest < Minitest::Test
-    def test_fails_because_of_an_incorrect_assertion
+    def test_incorrect_assertion_failure
       assert false
     end
 
-    def test_fails_but_shows_a_custom_error_message_for_an_assertion
+    def test_failing_assertion_with_custom_error_message
       assert false, 'This custom error messages explains why this is bad.'
     end
 
@@ -30,13 +30,13 @@ if ENV['FORCE_FAILURES']
       assert_equal hash_one, hash_two
     end
 
-    def test_fails_because_today_is_after_yesterday
+    def test_yesterday_should_be_after_today
       seconds_in_a_day = 24 * 60 * 60
       time = Time.now - seconds_in_a_day
       fail_after time.year, time.month, time.day, "This explicitly failed because it was after #{time}"
     end
 
-    def test_fails_because_it_was_explicitly_flunked
+    def test_explicitly_flunked_example
       flunk 'The test was explicitly flunked'
     end
 

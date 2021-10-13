@@ -20,7 +20,7 @@ module Minitest
       attr_reader :result, :location, :failure
 
       def_delegators :@result, :passed?, :error?, :skipped?
-      def_delegators :@location, :backtrace
+      def_delegators :@location, :backtrace, :test_definition_line, :test_failure_line
 
       def initialize(result)
         @result = result
@@ -34,7 +34,7 @@ module Minitest
       #
       # @return [String] the pathname for the file relative to the present working directory
       def short_location
-        location.to_s.delete_prefix(Dir.pwd)
+        location.to_s.delete_prefix("#{Dir.pwd}/")
       end
 
       # Converts an issue to the key attributes for recording a 'hit'

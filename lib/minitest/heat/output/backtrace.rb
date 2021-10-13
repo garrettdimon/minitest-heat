@@ -26,7 +26,7 @@ module Minitest
             parts = [
               indentation_token,
               path_token(backtrace_entry),
-              file_and_line_number_token(backtrace_entry),
+              *file_and_line_number_tokens(backtrace_entry),
               source_code_line_token(backtrace_entry.source_code)
             ]
 
@@ -92,16 +92,16 @@ module Minitest
           [:muted, path]
         end
 
-        def file_and_line_number_token(backtrace_entry)
-          [:default, "#{backtrace_entry.file}:#{backtrace_entry.line_number}"]
+        def file_and_line_number_tokens(backtrace_entry)
+          [[:default, backtrace_entry.file], [:muted, ':'], [:default, backtrace_entry.line_number]]
         end
 
         def source_code_line_token(source_code)
-          [:muted, " `#{source_code.line.strip}`"]
+          [:muted, " #{Output::SYMBOLS[:arrow]} `#{source_code.line.strip}`"]
         end
 
         def file_freshness(_line)
-          [:bold, ' < Most Recently Modified']
+          [:default, " #{Output::SYMBOLS[:middot]} Most Recently Modified"]
         end
 
         # The number of spaces each line of code should be indented. Currently defaults to 2 in
