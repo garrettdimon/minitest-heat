@@ -52,7 +52,7 @@ module Minitest
         # ...it's smart about exceptions that were raised outside of the project?
         # ...it's smart about highlighting lines of code differently based on whether it's source code, test code, or external code?
         def backtrace_entries
-          project_entries
+          all_entries
         end
 
         private
@@ -101,7 +101,7 @@ module Minitest
         end
 
         def file_freshness(_line)
-          [:default, " #{Output::SYMBOLS[:middot]} Most Recently Modified"]
+          [:default, " #{Output::SYMBOLS[:middot]} Most Recently Modified File"]
         end
 
         # The number of spaces each line of code should be indented. Currently defaults to 2 in

@@ -27,6 +27,7 @@ module Minitest
           [
             headline_tokens,
             test_location_tokens,
+            location_tokens,
             summary_tokens,
             *backtrace_tokens,
             newline_tokens
@@ -36,6 +37,7 @@ module Minitest
         def broken_tokens
           [
             headline_tokens,
+            test_location_tokens,
             summary_tokens,
             *backtrace_tokens,
             newline_tokens
@@ -45,9 +47,8 @@ module Minitest
         def failure_tokens
           [
             headline_tokens,
-            *failure_summary_tokens,
             test_location_tokens,
-            *source_tokens,
+            summary_tokens,
             newline_tokens
           ]
         end
@@ -56,7 +57,6 @@ module Minitest
           [
             headline_tokens,
             test_location_tokens,
-            summary_tokens,
             newline_tokens
           ]
         end
@@ -92,24 +92,26 @@ module Minitest
         end
 
         def test_location_tokens
-          [[:default, test_file_short_location], [:muted, ':'], [:default, issue.test_definition_line], arrow_token, [:default, issue.test_failure_line]]
+          [[:default, test_file_short_location], [:muted, ':'], [:default, issue.test_definition_line], arrow_token, [:default, issue.test_failure_line], [:muted, test_line_source]]
         end
 
         def location_tokens
-          [[:muted, issue.short_location]]
+          [[:default, most_relevant_short_location], [:muted, ':'], [:default, issue.location.most_relevant_failure_line], [:muted, most_relevant_line_source]]
         end
 
         def source_tokens
           filename    = issue.location.project_file
           line_number = issue.location.project_failure_line
 
-          source_code = ::Minitest::Heat::Output::SourceCode.new(filename, line_number, max_line_count: 3)
+          # source_code = ::Minitest::Heat::Output::SourceCode.new(filename, line_number, max_line_count: 1)
+          # source_code.tokens
 
-          source_code.tokens
+          source = Minitest::Heat::Source.new(filename, line_number: line_number)
+          [[:muted, " #{Output::SYMBOLS[:arrow]} `#{source.line.strip}`"]]
         end
 
         def summary_tokens
-          [[:italicized, issue.summary]]
+          [[:italicized, issue.summary.delete_suffix("---------------")]]
         end
 
         def slowness_summary_tokens
@@ -120,27 +122,48 @@ module Minitest
           []
         end
 
+        def most_relevant_short_location
+          issue.location.most_relevant_file.to_s.delete_prefix("#{Dir.pwd}/")
+        end
+
         def test_file_short_location
           issue.location.test_file.to_s.delete_prefix("#{Dir.pwd}/")
         end
 
-        def failure_summary_tokens
-          return unless issue_summary_lines.any?
+        def most_relevant_line_source
+          filename    = issue.location.project_file
+          line_number = issue.location.project_failure_line
 
-          # Sometimes, the exception message is multiple lines, so this adjusts the lines to
-          # visually group them together a bit
-          # if issue_summary_lines.one?
-          #   [[[:italicized, issue_summary_lines.first]]]
-          # else
-            issue_summary_lines.map do |line|
-              [Output::TOKENS[:muted_lead], [:italicized, line]]
-            end
-          # end
+          source = Minitest::Heat::Source.new(filename, line_number: line_number)
+          "\n  #{source.line.strip}"
         end
 
-        def issue_summary_lines
-          @issue_summary_lines ||= issue.summary.split("\n")
+        def test_line_source
+          filename    = issue.location.test_file
+          line_number = issue.location.test_failure_line
+
+          source = Minitest::Heat::Source.new(filename, line_number: line_number)
+          "\n  #{source.line.strip}"
         end
+
+
+        # def failure_summary_tokens
+        #   return unless issue_summary_lines.any?
+
+        #   # Sometimes, the exception message is multiple lines, so this adjusts the lines to
+        #   # visually group them together a bit
+        #   if issue_summary_lines.one?
+        #     [[[:italicized, issue_summary_lines.first]]]
+        #   else
+        #     issue_summary_lines.map do |line|
+        #       [Output::TOKENS[:muted_lead], [:italicized, line]]
+        #     end
+        #   end
+        # end
+
+        # def issue_summary_lines
+        #   @issue_summary_lines ||= issue.summary.split("\n")
+        # end
 
         def spacer_token
           Output::TOKENS[:spacer]
