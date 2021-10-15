@@ -32,15 +32,13 @@ module Minitest
     attr_reader :output,
                 :options,
                 :timer,
-                :results,
-                :map
+                :results
 
     def initialize(io = $stdout, options = {})
       @options = options
 
       @timer =    Heat::Timer.new
       @results =  Heat::Results.new
-      @map =      Heat::Map.new
       @output =   Heat::Output.new(io)
     end
 
@@ -68,7 +66,6 @@ module Minitest
 
       timer.increment_counts(issue.result.assertions)
       results.record(issue)
-      map.add(*issue.to_hit) if issue.hit?
 
       output.marker(issue.type)
     end
@@ -97,7 +94,7 @@ module Minitest
 
       # If there were issues, shows a short heat map summary of which files and lines were the most
       # common sources of issues
-      output.heat_map(map)
+      output.heat_map(results)
 
       # A blank line to create some breathing room
       output.newline

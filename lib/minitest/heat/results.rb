@@ -4,14 +4,16 @@ module Minitest
   module Heat
     # A collection of test failures
     class Results
-      attr_reader :issues
+      attr_reader :issues, :heat_map
 
       def initialize
         @issues = []
+        @heat_map = Heat::Map.new
       end
 
       def record(issue)
-        @issues << issue
+        @issues.push(issue)
+        @heat_map.add(*issue.to_hit) if issue.hit?
       end
 
       def problems?

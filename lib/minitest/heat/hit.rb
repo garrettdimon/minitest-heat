@@ -15,11 +15,11 @@ module Minitest
       #   test is broken (i.e. raising an exception), that's a special sort of failure that would be
       #   misleading. It doesn't represent a proper failure, but rather a test that doesn't work.
       WEIGHTS = {
-        error: 3,    # exceptions from source code have the highest likelihood of a ripple effect
-        broken: 2,   # broken tests won't have ripple effects but can't help if they can't run
-        failure: 1,  # failures are kind of the whole point, and they could have ripple effects
-        skipped: 0,  # skips aren't failures, but they shouldn't go ignored
-        painful: 0,  # slow tests aren't failures, but they shouldn't be ignored
+        error: 5,    # exceptions from source code have the highest likelihood of a ripple effect
+        broken: 4,   # broken tests won't have ripple effects but can't help if they can't run
+        failure: 3,  # failures are kind of the whole point, and they could have ripple effects
+        skipped: 2,  # skips aren't failures, but they shouldn't go ignored
+        painful: 1,  # slow tests aren't failures, but they shouldn't be ignored
         slow: 0
       }.freeze
 
@@ -41,10 +41,6 @@ module Minitest
 
       def age_in_seconds
         (Time.now - mtime).to_i
-      end
-
-      def critical_issues?
-        issues[:error].any? || issues[:broken].any? || issues[:failure].any?
       end
 
       def issue_count

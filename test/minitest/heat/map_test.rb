@@ -43,7 +43,7 @@ class Minitest::Heat::MapTest < Minitest::Test
 
     hit = @map.hits[@filename]
 
-    assert_equal 6, hit.weight
+    assert_equal 10, hit.weight
     assert_equal 2, hit.count
     assert_equal [5, 8], hit.line_numbers
   end
