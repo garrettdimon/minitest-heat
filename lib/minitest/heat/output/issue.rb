@@ -102,9 +102,6 @@ module Minitest
           filename    = issue.location.project_file
           line_number = issue.location.project_failure_line
 
-          # source_code = ::Minitest::Heat::Output::SourceCode.new(filename, line_number, max_line_count: 1)
-          # source_code.tokens
-
           source = Minitest::Heat::Source.new(filename, line_number: line_number)
           [[:muted, " #{Output::SYMBOLS[:arrow]} `#{source.line.strip}`"]]
         end
