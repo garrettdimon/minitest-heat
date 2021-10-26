@@ -27,7 +27,6 @@ module Minitest
           [
             headline_tokens,
             test_location_tokens,
-            location_tokens,
             summary_tokens,
             *backtrace_tokens,
             newline_tokens
@@ -145,25 +144,6 @@ module Minitest
           source = Minitest::Heat::Source.new(filename, line_number: line_number)
           "\n  #{source.line.strip}"
         end
-
-
-        # def failure_summary_tokens
-        #   return unless issue_summary_lines.any?
-
-        #   # Sometimes, the exception message is multiple lines, so this adjusts the lines to
-        #   # visually group them together a bit
-        #   if issue_summary_lines.one?
-        #     [[[:italicized, issue_summary_lines.first]]]
-        #   else
-        #     issue_summary_lines.map do |line|
-        #       [Output::TOKENS[:muted_lead], [:italicized, line]]
-        #     end
-        #   end
-        # end
-
-        # def issue_summary_lines
-        #   @issue_summary_lines ||= issue.summary.split("\n")
-        # end
 
         def spacer_token
           Output::TOKENS[:spacer]
