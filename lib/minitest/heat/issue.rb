@@ -44,7 +44,7 @@ module Minitest
       def to_hit
         [
           location.project_file.to_s,
-          location.project_failure_line,
+          Integer(location.project_failure_line),
           type
         ]
       end
