@@ -5,7 +5,7 @@ module Minitest
     class Output
       # Builds the collection of tokens for a backtrace when an exception occurs
       class Backtrace
-        DEFAULT_LINE_COUNT = 5
+        DEFAULT_LINE_COUNT = 8
         DEFAULT_INDENTATION_SPACES = 2
 
         attr_accessor :location, :backtrace

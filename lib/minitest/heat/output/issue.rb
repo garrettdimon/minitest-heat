@@ -111,7 +111,13 @@ module Minitest
         end
 
         def slowness_summary_tokens
-          [[:bold, issue.slowness], spacer_token, [:default, issue.short_location]]
+          [
+            [:bold, issue.slowness],
+            spacer_token,
+            [:default, issue.location.test_file.to_s.delete_prefix(Dir.pwd)],
+            [:muted, ':'],
+            [:default, issue.location.test_definition_line]
+          ]
         end
 
         def newline_tokens
