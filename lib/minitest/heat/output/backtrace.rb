@@ -5,7 +5,7 @@ module Minitest
     class Output
       # Builds the collection of tokens for a backtrace when an exception occurs
       class Backtrace
-        DEFAULT_LINE_COUNT = 8
+        DEFAULT_LINE_COUNT = 10
         DEFAULT_INDENTATION_SPACES = 2
 
         attr_accessor :location, :backtrace
@@ -83,17 +83,23 @@ module Minitest
         end
 
         def path_token(line)
+          style = line.to_s.include?(Dir.pwd) ? :default : :muted
           path = "#{line.path}/"
 
           # If all of the backtrace lines are from the project, no point in the added redundant
           #  noise of showing the project root directory over and over again
           path = path.delete_prefix(project_root_dir) if all_backtrace_entries_from_project?
 
-          [:muted, path]
+          [style, path]
         end
 
         def file_and_line_number_tokens(backtrace_entry)
-          [[:default, backtrace_entry.file], [:muted, ':'], [:default, backtrace_entry.line_number]]
+          style = backtrace_entry.to_s.include?(Dir.pwd) ? :bold : :muted
+          [
+            [style, backtrace_entry.file],
+            [:muted, ':'],
+            [style, backtrace_entry.line_number]
+          ]
         end
 
         def source_code_line_token(source_code)
@@ -114,6 +120,10 @@ module Minitest
         # @return [type] [description]
         def indentation
           DEFAULT_INDENTATION_SPACES
+        end
+
+        def style_for(path)
+          style = path.to_s.include?(Dir.pwd) ? :default : :muted
         end
       end
     end
