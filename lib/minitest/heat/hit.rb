@@ -5,7 +5,7 @@ require 'forwardable'
 module Minitest
   module Heat
     # Kind of like an issue, but instead of focusing on a failing test, it covers all issues for a
-    #   given file
+    #   given file to build a heat map of the affected files
     class Hit
       # So we can sort hot spots by liklihood of being the most important spot to check out before
       #   trying to fix something. These are ranked based on the possibility they represent ripple
@@ -25,32 +25,31 @@ module Minitest
 
       attr_reader :pathname, :issues
 
+      # Creates an instance of a Hit for the given pathname. It must be the full pathname to
+      #   uniquely identify the file or we could run into collisions that muddy the water and
+      #   obscure which files had which errors on which line numbers
+      # @param pathname [Pathname,String] the full pathname to the file
+      #
+      # @return [self]
       def initialize(pathname)
         @pathname = Pathname(pathname)
         @issues = {}
       end
 
+      # Adds a record of a given issue type for the line number
+      # @param type [Symbol] one of Issue::TYPES
+      # @param line_number [Integer,String] the line number to record the issue on
+      #
+      # @return [type] [description]
       def log(type, line_number)
         @issues[type] ||= []
-        @issues[type] << line_number
+        @issues[type] << Integer(line_number)
       end
 
-      def mtime
-        pathname.mtime
-      end
-
-      def age_in_seconds
-        (Time.now - mtime).to_i
-      end
-
-      def issue_count
-        count = 0
-        Issue::TYPES.each do |issue_type|
-          count += issues.fetch(issue_type) { [] }.size
-        end
-        count
-      end
-
+      # Calcuates an approximate weight to serve as a proxy for which files are most likely to be
+      #   the most problematic across the various issue types
+      #
+      # @return [Integer] the problem weight for the file
       def weight
         weight = 0
         issues.each_pair do |type, values|
@@ -59,6 +58,9 @@ module Minitest
         weight
       end
 
+      # The total issue count for the file across all issue types. Includes duplicates if they exist
+      #
+      # @return [Integer] the sum of the counts for all line numbers for all issue types
       def count
         count = 0
         issues.each_pair do |_type, values|
@@ -67,6 +69,9 @@ module Minitest
         count
       end
 
+      # The full set of unique line numbers across all issue types
+      #
+      # @return [Array<Integer>] the full set of unique offending line numbers for the hit
       def line_numbers
         line_numbers = []
         issues.each_pair do |_type, values|

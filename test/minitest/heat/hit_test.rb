@@ -20,14 +20,6 @@ class Minitest::Heat::HitTest < Minitest::Test
     assert_empty @hit.line_numbers
   end
 
-  def test_knows_file_freshness
-    assert_equal @pathname, @hit.pathname
-    assert_equal @pathname.mtime, @hit.mtime
-
-    expected_age_in_seconds = (Time.now - @hit.mtime).to_i
-    assert_equal expected_age_in_seconds, @hit.age_in_seconds
-  end
-
   def test_logs_issues
     @hit.log(@type, @line_number)
 
