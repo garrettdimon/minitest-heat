@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-if ENV['FORCE_FAILURES']
+if ENV['FORCE_EXCEPTIONS'] || ENV['IMPLODE']
   # Re-open these classes to add bogus methods that raise errors from inside the source rather than
   #   directly from the tests. These need to be in a separate file from
   #   `contrived_exceptions_test.rb` so Minitest::Heat doesn't perceive them as occuring from a test
