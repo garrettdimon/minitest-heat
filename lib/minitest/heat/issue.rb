@@ -18,7 +18,7 @@ module Minitest
       }.freeze
 
       attr_reader :assertions,
-                  :failure,
+                  :exception,
                   :location,
                   :test_class,
                   :test_identifier,
@@ -29,10 +29,14 @@ module Minitest
 
       def_delegators :@location, :backtrace, :test_definition_line, :test_failure_line
 
+      # Extracts the necessary data from result.
+      # @param result [Minitest::Result] the instance of Minitest::Result to examine
+      #
+      # @return [Issue] the instance of the issue to use for examining the result
       def self.from_result(result)
         new(
           assertions: result.assertions,
-          failures: result.failures,
+          exception: result.failure&.exception,
           location: result.source_location,
           test_class: result.klass,
           test_identifier: result.name,
@@ -47,7 +51,7 @@ module Minitest
       #   for standard usage, but for lower-level purposes like testing, the initializer provides3
       #   more fine-grained control
       # @param assertions: 1 [Integer] the number of assertions in the result
-      # @param failures: [] [Array<Exception>] failed assertions (roughly equivalent to exceptions)
+      # @param exception: nil [Exception] exception if there is one
       # @param location: nil [String] the location identifier for a test
       # @param test_class: nil [String] the class name for the test result's containing class
       # @param test_identifier: nil [String] the name of the test
@@ -57,10 +61,10 @@ module Minitest
       # @param skipped: false [Boolean] true if the test was skipped
       #
       # @return [type] [description]
-      def initialize(assertions: 1, failures: [], location: nil, test_class: nil, test_identifier: nil, execution_time: nil, passed: false, error: false, skipped: false)
+      def initialize(assertions: 1, exception: nil, location: [nil, 1], test_class: nil, test_identifier: nil, execution_time: nil, passed: false, error: false, skipped: false)
         @assertions = assertions
-        @failure = failures.any? ? failures.first : nil
-        @location = Location.new(location, @failure&.backtrace)
+        @exception = exception
+        @location = Location.new(location, exception&.backtrace)
 
         @test_class = test_class
         @test_identifier = test_identifier
@@ -69,26 +73,6 @@ module Minitest
         @passed = passed
         @error = error
         @skipped = skipped
-      end
-
-      # Returns the primary location of the issue with the present working directory removed from
-      #   the string for conciseness
-      #
-      # @return [String] the pathname for the file relative to the present working directory
-      def short_location
-        location.to_s.delete_prefix("#{Dir.pwd}/")
-      end
-
-      # Converts an issue to the key attributes for recording a 'hit'
-      #
-      # @return [Array] the filename, failure line, and issue type for categorizing a 'hit' to
-      #   support generating the heat map
-      def to_hit
-        [
-          location.project_file.to_s,
-          Integer(location.project_failure_line),
-          type
-        ]
       end
 
       # Classifies different issue types so they can be categorized, organized, and prioritized.
@@ -159,61 +143,41 @@ module Minitest
         location.proper_failure?
       end
 
-      def test_name
-        test_prefix = 'test_'
-
-        if test_identifier.start_with?(test_prefix)
-          test_identifier.delete_prefix(test_prefix).gsub('_', ' ')
-        else
-          test_identifier
-        end
-      end
-
-      def exception
-        failure.exception
-      end
-
+      # Was the result a pass? i.e. Skips aren't passes or failures. Slows are still passes. So this
+      #   is purely a measure of whether the test explicitly passed all assertions
+      #
+      # @return [Boolean] false for errors, failures, or skips, true for passes (including slows)
       def passed?
         passed
       end
 
+      # Was there an exception that triggered a failure?
+      #
+      # @return [Boolean] true if there's an exception
       def error?
         error
       end
 
+      # Was the test skipped?
+      #
+      # @return [Boolean] true if the test was explicitly skipped, false otherwise
       def skipped?
         skipped
       end
 
-      def slowness
-        "#{execution_time.round(2)}s"
-      end
-
-      def label
-        if error? && in_test?
-          # When the exception came out of the test itself, that's a different kind of exception
-          # that really only indicates there's a problem with the code in the test. It's kind of
-          # between an error and a test.
-          'Broken Test'
-        elsif error? || !passed?
-          failure.result_label
-        elsif painful?
-          'Passed but Very Slow'
-        elsif slow?
-          'Passed but Slow'
-        end
-      end
-
+      # The more nuanced detail of the failure. If it's an error, digs into the exception. Otherwise
+      #   uses the message from the result
+      #
+      # @return [String] a more detailed explanation of the issue
       def summary
         error? ? exception_parts[0] : exception.message
       end
 
-      def freshest_file
-        backtrace.recently_modified.first
-      end
-
       private
 
+      # If there's a proper exception, takes the first line of the exception message
+      #
+      # @return [String] the exception summary message
       def exception_parts
         exception.message.split("\n")
       end

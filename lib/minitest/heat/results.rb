@@ -13,7 +13,14 @@ module Minitest
 
       def record(issue)
         @issues.push(issue)
-        @heat_map.add(*issue.to_hit) if issue.hit?
+
+        return unless issue.hit?
+
+        pathname = issue.location.project_file.to_s
+        line_number = Integer(issue.location.project_failure_line)
+        type = issue.type
+
+        @heat_map.add(pathname, line_number, type)
       end
 
       def problems?

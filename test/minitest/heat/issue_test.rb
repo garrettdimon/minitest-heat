@@ -5,20 +5,15 @@ require 'test_helper'
 class Minitest::Heat::IssueTest < Minitest::Test
   def setup
     # # Raise, rescue, and assign an exception instance to ensure the full context
-    # @failure = begin
-    #   raise ::Minitest::UnexpectedError.new
-    # rescue => e
-    #   return e
-    # end
+    @exception = begin
+      raise ::Minitest::UnexpectedError.new
+    rescue => e
+      return e
+    end
 
-    # # Build a Minitest Result
-    # @result = ::Minitest::Result.new('Example Test Name')
-    # @result.failures << @failure
-    # @result.time = Time.now
+    @location = [Pathname(__FILE__), 1]
 
-    # @issue = ::Minitest::Heat::Issue.from_result(@result)
-
-    # ap @issue
+    @issue = ::Minitest::Heat::Issue.new
   end
 
   def test_converts_to_a_hit
