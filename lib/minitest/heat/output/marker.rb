@@ -2,8 +2,8 @@
 
 module Minitest
   module Heat
-    # Friendly API for printing nicely-formatted output to the console
     class Output
+      # Friendly API for printing consistent markers for the various issue types
       class Marker
         SYMBOLS = {
           success: '·',

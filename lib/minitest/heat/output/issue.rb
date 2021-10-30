@@ -3,7 +3,8 @@
 module Minitest
   module Heat
     class Output
-      class Issue
+      # Formats issues to output based on the issue type
+      class Issue # rubocop:disable Metrics/ClassLength
         attr_accessor :issue
 
         def initialize(issue)

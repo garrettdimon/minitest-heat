@@ -2,7 +2,7 @@
 
 require_relative 'heat_reporter'
 
-module Minitest
+module Minitest # rubocop:disable Style/Documentation
   def self.plugin_heat_options(opts, _options)
     opts.on '--show-fast', 'Show failures as they happen instead of waiting for the entire suite.' do
       # Heat.show_fast!
@@ -10,8 +10,8 @@ module Minitest
 
     # TODO: options.
     # 1. Fail Fast
-    # 2. Don't worry about skips.
-    # 3. Skip coverage.
+    # 2. Ignore skips.
+    # 3. Include coverage.
   end
 
   def self.plugin_heat_init(options)

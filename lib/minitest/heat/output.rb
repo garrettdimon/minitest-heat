@@ -42,6 +42,22 @@ module Minitest
       end
       alias newline puts
 
+      def issues_list(results)
+        # A couple of blank lines to create some breathing room
+        newline
+        newline
+
+        # Issues start with the least critical and go up to the most critical so that the most
+        #   pressing issues are displayed at the bottom of the report in order to reduce scrolling.
+        #   This way, as you fix issues, the list gets shorter, and eventually the least critical
+        #   issues will be displayed without scrolling once more problematic issues are resolved.
+        %i[slows painfuls skips failures brokens errors].each do |issue_category|
+          next unless show?(issue_category, results)
+
+          results.send(issue_category).each { |issue| issue_details(issue) }
+        end
+      end
+
       def issue_details(issue)
         print_tokens Minitest::Heat::Output::Issue.new(issue).tokens
       end
@@ -58,9 +74,26 @@ module Minitest
       def heat_map(map)
         newline
         print_tokens ::Minitest::Heat::Output::Map.new(map).tokens
+        newline
       end
 
       private
+
+      def no_problems?(results)
+        !results.problems?
+      end
+
+      def no_problems_or_skips?(results)
+        !results.problems? && results.skips.none?
+      end
+
+      def show?(issue_category, results)
+        case issue_category
+        when :skips            then no_problems?(results)
+        when :painfuls, :slows then no_problems_or_skips?(results)
+        else true
+        end
+      end
 
       def style_enabled?
         stream.tty?

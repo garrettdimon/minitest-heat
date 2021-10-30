@@ -35,6 +35,8 @@ module Minitest
                 :results
 
     def initialize(io = $stdout, options = {})
+      super()
+
       @options = options
 
       @timer =    Heat::Timer.new
@@ -74,19 +76,8 @@ module Minitest
     def report
       timer.stop!
 
-      # A couple of blank lines to create some breathing room
-      output.newline
-      output.newline
-
-      # Issues start with the least critical and go up to the most critical so that the most
-      #   pressing issues are displayed at the bottom of the report in order to reduce scrolling.
-      #   This way, as you fix issues, the list gets shorter, and eventually the least critical
-      #   issues will be displayed without scrolling once more problematic issues are resolved.
-      %i[slows painfuls skips failures brokens errors].each do |issue_category|
-        next unless show?(issue_category)
-
-        results.send(issue_category).each { |issue| output.issue_details(issue) }
-      end
+      # The list of individual issues and their associated details
+      output.issues_list(results)
 
       # Display a short summary of the total issue counts fore ach category as well as performance
       # details for the test suite as a whole
@@ -95,32 +86,11 @@ module Minitest
       # If there were issues, shows a short heat map summary of which files and lines were the most
       # common sources of issues
       output.heat_map(results)
-
-      # A blank line to create some breathing room
-      output.newline
     end
 
     # Did this run pass?
     def passed?
       results.errors.empty? && results.failures.empty?
-    end
-
-    private
-
-    def no_problems?
-      !results.problems?
-    end
-
-    def no_problems_or_skips?
-      !results.problems? && results.skips.none?
-    end
-
-    def show?(issue_category)
-      case issue_category
-      when :skips            then no_problems?
-      when :painfuls, :slows then no_problems_or_skips?
-      else true
-      end
     end
   end
 end

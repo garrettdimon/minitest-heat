@@ -3,6 +3,7 @@
 module Minitest
   module Heat
     class Output
+      # Generates the output tokens to display the results summary
       class Results
         extend Forwardable
 

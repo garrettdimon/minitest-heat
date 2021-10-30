@@ -22,7 +22,7 @@ class Minitest::Heat::MapTest < Minitest::Test
     assert_includes @map.hits[@filename].issues[:error], 5
   end
 
-  def test_returns_sorted_list_of_files
+  def test_returns_sorted_list_of_files # rubocop:disable Metrics/AbcSize
     4.times { @map.add("four_#{@filename}", 1, :error) }
     2.times { @map.add("two_#{@filename}", 1, :error) }
     3.times { @map.add("three_#{@filename}", 1, :error) }

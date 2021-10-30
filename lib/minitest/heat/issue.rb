@@ -58,7 +58,7 @@ module Minitest
       #   painfully slow and should get more attention.
       #
       # @return [Symbol] issue type for classifying issues and reporting
-      def type
+      def type # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
         if error? && in_test?
           :broken
         elsif error?

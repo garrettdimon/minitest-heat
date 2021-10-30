@@ -2,8 +2,9 @@
 
 module Minitest
   module Heat
-    # Friendly API for printing nicely-formatted output to the console
     class Output
+      # Provides a convenient interface for creating console-friendly output while ensuring
+      #   consistency in the applied styles.
       class Token
         class InvalidStyle < ArgumentError; end
 

@@ -43,7 +43,7 @@ module Minitest
       end
 
       def test_entries
-        @tests_entries ||= project_entries.select { |entry| test_file?(entry) }
+        @test_entries ||= project_entries.select { |entry| test_file?(entry) }
       end
 
       def source_code_entries

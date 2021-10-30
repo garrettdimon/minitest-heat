@@ -3,6 +3,7 @@
 module Minitest
   module Heat
     class Output
+      # Generates the tokens to output the resulting heat map
       class Map
         attr_accessor :results
 
