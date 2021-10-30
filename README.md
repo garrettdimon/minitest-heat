@@ -21,7 +21,7 @@ Or install it yourself as:
 
     $ gem install minitest-heat
 
-And add this line to your `test/test_helper.rb` file:
+And depending on your usage, you may need to require Minitest Heat in your test suite:
 
 ```ruby
 require 'minitest/heat'
