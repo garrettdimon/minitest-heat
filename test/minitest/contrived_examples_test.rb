@@ -9,7 +9,6 @@ require_relative 'contrived_exceptions'
 # This set of tests and related code only exists to force a range of failure types for improving the
 #   visual presentation of the various errors based on different contexts
 class Minitest::ContrivedExamplesTest < Minitest::Test
-
   if ENV['FORCE_FAILURES'] || ENV['IMPLODE']
     def test_incorrect_assertion_failure
       assert false
@@ -85,13 +84,13 @@ class Minitest::ContrivedExamplesTest < Minitest::Test
     end
 
     def test_nothing_raised_assertion
-      assert_nothing_raised "Expect nothing to be raised" do
-        raise StandardError.new('Something *was* raised!')
+      assert_nothing_raised 'Expect nothing to be raised' do
+        raise StandardError, 'Something *was* raised!'
       end
     end
 
     def test_nothing_thrown_assertion
-      assert_nothing_thrown "Expect nothing to be thrown" do
+      assert_nothing_thrown 'Expect nothing to be thrown' do
         throw :problem?
       end
     end
@@ -111,6 +110,5 @@ class Minitest::ContrivedExamplesTest < Minitest::Test
     -> { raise StandardError, message }
   end
 end
-
 
 # rubocop:enable

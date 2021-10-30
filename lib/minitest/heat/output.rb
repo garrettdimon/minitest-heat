@@ -15,14 +15,14 @@ module Minitest
       SYMBOLS = {
         middot: '·',
         arrow: '➜',
-        lead: '|',
+        lead: '|'
       }.freeze
 
       TOKENS = {
-        spacer:      [:muted, " #{SYMBOLS[:middot]} "],
+        spacer: [:muted, " #{SYMBOLS[:middot]} "],
         muted_arrow: [:muted, " #{SYMBOLS[:arrow]} "],
-        muted_lead:  [:muted, "#{SYMBOLS[:lead]} "],
-      }
+        muted_lead: [:muted, "#{SYMBOLS[:lead]} "]
+      }.freeze
 
       attr_reader :stream
 

@@ -112,7 +112,7 @@ module Minitest
     end
 
     def no_problems_or_skips?
-      !results.problems? && !results.skips.any?
+      !results.problems? && results.skips.none?
     end
 
     def show?(issue_category)

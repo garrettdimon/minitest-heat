@@ -81,7 +81,7 @@ module Minitest
         end
 
         def test_name_and_class_tokens
-          [[:default, issue.test_class], *test_location_tokens ]
+          [[:default, issue.test_class], *test_location_tokens]
         end
 
         def backtrace_tokens
@@ -107,7 +107,7 @@ module Minitest
         end
 
         def summary_tokens
-          [[:italicized, issue.summary.delete_suffix("---------------")]]
+          [[:italicized, issue.summary.delete_suffix('---------------')]]
         end
 
         def slowness_summary_tokens
@@ -155,7 +155,6 @@ module Minitest
         def arrow_token
           Output::TOKENS[:muted_arrow]
         end
-
       end
     end
   end

@@ -73,7 +73,7 @@ module Minitest
           end
 
           # Sort the collected group of line number hits so they're in order
-          line_number_tokens.compact.sort do |a,b|
+          line_number_tokens.compact.sort do |a, b|
             # Ensure the line numbers are integers for sorting (otherwise '100' comes before '12')
             first_line_number = Integer(a[1].strip)
             second_line_number = Integer(b[1].strip)

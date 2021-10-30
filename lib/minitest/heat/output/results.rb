@@ -90,7 +90,7 @@ module Minitest
         end
 
         def test_count_token
-          [:default, "#{pluralize(timer.test_count, 'test')}"]
+          [:default, pluralize(timer.test_count, 'test').to_s]
         end
 
         def tests_performance_token
@@ -98,7 +98,7 @@ module Minitest
         end
 
         def assertions_count_token
-          [:default, "#{pluralize(timer.assertion_count, 'assertion')}"]
+          [:default, pluralize(timer.assertion_count, 'assertion').to_s]
         end
 
         def assertions_performance_token
