@@ -37,11 +37,11 @@ module Minitest
       end
 
       def painfuls
-        @painfuls ||= select_issues(:painful).sort_by(&:time).reverse
+        @painfuls ||= select_issues(:painful).sort_by(&:execution_time).reverse
       end
 
       def slows
-        @slows ||= select_issues(:slow).sort_by(&:time).reverse
+        @slows ||= select_issues(:slow).sort_by(&:execution_time).reverse
       end
 
       private

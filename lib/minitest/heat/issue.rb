@@ -17,16 +17,58 @@ module Minitest
         painful: 3.0
       }.freeze
 
-      attr_reader :result, :location, :failure
+      attr_reader :assertions,
+                  :failure,
+                  :location,
+                  :test_class,
+                  :test_identifier,
+                  :execution_time,
+                  :passed,
+                  :error,
+                  :skipped
 
-      def_delegators :@result, :passed?, :error?, :skipped?
       def_delegators :@location, :backtrace, :test_definition_line, :test_failure_line
 
-      def initialize(result)
-        @result = result
+      def self.from_result(result)
+        new(
+          assertions: result.assertions,
+          failures: result.failures,
+          location: result.source_location,
+          test_class: result.klass,
+          test_identifier: result.name,
+          execution_time: result.time,
+          passed: result.passed?,
+          error: result.error?,
+          skipped: result.skipped?,
+        )
+      end
 
-        @failure = result.failures.any? ? result.failures.first : nil
-        @location = Location.new(result.source_location, @failure&.backtrace)
+      # Creates an instance of Issue. In general, the `from_result` approach will be more convenient
+      #   for standard usage, but for lower-level purposes like testing, the initializer provides3
+      #   more fine-grained control
+      # @param assertions: 1 [Integer] the number of assertions in the result
+      # @param failures: [] [Array<Exception>] failed assertions (roughly equivalent to exceptions)
+      # @param location: nil [String] the location identifier for a test
+      # @param test_class: nil [String] the class name for the test result's containing class
+      # @param test_identifier: nil [String] the name of the test
+      # @param execution_time: nil [Float] the time it took to run the test
+      # @param passed: false [Boolean] true if the test explicitly passed, false otherwise
+      # @param error: false [Boolean] true if the test raised an exception
+      # @param skipped: false [Boolean] true if the test was skipped
+      #
+      # @return [type] [description]
+      def initialize(assertions: 1, failures: [], location: nil, test_class: nil, test_identifier: nil, execution_time: nil, passed: false, error: false, skipped: false)
+        @assertions = assertions
+        @failure = failures.any? ? failures.first : nil
+        @location = Location.new(location, @failure&.backtrace)
+
+        @test_class = test_class
+        @test_identifier = test_identifier
+        @execution_time = execution_time
+
+        @passed = passed
+        @error = error
+        @skipped = skipped
       end
 
       # Returns the primary location of the issue with the present working directory removed from
@@ -89,7 +131,7 @@ module Minitest
       #
       # @return [Boolean] true if the test took longer to run than `SLOW_THRESHOLDS[:slow]`
       def slow?
-        time >= SLOW_THRESHOLDS[:slow]
+        execution_time >= SLOW_THRESHOLDS[:slow]
       end
 
       # Determines if a test should be considered painfully slow by comparing it to the high end
@@ -97,7 +139,7 @@ module Minitest
       #
       # @return [Boolean] true if the test took longer to run than `SLOW_THRESHOLDS[:painful]`
       def painful?
-        time >= SLOW_THRESHOLDS[:painful]
+        execution_time >= SLOW_THRESHOLDS[:painful]
       end
 
       # Determines if the issue is an exception that was raised from directly within a test
@@ -117,28 +159,34 @@ module Minitest
         location.proper_failure?
       end
 
-      def test_class
-        result.klass
-      end
-
-      def test_identifier
-        result.name
-      end
-
       def test_name
-        test_identifier.delete_prefix('test_').gsub('_', ' ').capitalize
+        test_prefix = 'test_'
+
+        if test_identifier.start_with?(test_prefix)
+          test_identifier.delete_prefix(test_prefix).gsub('_', ' ')
+        else
+          test_identifier
+        end
       end
 
       def exception
         failure.exception
       end
 
-      def time
-        result.time
+      def passed?
+        passed
+      end
+
+      def error?
+        error
+      end
+
+      def skipped?
+        skipped
       end
 
       def slowness
-        "#{time.round(2)}s"
+        "#{execution_time.round(2)}s"
       end
 
       def label

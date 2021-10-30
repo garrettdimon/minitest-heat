@@ -64,9 +64,9 @@ module Minitest
     def record(result)
       # Convert a Minitest Result into an "issue" to more consistently expose the data needed to
       # adjust the failure output to the type of failure
-      issue = Heat::Issue.new(result)
+      issue = Heat::Issue.from_result(result)
 
-      timer.increment_counts(issue.result.assertions)
+      timer.increment_counts(issue.assertions)
       results.record(issue)
 
       output.marker(issue.type)
