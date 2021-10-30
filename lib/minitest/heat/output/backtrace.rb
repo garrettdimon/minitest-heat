@@ -23,13 +23,9 @@ module Minitest
           # Iterate over the selected lines from the backtrace
           backtrace_entries.each do |backtrace_entry|
             # Get the source code for the line from the backtrace
-            parts = [
-              indentation_token,
-              path_token(backtrace_entry),
-              *file_and_line_number_tokens(backtrace_entry),
-              source_code_line_token(backtrace_entry.source_code)
-            ]
+            parts = backtrace_line_tokens(backtrace_entry)
 
+            # If it's the most recently modified file in the trace, add the token for that
             parts << file_freshness(backtrace_entry) if most_recently_modified?(backtrace_entry)
 
             @tokens << parts
@@ -56,6 +52,15 @@ module Minitest
         end
 
         private
+
+        def backtrace_line_tokens(backtrace_entry)
+          [
+            indentation_token,
+            path_token(backtrace_entry),
+            *file_and_line_number_tokens(backtrace_entry),
+            source_code_line_token(backtrace_entry.source_code)
+          ]
+        end
 
         def all_backtrace_entries_from_project?
           backtrace_entries.all? { |line| line.path.to_s.include?(project_root_dir) }
@@ -123,7 +128,7 @@ module Minitest
         end
 
         def style_for(path)
-          style = path.to_s.include?(Dir.pwd) ? :default : :muted
+          path.to_s.include?(Dir.pwd) ? :default : :muted
         end
       end
     end

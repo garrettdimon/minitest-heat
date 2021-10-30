@@ -57,18 +57,29 @@ module Minitest
         def hit_line_numbers(file, issue_type)
           numbers = []
           line_numbers_for_issue_type = file.issues.fetch(issue_type) { [] }
-          line_numbers_for_issue_type.sort.map do |line_number|
+          line_numbers_for_issue_type.map do |line_number|
             numbers << [issue_type, "#{line_number} "]
           end
+
           numbers
         end
 
         def line_numbers(file)
           line_number_tokens = []
+
+          # Merge the hits for all issue types into one list
           relevant_issue_types.each do |issue_type|
             line_number_tokens += hit_line_numbers(file, issue_type)
           end
-          line_number_tokens.compact.sort_by { |number_token| number_token[1] }
+
+          # Sort the collected group of line number hits so they're in order
+          line_number_tokens.compact.sort do |a,b|
+            # Ensure the line numbers are integers for sorting (otherwise '100' comes before '12')
+            first_line_number = Integer(a[1].strip)
+            second_line_number = Integer(b[1].strip)
+
+            first_line_number <=> second_line_number
+          end
         end
       end
     end

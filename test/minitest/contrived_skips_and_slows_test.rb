@@ -8,7 +8,7 @@ require_relative 'contrived_exceptions'
 
 # This set of tests and related code only exists to force a range of failure types for improving the
 #   visual presentation of the various errors based on different contexts
-if ENV['FORCE_SKIPS'] || ENV['FORCE_SLOWS'] || ENV['FORCE_FAILURES']
+if ENV['FORCE_SKIPS'] || ENV['FORCE_SLOWS'] || ENV['IMPLODE']
 
   class Minitest::ContrivedSkipsAndSlowsTest < Minitest::Test
     def test_something_that_is_not_ready_yet
