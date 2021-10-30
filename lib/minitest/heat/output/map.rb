@@ -44,7 +44,7 @@ module Minitest
         end
 
         def pathname(file)
-          directory = "#{file.pathname.dirname.to_s.delete_prefix(Dir.pwd)}/"
+          directory = "#{file.pathname.dirname.to_s.delete_prefix(Dir.pwd)}/".delete_prefix('/')
           filename = file.pathname.basename.to_s
 
           [
