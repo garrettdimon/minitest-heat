@@ -18,8 +18,8 @@ module Minitest
       }.freeze
 
       attr_reader :assertions,
-                  :exception,
                   :location,
+                  :message,
                   :test_class,
                   :test_identifier,
                   :execution_time,
@@ -34,9 +34,11 @@ module Minitest
       #
       # @return [Issue] the instance of the issue to use for examining the result
       def self.from_result(result)
+        # Not all results are failures, so we use the safe navigation operator
+        exception = result.failure&.exception
+
         new(
           assertions: result.assertions,
-          exception: result.failure&.exception,
           location: result.source_location,
           test_class: result.klass,
           test_identifier: result.name,
@@ -44,6 +46,8 @@ module Minitest
           passed: result.passed?,
           error: result.error?,
           skipped: result.skipped?,
+          message: exception&.message,
+          backtrace: exception&.backtrace,
         )
       end
 
@@ -51,7 +55,8 @@ module Minitest
       #   for standard usage, but for lower-level purposes like testing, the initializer provides3
       #   more fine-grained control
       # @param assertions: 1 [Integer] the number of assertions in the result
-      # @param exception: nil [Exception] exception if there is one
+      # @param message: nil [String] exception if there is one
+      # @param backtrace: [] [Array<String>] the array of backtrace lines from an exception
       # @param location: nil [String] the location identifier for a test
       # @param test_class: nil [String] the class name for the test result's containing class
       # @param test_identifier: nil [String] the name of the test
@@ -61,10 +66,11 @@ module Minitest
       # @param skipped: false [Boolean] true if the test was skipped
       #
       # @return [type] [description]
-      def initialize(assertions: 1, exception: nil, location: [nil, 1], test_class: nil, test_identifier: nil, execution_time: nil, passed: false, error: false, skipped: false)
+      def initialize(assertions: 1, location: ['unknown', 1], backtrace: [], execution_time: 0.0, message: nil, test_class: nil, test_identifier: nil, passed: false, error: false, skipped: false)
+        @message = message
+
         @assertions = assertions
-        @exception = exception
-        @location = Location.new(location, exception&.backtrace)
+        @location = Location.new(location, backtrace)
 
         @test_class = test_class
         @test_identifier = test_identifier
@@ -170,16 +176,17 @@ module Minitest
       #
       # @return [String] a more detailed explanation of the issue
       def summary
-        error? ? exception_parts[0] : exception.message
+        # When there's an exception, use the first line from the exception message. Otherwise,  the
+        #   message represents explanation for a test failure, and should be used in full
+        error? ? first_line_of_exception_message : message
       end
 
-      private
-
-      # If there's a proper exception, takes the first line of the exception message
+      # Returns the first line of an exception message when the issue is from a proper exception
+      #   failure since exception messages can be long and cumbersome.
       #
-      # @return [String] the exception summary message
-      def exception_parts
-        exception.message.split("\n")
+      # @return [String] the first line of the exception message
+      def first_line_of_exception_message
+        message.split("\n")[0]
       end
     end
   end

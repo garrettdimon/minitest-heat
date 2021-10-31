@@ -4,21 +4,99 @@ require 'test_helper'
 
 class Minitest::Heat::IssueTest < Minitest::Test
   def setup
-    # # Raise, rescue, and assign an exception instance to ensure the full context
-    @exception = begin
-      raise ::Minitest::UnexpectedError.new
-    rescue => e
-      return e
-    end
+    @source_filename = "#{Dir.pwd}/test/files/source.rb"
+    @test_filename = __FILE__ # This is a test file, so it works
 
-    @location = [Pathname(__FILE__), 1]
+    @location = [@test_filename, 1]
 
-    @issue = ::Minitest::Heat::Issue.new
+    @source_backtrace = [
+      "#{@source_filename}:1:in `method_name'",
+      "#{@test_filename}:1:in `other_method_name'",
+    ]
+
+    # This creates a version with the test file first
+    @test_backtrace = @source_backtrace.reverse
   end
 
-  def test_converts_to_a_hit
-    # refute_nil @issue
-    # expected_hit = []
-    # assert_equal expected_hit, @issue.to_hit
+  def test_full_initialization
+    # Raise, rescue, and assign an exception instance to ensure the full context
+    issue = ::Minitest::Heat::Issue.new(
+      assertions: 1,
+      message: '',
+      backtrace: @source_backtrace,
+      location: @location,
+      test_class: 'Minitest::ClassName',
+      test_identifier: 'Test Name',
+      execution_time: 1.1,
+      passed: false,
+      error: false,
+      skipped: false,
+    )
+    refute_nil issue
+  end
+
+  def test_broken_test_issue
+    issue = ::Minitest::Heat::Issue.new(
+      backtrace: @test_backtrace,
+      location: @location,
+      error: true,
+    )
+
+    assert_equal :broken, issue.type
+    assert issue.hit?
+  end
+
+  def test_error_issue
+    issue = ::Minitest::Heat::Issue.new(
+      backtrace: @source_backtrace,
+      location: @location,
+      error: true,
+    )
+
+    assert_equal :error, issue.type
+    assert issue.hit?
+  end
+
+  def test_skipped_issue
+    issue = ::Minitest::Heat::Issue.new(skipped: true)
+
+    assert_equal :skipped, issue.type
+    assert issue.hit?
+  end
+
+  def test_failure_issue
+    issue = ::Minitest::Heat::Issue.new
+
+    assert_equal :failure, issue.type
+    assert issue.hit?
+  end
+
+  def test_painfully_slow_issue
+    painful_time = Minitest::Heat::Issue::SLOW_THRESHOLDS[:painful] + 1.0
+
+    issue = ::Minitest::Heat::Issue.new(
+      execution_time: painful_time,
+      passed: true
+    )
+
+    assert_equal :painful, issue.type
+    assert issue.hit?
+  end
+
+  def test_slow_issue
+    slow_time = Minitest::Heat::Issue::SLOW_THRESHOLDS[:slow]
+    issue = ::Minitest::Heat::Issue.new(
+      execution_time: slow_time,
+      passed: true
+    )
+
+    assert_equal :slow, issue.type
+    assert issue.hit?
+  end
+
+  def test_success_issue_is_not_a_hit
+    issue = ::Minitest::Heat::Issue.new(passed: true)
+
+    refute issue.hit?
   end
 end

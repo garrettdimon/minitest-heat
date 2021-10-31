@@ -43,7 +43,7 @@ module Minitest
       # @return [type] [description]
       def log(type, line_number)
         @issues[type] ||= []
-        @issues[type] << Integer(line_number)
+        @issues[type] << line_number
       end
 
       # Calcuates an approximate weight to serve as a proxy for which files are most likely to be

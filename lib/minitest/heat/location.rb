@@ -45,9 +45,9 @@ module Minitest
       #   test, and it raises an exception, then it's really a broken test rather than a proper
       #   faiure.
       #
-      # @return [Boolean] true if most relevant file is the same as the test location file
+      # @return [Boolean] true if final file in the backtrace is the same as the test location file
       def broken_test?
-        !test_file.nil? && test_file == most_relevant_file
+        !test_file.nil? && test_file == final_file
       end
 
       # Knows if the failure occurred in the actual project source code—as opposed to the test or
