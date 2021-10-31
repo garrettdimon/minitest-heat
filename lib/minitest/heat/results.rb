@@ -17,7 +17,7 @@ module Minitest
         return unless issue.hit?
 
         pathname = issue.location.project_file.to_s
-        line_number = issue.location.project_failure_line
+        line_number = issue.location.project_failure_line.to_i
         type = issue.type
 
         @heat_map.add(pathname, line_number, type)

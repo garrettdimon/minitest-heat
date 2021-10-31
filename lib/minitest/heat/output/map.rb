@@ -35,8 +35,10 @@ module Minitest
         end
 
         def relevant_issue_types
+          # These are always relevant.
           issue_types = %i[error broken failure]
 
+          # These are only relevant if there aren't more serious isues.
           issue_types << :skipped unless results.problems?
           issue_types << :painful unless results.problems? || results.skips.any?
           issue_types << :slow    unless results.problems? || results.skips.any?

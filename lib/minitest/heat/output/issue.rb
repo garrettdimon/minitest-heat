@@ -140,7 +140,7 @@ module Minitest
         end
 
         def summary_tokens
-          [[:italicized, issue.summary.delete_suffix('---------------')]]
+          [[:italicized, issue.summary.delete_suffix('---------------').strip]]
         end
 
         def slowness_summary_tokens

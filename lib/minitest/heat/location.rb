@@ -22,10 +22,10 @@ module Minitest
         end
       end
 
-      attr_reader :test_location, :backtrace
+      attr_reader :test_definition_location, :backtrace
 
-      def initialize(test_location, backtrace = [])
-        @test_location = TestDefinition.new(*test_location)
+      def initialize(test_definition_location, backtrace = [])
+        @test_definition_location = TestDefinition.new(*test_definition_location)
         @backtrace = Backtrace.new(backtrace)
       end
 
@@ -59,6 +59,15 @@ module Minitest
         !source_code_file.nil? && !broken_test?
       end
 
+
+
+      # The final location of the stacktrace regardless of whether it's from within the project
+      #
+      # @return [String] the relative path to the file from the project root
+      def final_file
+        Pathname(final_location.pathname)
+      end
+
       # The file most likely to be the source of the underlying problem. Often, the most recent
       #   backtrace files will be a gem or external library that's failing indirectly as a result
       #   of a problem with local source code (not always, but frequently). In that case, the best
@@ -69,19 +78,31 @@ module Minitest
         Pathname(most_relevant_location.pathname)
       end
 
-      # The line number of the `most_relevant_file` where the failure originated
+      # The final location from the stacktrace that is a test file
       #
-      # @return [Integer] line number
-      def most_relevant_failure_line
-        most_relevant_location.line_number
+      # @return [String, nil] the relative path to the file from the project root
+      def test_file
+        Pathname(final_test_location.pathname)
       end
 
-      # The final location of the stacktrace regardless of whether it's from within the project
+      # The final location from the stacktrace that is within the project directory
+      #
+      # @return [String, nil] the relative path to the file from the project root
+      def source_code_file
+        return nil if final_source_code_location.nil?
+
+        Pathname(final_source_code_location.pathname)
+      end
+
+      # The final location of the stacktrace from within the project (source code or test code)
       #
       # @return [String] the relative path to the file from the project root
-      def final_file
-        Pathname(final_location.pathname)
+      def project_file
+        return nil if project_location.nil?
+
+        Pathname(project_location.pathname)
       end
+
 
       # The line number of the `final_file` where the failure originated
       #
@@ -90,57 +111,43 @@ module Minitest
         final_location.line_number
       end
 
-      # The final location of the stacktrace regardless of whether it's from within the project
-      #
-      # @return [String] the relative path to the file from the project root
-      def project_file
-        broken_test? ? test_file : source_code_file
-      end
-
-      # The line number of the `project_file` where the failure originated
+      # The line number of the `most_relevant_file` where the failure originated
       #
       # @return [Integer] line number
-      def project_failure_line
-        broken_test? ? test_failure_line || test_definition_line : source_code_failure_line
-      end
-
-      # The final location from the stacktrace that is within the project directory
-      #
-      # @return [String, nil] the relative path to the file from the project root
-      def source_code_file
-        return nil unless backtrace.source_code_entries.any?
-
-        backtrace.final_source_code_location.pathname
-      end
-
-      # The line number of the `source_code_file` where the failure originated
-      #
-      # @return [Integer] line number
-      def source_code_failure_line
-        return nil unless backtrace.source_code_entries.any?
-
-        backtrace.final_source_code_location.line_number
-      end
-
-      # The final location from the stacktrace that is within the project's test directory
-      #
-      # @return [String, nil] the relative path to the file from the project root
-      def test_file
-        Pathname(test_location.pathname)
+      def most_relevant_failure_line
+        most_relevant_location.line_number
       end
 
       # The line number of the `test_file` where the test is defined
       #
       # @return [Integer] line number
       def test_definition_line
-        test_location.line_number
+        test_definition_location.line_number
       end
 
       # The line number from within the `test_file` test definition where the failure occurred
       #
       # @return [Integer] line number
       def test_failure_line
-        backtrace.final_test_location&.line_number || test_definition_line
+        final_test_location.line_number
+      end
+
+      # The line number of the `source_code_file` where the failure originated
+      #
+      # @return [Integer] line number
+      def source_code_failure_line
+        final_source_code_location&.line_number
+      end
+
+      # The line number of the `project_file` where the failure originated
+      #
+      # @return [Integer] line number
+      def project_failure_line
+        if !broken_test? && !source_code_file.nil?
+          source_code_failure_line
+        else
+          test_failure_line
+        end
       end
 
       # The line number from within the `test_file` test definition where the failure occurred
@@ -148,7 +155,7 @@ module Minitest
       # @return [Location] the last location from the backtrace or the test location if a backtrace
       #   was not passed to the initializer
       def final_location
-        backtrace? ? backtrace.final_location : test_location
+        backtrace.parsed_entries.any? ? backtrace.final_location : test_definition_location
       end
 
       # The file most likely to be the source of the underlying problem. Often, the most recent
@@ -159,22 +166,33 @@ module Minitest
       # @return [Array] file and line number of the most likely source of the problem
       def most_relevant_location
         [
-          source_code_location,
-          test_location,
+          final_source_code_location,
+          final_test_location,
           final_location
         ].compact.first
       end
 
-      def project_location
-        source_code_location || test_location
+      # Returns the final test location based on the backtrace if present. Otherwise falls back to
+      #   the test location which represents the test definition.
+      #
+      # @return [Location] the final location from the test files
+      def final_test_location
+        backtrace.final_test_location || test_definition_location
       end
 
-      def source_code_location
+      # Returns the final source code location based on the backtrace
+      #
+      # @return [Location] the final location from the source code files
+      def final_source_code_location
         backtrace.final_source_code_location
       end
 
-      def backtrace?
-        backtrace.parsed_entries.any?
+      # Returns the final project location based on the backtrace if present. Otherwise falls back
+      #   to the test location which represents the test definition.
+      #
+      # @return [Location] the final location from the project files
+      def project_location
+        backtrace.final_project_location || test_definition_location
       end
     end
   end

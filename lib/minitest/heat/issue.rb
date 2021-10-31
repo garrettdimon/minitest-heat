@@ -69,12 +69,12 @@ module Minitest
       def initialize(assertions: 1, location: ['unknown', 1], backtrace: [], execution_time: 0.0, message: nil, test_class: nil, test_identifier: nil, passed: false, error: false, skipped: false)
         @message = message
 
-        @assertions = assertions
+        @assertions = Integer(assertions)
         @location = Location.new(location, backtrace)
 
         @test_class = test_class
         @test_identifier = test_identifier
-        @execution_time = execution_time
+        @execution_time = Float(execution_time)
 
         @passed = passed
         @error = error
