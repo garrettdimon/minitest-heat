@@ -66,10 +66,23 @@ module Minitest
       # adjust the failure output to the type of failure
       issue = Heat::Issue.from_result(result)
 
+      # Note the number of assertions for the performance summary
       timer.increment_counts(issue.assertions)
+
+      # Record the issue to show details later
       results.record(issue)
 
+      # Show the marker
       output.marker(issue.type)
+    rescue => e
+      output.newline
+      puts "Sorry, but Minitest Heat encountered an exception recording an issue. Disabling Minitest Heat will get you back on track."
+      puts "Please use the following exception details to submit an issue at https://github.com/garrettdimon/minitest-heat/issues"
+      puts "#{e.message}:"
+      e.backtrace.each do |line|
+        puts "  #{line}"
+      end
+      output.newline
     end
 
     # Outputs the summary of the run.

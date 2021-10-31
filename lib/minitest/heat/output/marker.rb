@@ -12,7 +12,8 @@ module Minitest
           broken: 'B',
           error: 'E',
           skipped: 'S',
-          failure: 'F'
+          failure: 'F',
+          reporter: '✖'
         }.freeze
 
         STYLES = {
@@ -22,7 +23,8 @@ module Minitest
           broken: :error,
           error: :error,
           skipped: :skipped,
-          failure: :failure
+          failure: :failure,
+          reporter: :error
         }.freeze
 
         attr_accessor :issue_type

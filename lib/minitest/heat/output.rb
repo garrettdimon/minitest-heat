@@ -56,10 +56,16 @@ module Minitest
 
           results.send(issue_category).each { |issue| issue_details(issue) }
         end
+      rescue => e
+        message = "Sorry, but Minitest Heat couldn't display the details of any failures."
+        exception_guidance(message, e)
       end
 
       def issue_details(issue)
         print_tokens Minitest::Heat::Output::Issue.new(issue).tokens
+      rescue => e
+        message = "Sorry, but Minitest Heat couldn't display output for a failure."
+        exception_guidance(message, e)
       end
 
       def marker(issue_type)
@@ -69,11 +75,28 @@ module Minitest
       def compact_summary(results, timer)
         newline
         print_tokens ::Minitest::Heat::Output::Results.new(results, timer).tokens
+      rescue => e
+        message = "Sorry, but Minitest Heat couldn't display the summary."
+        exception_guidance(message, e)
       end
 
       def heat_map(map)
         newline
         print_tokens ::Minitest::Heat::Output::Map.new(map).tokens
+        newline
+      rescue => e
+        message = "Sorry, but Minitest Heat couldn't display the heat map."
+        exception_guidance(message, e)
+      end
+
+      def exception_guidance(message, exception)
+        newline
+        puts "#{message} Disabling Minitest Heat can get you back on track until the problem can be fixed."
+        puts "Please use the following exception details to submit an issue at https://github.com/garrettdimon/minitest-heat/issues"
+        puts "#{exception.message}:"
+        exception.backtrace.each do |line|
+          puts "  #{line}"
+        end
         newline
       end
 
