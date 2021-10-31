@@ -12,7 +12,8 @@ require_relative 'heat/timer'
 require_relative 'heat/version'
 
 module Minitest
-  # Custom minitest reporter just for Reviewer. Focuses on printing directly actionable guidance.
+  # Custom Minitest reporter focused on generating output designed around efficiently identifying
+  # issues and potential solutions
   # - Colorize the Output
   # - What files had the most errors?
   # - Show the most impacted areas first.
