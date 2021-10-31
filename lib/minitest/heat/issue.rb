@@ -113,7 +113,7 @@ module Minitest
       #
       # @return [Boolean] true if the test did not pass or if it was slow
       def hit?
-        !passed? || slow?
+        !passed? || slow? || painful?
       end
 
       # Determines if a test should be considered slow by comparing it to the low end definition of
@@ -121,7 +121,7 @@ module Minitest
       #
       # @return [Boolean] true if the test took longer to run than `SLOW_THRESHOLDS[:slow]`
       def slow?
-        execution_time >= SLOW_THRESHOLDS[:slow]
+        execution_time >= SLOW_THRESHOLDS[:slow] && execution_time < SLOW_THRESHOLDS[:painful]
       end
 
       # Determines if a test should be considered painfully slow by comparing it to the high end

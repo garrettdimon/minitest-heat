@@ -44,6 +44,9 @@ class Minitest::Heat::IssueTest < Minitest::Test
 
     assert_equal :broken, issue.type
     assert issue.hit?
+    refute issue.passed?
+    assert issue.in_test?
+    refute issue.in_source?
   end
 
   def test_error_issue
@@ -54,13 +57,19 @@ class Minitest::Heat::IssueTest < Minitest::Test
     )
 
     assert_equal :error, issue.type
+    assert issue.error?
+    refute issue.passed?
     assert issue.hit?
+    refute issue.in_test?
+    assert issue.in_source?
   end
 
   def test_skipped_issue
     issue = ::Minitest::Heat::Issue.new(skipped: true)
 
     assert_equal :skipped, issue.type
+    assert issue.skipped?
+    refute issue.passed?
     assert issue.hit?
   end
 
@@ -68,6 +77,7 @@ class Minitest::Heat::IssueTest < Minitest::Test
     issue = ::Minitest::Heat::Issue.new
 
     assert_equal :failure, issue.type
+    refute issue.passed?
     assert issue.hit?
   end
 
@@ -80,7 +90,10 @@ class Minitest::Heat::IssueTest < Minitest::Test
     )
 
     assert_equal :painful, issue.type
+    assert issue.passed?
     assert issue.hit?
+    refute issue.slow?
+    assert issue.painful?
   end
 
   def test_slow_issue
@@ -91,12 +104,16 @@ class Minitest::Heat::IssueTest < Minitest::Test
     )
 
     assert_equal :slow, issue.type
+    assert issue.passed?
     assert issue.hit?
+    assert issue.slow?
+    refute issue.painful?
   end
 
   def test_success_issue_is_not_a_hit
     issue = ::Minitest::Heat::Issue.new(passed: true)
 
     refute issue.hit?
+    assert issue.passed?
   end
 end
