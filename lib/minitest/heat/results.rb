@@ -11,16 +11,24 @@ module Minitest
         @heat_map = Heat::Map.new
       end
 
+      # Logs an issue to the results for later reporting
+      # @param issue [Issue] the issue generated from a given test result
+      #
+      # @return [type] [description]
       def record(issue)
+        # Record everything—even if it's a success
         @issues.push(issue)
 
-        return unless issue.hit?
+        # If it's not a genuine problem, we're done here, otherwise update the heat map
+        update_heat_map(issue) if issue.hit?
+      end
 
-        pathname = issue.location.project_file.to_s
+      def update_heat_map(issue)
+        # Get the elements we need to generate a heat map entry
+        pathname    = issue.location.project_file.to_s
         line_number = issue.location.project_failure_line.to_i
-        type = issue.type
 
-        @heat_map.add(pathname, line_number, type)
+        @heat_map.add(pathname, line_number, issue.type)
       end
 
       def problems?

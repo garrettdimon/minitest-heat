@@ -21,7 +21,7 @@ module Minitest
       def add(filename, line_number, type)
         @hits[filename] ||= Hit.new(filename)
 
-        @hits[filename].log(type, line_number)
+        @hits[filename].log(type.to_sym, line_number)
       end
 
       # Returns a subset of affected files to keep the list from being overwhelming
