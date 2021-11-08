@@ -40,7 +40,7 @@ module Minitest
       # @param type [Symbol] one of Issue::TYPES
       # @param line_number [Integer,String] the line number to record the issue on
       #
-      # @return [type] [description]
+      # @return [void]
       def log(type, line_number)
         @issues[type] ||= []
         @issues[type] << Integer(line_number)
