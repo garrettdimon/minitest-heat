@@ -41,6 +41,10 @@ module Minitest
         broken_test? || proper_failure?
       end
 
+      def backtrace?
+        backtrace.parsed_entries.any?
+      end
+
       # Knows if the failure is contained within the test. For example, if there's bad code in a
       #   test, and it raises an exception, then it's really a broken test rather than a proper
       #   faiure.
@@ -58,8 +62,6 @@ module Minitest
       def proper_failure?
         !source_code_file.nil? && !broken_test?
       end
-
-
 
       # The final location of the stacktrace regardless of whether it's from within the project
       #
@@ -102,7 +104,6 @@ module Minitest
 
         Pathname(project_location.pathname)
       end
-
 
       # The line number of the `final_file` where the failure originated
       #
@@ -155,7 +156,7 @@ module Minitest
       # @return [Location] the last location from the backtrace or the test location if a backtrace
       #   was not passed to the initializer
       def final_location
-        backtrace.parsed_entries.any? ? backtrace.final_location : test_definition_location
+        backtrace? ? backtrace.final_location : test_definition_location
       end
 
       # The file most likely to be the source of the underlying problem. Often, the most recent
