@@ -55,6 +55,16 @@ module Minitest
         source_code_entries.first
       end
 
+      # The second-to-last project location in the backtrace. When something goes wrong in
+      #   multiple locations, but they all lead to the final source location, the preceding source
+      #   code location is often helpful for discerning the pattern.
+      #
+      # @return [Line] the second-to-last source code location from the backtrace parsed as a
+      #   Backtrace::Line
+      def preceding_location
+        project_entries.second
+      end
+
       # The final location from within the project's tests (i.e. excluding source code)
       #
       # @return [Line] the final test location from the backtrace parsed as a Backtrace::Line

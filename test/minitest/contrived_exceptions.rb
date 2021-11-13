@@ -16,15 +16,15 @@ module Minitest
 
     class Issue
       def self.raise_example_error_from_issue
-        Location.raise_example_error_in_location
+        Locations.raise_example_error_in_location
       end
 
       def self.raise_another_example_error_from_issue
-        Location.raise_example_error_in_location
+        Locations.raise_example_error_in_location
       end
     end
 
-    class Location
+    class Locations
       def self.raise_example_error_in_location
         raise StandardError, 'Invalid Location Exception'
       end

@@ -23,7 +23,7 @@ module Minitest
         slow: 0
       }.freeze
 
-      attr_reader :pathname, :issues
+      attr_reader :pathname, :issues, :lines
 
       # Creates an instance of a Hit for the given pathname. It must be the full pathname to
       #   uniquely identify the file or we could run into collisions that muddy the water and
@@ -41,7 +41,7 @@ module Minitest
       # @param line_number [Integer,String] the line number to record the issue on
       #
       # @return [void]
-      def log(type, line_number)
+      def log(type, line_number, preceding_location: nil)
         @issues[type] ||= []
         @issues[type] << Integer(line_number)
       end

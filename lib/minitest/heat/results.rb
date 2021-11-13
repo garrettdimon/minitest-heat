@@ -19,16 +19,20 @@ module Minitest
         # Record everything—even if it's a success
         @issues.push(issue)
 
-        # If it's not a genuine problem, we're done here, otherwise update the heat map
-        update_heat_map(issue) if issue.hit?
+        # If it's not a genuine problem, we're done here...
+        return unless issue.hit?
+
+        # ...otherwise update the heat map
+        update_heat_map(issue)
       end
 
       def update_heat_map(issue)
-        # Get the elements we need to generate a heat map entry
-        pathname    = issue.location.project_file.to_s
-        line_number = issue.location.project_failure_line.to_i
+        filename              = issue.locations.project_file.to_s
+        line_number           = issue.locations.project_failure_line.to_i
+        # preceding_filename    = issue.locations.preceding_file.to_s
+        # preceding_line_number = issue.locations.preceding_failure_line.to_i
 
-        @heat_map.add(pathname, line_number, issue.type)
+        @heat_map.add(filename, line_number, issue.type)
       end
 
       def problems?

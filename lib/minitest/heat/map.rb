@@ -6,6 +6,20 @@ module Minitest
     class Map
       MAXIMUM_FILES_TO_SHOW = 5
 
+      # HITS_SAMPLE = {
+      #   '<file_name>': {
+      #     error: [12, 12, 12, 23, 32, 34],
+      #     failure: [10, 92]
+      #   }
+      # }
+
+      # LOCATIONS_SAMPLE = {
+      #   '<file_name>': {
+      #     '<#>': [<Hit>, <Hit>, <Hit>],
+      #     '<#>': [<Hit>]
+      #   }
+      # }
+
       attr_reader :hits
 
       def initialize
@@ -18,10 +32,10 @@ module Minitest
       # @param type [Symbol] the type of issue that was encountered (i.e. :failure, :error, etc.)
       #
       # @return [void]
-      def add(filename, line_number, type)
+      def add(filename, line_number, type, preceding_location: nil)
         @hits[filename] ||= Hit.new(filename)
 
-        @hits[filename].log(type.to_sym, line_number)
+        @hits[filename].log(type.to_sym, line_number, preceding_location: preceding_location)
       end
 
       # Returns a subset of affected files to keep the list from being overwhelming

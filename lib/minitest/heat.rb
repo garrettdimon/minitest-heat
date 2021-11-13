@@ -3,7 +3,7 @@
 require_relative 'heat/backtrace'
 require_relative 'heat/hit'
 require_relative 'heat/issue'
-require_relative 'heat/location'
+require_relative 'heat/locations'
 require_relative 'heat/map'
 require_relative 'heat/output'
 require_relative 'heat/results'

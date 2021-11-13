@@ -16,11 +16,12 @@ class Minitest::Heat::LocationTest < Minitest::Test
       "#{@gem_dir}/gems/minitest-5.14.4/lib/minitest/test.rb:95:in `block (2 levels) in run'"
     ]
 
-    @location = Minitest::Heat::Location.new(@test_location, @raw_backtrace)
+    @location = Minitest::Heat::Locations.new(@test_location, @raw_backtrace)
   end
 
   def test_can_be_initialized_without_backtrace
-    location = Minitest::Heat::Location.new(@test_location)
+    location = Minitest::Heat::Locations.new(@test_location)
+    refute location.backtrace?
     assert_nil location.source_code_file
     refute_nil location.project_file
     refute_nil location.test_file
@@ -45,8 +46,9 @@ class Minitest::Heat::LocationTest < Minitest::Test
   def test_knows_when_problem_is_in_test
     # Remove the project source line so the test is the last location
     @raw_backtrace.shift
-    @location = Minitest::Heat::Location.new(@test_location, @raw_backtrace)
+    @location = Minitest::Heat::Locations.new(@test_location, @raw_backtrace)
 
+    assert @location.backtrace?
     assert @location.broken_test?
   end
 

@@ -118,7 +118,7 @@ module Minitest
         end
 
         def backtrace_tokens
-          backtrace = ::Minitest::Heat::Output::Backtrace.new(issue.location)
+          backtrace = ::Minitest::Heat::Output::Backtrace.new(issue.locations)
 
           backtrace.tokens
         end
@@ -128,12 +128,12 @@ module Minitest
         end
 
         def location_tokens
-          [[:default, most_relevant_short_location], [:muted, ':'], [:default, issue.location.most_relevant_failure_line], [:muted, most_relevant_line_source]]
+          [[:default, most_relevant_short_location], [:muted, ':'], [:default, issue.locations.most_relevant_failure_line], [:muted, most_relevant_line_source]]
         end
 
         def source_tokens
-          filename    = issue.location.project_file
-          line_number = issue.location.project_failure_line
+          filename    = issue.locations.project_file
+          line_number = issue.locations.project_failure_line
 
           source = Minitest::Heat::Source.new(filename, line_number: line_number)
           [[:muted, " #{Output::SYMBOLS[:arrow]} `#{source.line.strip}`"]]
@@ -147,9 +147,9 @@ module Minitest
           [
             [:bold, slowness(issue)],
             spacer_token,
-            [:default, issue.location.test_file.to_s.delete_prefix(Dir.pwd)],
+            [:default, issue.locations.test_file.to_s.delete_prefix(Dir.pwd)],
             [:muted, ':'],
-            [:default, issue.location.test_definition_line]
+            [:default, issue.locations.test_definition_line]
           ]
         end
 
@@ -162,24 +162,24 @@ module Minitest
         end
 
         def most_relevant_short_location
-          issue.location.most_relevant_file.to_s.delete_prefix("#{Dir.pwd}/")
+          issue.locations.most_relevant_file.to_s.delete_prefix("#{Dir.pwd}/")
         end
 
         def test_file_short_location
-          issue.location.test_file.to_s.delete_prefix("#{Dir.pwd}/")
+          issue.locations.test_file.to_s.delete_prefix("#{Dir.pwd}/")
         end
 
         def most_relevant_line_source
-          filename    = issue.location.project_file
-          line_number = issue.location.project_failure_line
+          filename    = issue.locations.project_file
+          line_number = issue.locations.project_failure_line
 
           source = Minitest::Heat::Source.new(filename, line_number: line_number)
           "\n  #{source.line.strip}"
         end
 
         def test_line_source
-          filename    = issue.location.test_file
-          line_number = issue.location.test_failure_line
+          filename    = issue.locations.test_file
+          line_number = issue.locations.test_failure_line
 
           source = Minitest::Heat::Source.new(filename, line_number: line_number)
           "\n  #{source.line.strip}"

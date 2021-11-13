@@ -89,6 +89,8 @@ module Minitest
         #
         # @return [String] the source code for the file/line number combination
         def source_code(max_line_count: 1)
+          return '' unless pathname.exist?
+
           Minitest::Heat::Source.new(
             pathname.to_s,
             line_number: line_number,

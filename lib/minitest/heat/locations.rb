@@ -13,7 +13,7 @@ module Minitest
     #   - 'project' represents the last source line, but falls back to the last test line
     #   - 'most_relevant' represents the most specific file to investigate starting with the source
     #     code and then looking to the test code with final line of the backtrace as a fallback
-    class Location
+    class Locations
       TestDefinition = Struct.new(:pathname, :line_number) do
         def initialize(pathname, line_number)
           @pathname = Pathname(pathname)
@@ -37,10 +37,9 @@ module Minitest
         "#{most_relevant_file}:#{most_relevant_failure_line}"
       end
 
-      def local?
-        broken_test? || proper_failure?
-      end
-
+      # Determines if the location has usable backtrace entries
+      #
+      # @return [Boolean] true if the location has usable backtrace entries
       def backtrace?
         backtrace.parsed_entries.any?
       end
@@ -98,11 +97,20 @@ module Minitest
 
       # The final location of the stacktrace from within the project (source code or test code)
       #
-      # @return [String] the relative path to the file from the project root
+      # @return [String,nil] the relative path to the file from the project root
       def project_file
         return nil if project_location.nil?
 
         Pathname(project_location.pathname)
+      end
+
+      # The second-to-last location of the stacktrace from within the project (source or test code)
+      #
+      # @return [String, nil] the relative path to the file from the project root
+      def preceding_file
+        return nil if preceding_location.nil?
+
+        Pathname(preceding_location.pathname)
       end
 
       # The line number of the `final_file` where the failure originated
@@ -151,6 +159,13 @@ module Minitest
         end
       end
 
+      # The line number of the second-to-last project line from the backtrace
+      #
+      # @return [Integer] line number
+      def preceding_failure_line
+        preceding_location&.line_number
+      end
+
       # The line number from within the `test_file` test definition where the failure occurred
       #
       # @return [Location] the last location from the backtrace or the test location if a backtrace
@@ -186,6 +201,13 @@ module Minitest
       # @return [Location] the final location from the source code files
       def final_source_code_location
         backtrace.final_source_code_location
+      end
+
+      # Returns the final project location based on the backtrace
+      #
+      # @return [Location] the final location from the project files
+      def preceding_location
+        backtrace.preceding_location
       end
 
       # Returns the final project location based on the backtrace if present. Otherwise falls back
