@@ -7,7 +7,7 @@ class Minitest::Heat::IssueTest < Minitest::Test
     @source_filename = "#{Dir.pwd}/test/files/source.rb"
     @test_filename = __FILE__ # This is a test file, so it works
 
-    @locations = [@test_filename, 1]
+    @location = [@test_filename, 1]
 
     @source_backtrace = [
       "#{@source_filename}:1:in `method_name'",
@@ -24,7 +24,7 @@ class Minitest::Heat::IssueTest < Minitest::Test
       assertions: 1,
       message: '',
       backtrace: @source_backtrace,
-      locations: @locations,
+      test_location: @location,
       test_class: 'Minitest::ClassName',
       test_identifier: 'Test Name',
       execution_time: 1.1,
@@ -38,7 +38,7 @@ class Minitest::Heat::IssueTest < Minitest::Test
   def test_broken_test_issue
     issue = ::Minitest::Heat::Issue.new(
       backtrace: @test_backtrace,
-      locations: @locations,
+      test_location: @location,
       error: true,
     )
 
@@ -52,7 +52,7 @@ class Minitest::Heat::IssueTest < Minitest::Test
   def test_error_issue
     issue = ::Minitest::Heat::Issue.new(
       backtrace: @source_backtrace,
-      locations: @locations,
+      test_location: @location,
       error: true,
     )
 

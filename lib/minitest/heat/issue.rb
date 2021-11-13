@@ -39,7 +39,7 @@ module Minitest
 
         new(
           assertions: result.assertions,
-          locations: result.source_location,
+          test_location: result.source_location,
           test_class: result.klass,
           test_identifier: result.name,
           execution_time: result.time,
@@ -57,7 +57,7 @@ module Minitest
       # @param assertions: 1 [Integer] the number of assertions in the result
       # @param message: nil [String] exception if there is one
       # @param backtrace: [] [Array<String>] the array of backtrace lines from an exception
-      # @param locations: nil [String] the locations identifier for a test
+      # @param test_location: nil [Array<String, Integer>] the locations identifier for a test
       # @param test_class: nil [String] the class name for the test result's containing class
       # @param test_identifier: nil [String] the name of the test
       # @param execution_time: nil [Float] the time it took to run the test
@@ -66,11 +66,11 @@ module Minitest
       # @param skipped: false [Boolean] true if the test was skipped
       #
       # @return [type] [description]
-      def initialize(assertions: 1, locations: ['unknown', 1], backtrace: [], execution_time: 0.0, message: nil, test_class: nil, test_identifier: nil, passed: false, error: false, skipped: false)
+      def initialize(assertions: 1, test_location: ['unknown', 1], backtrace: [], execution_time: 0.0, message: nil, test_class: nil, test_identifier: nil, passed: false, error: false, skipped: false)
         @message = message
 
         @assertions = Integer(assertions)
-        @locations = Locations.new(locations, backtrace)
+        @locations = Locations.new(test_location, backtrace)
 
         @test_class = test_class
         @test_identifier = test_identifier
