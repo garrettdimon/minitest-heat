@@ -29,10 +29,11 @@ module Minitest
       def update_heat_map(issue)
         filename              = issue.locations.project_file.to_s
         line_number           = issue.locations.project_failure_line.to_i
-        # preceding_filename    = issue.locations.preceding_file.to_s
-        # preceding_line_number = issue.locations.preceding_failure_line.to_i
-
-        @heat_map.add(filename, line_number, issue.type)
+        preceding_location    = [
+          issue.locations.preceding_file&.to_s,
+          issue.locations.preceding_failure_line&.to_i
+        ]
+        @heat_map.add(filename, line_number, issue.type, preceding_location: preceding_location)
       end
 
       def problems?

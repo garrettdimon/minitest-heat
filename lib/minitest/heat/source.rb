@@ -35,7 +35,7 @@ module Minitest
       #
       # @return [Array<String>] the range of lines of code around
       def lines
-        return [line] if max_line_count == 1
+        return [line].compact if max_line_count == 1
 
         file_lines[(line_numbers.first - 1)..(line_numbers.last - 1)]
       end

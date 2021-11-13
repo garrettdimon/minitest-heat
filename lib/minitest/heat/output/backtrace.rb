@@ -8,11 +8,11 @@ module Minitest
         DEFAULT_LINE_COUNT = 10
         DEFAULT_INDENTATION_SPACES = 2
 
-        attr_accessor :location, :backtrace
+        attr_accessor :locations, :backtrace
 
-        def initialize(location)
-          @location = location
-          @backtrace = location.backtrace
+        def initialize(locations)
+          @locations = locations
+          @backtrace = locations.backtrace
           @tokens = []
         end
 

@@ -32,7 +32,7 @@ module Minitest
       # @param type [Symbol] the type of issue that was encountered (i.e. :failure, :error, etc.)
       #
       # @return [void]
-      def add(filename, line_number, type, preceding_location: nil)
+      def add(filename, line_number, type, preceding_location: [nil, nil])
         @hits[filename] ||= Hit.new(filename)
 
         @hits[filename].log(type.to_sym, line_number, preceding_location: preceding_location)
