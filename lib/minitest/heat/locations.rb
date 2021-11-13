@@ -14,18 +14,12 @@ module Minitest
     #   - 'most_relevant' represents the most specific file to investigate starting with the source
     #     code and then looking to the test code with final line of the backtrace as a fallback
     class Locations
-      TestDefinition = Struct.new(:pathname, :line_number) do
-        def initialize(pathname, line_number)
-          @pathname = Pathname(pathname)
-          @line_number = Integer(line_number)
-          super
-        end
-      end
-
       attr_reader :test_definition_location, :backtrace
 
       def initialize(test_definition_location, backtrace = [])
-        @test_definition_location = TestDefinition.new(*test_definition_location)
+        test_definition_pathname, test_definition_line_number = test_definition_location
+
+        @test_definition_location = ::Minitest::Heat::Location.new(pathname: test_definition_pathname, line_number: test_definition_line_number)
         @backtrace = Backtrace.new(backtrace)
       end
 

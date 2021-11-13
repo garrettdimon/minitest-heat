@@ -2,18 +2,18 @@
 
 require 'test_helper'
 
-class Minitest::Heat::Backtrace::LineTest < Minitest::Test
+class Minitest::Heat::Backtrace::LineParserParserTest < Minitest::Test
   def setup
     @filename = __FILE__
     @pathname = Pathname(@filename)
     @line_number = 23
     @container = 'method_name'
 
-    @line = ::Minitest::Heat::Backtrace::Line.new(pathname: @pathname, number: @line_number, container: @container)
+    @line = ::Minitest::Heat::Backtrace::LineParser.new(pathname: @pathname, number: @line_number, container: @container)
   end
 
   def test_can_initilize_without_container
-    @line = ::Minitest::Heat::Backtrace::Line.new(pathname: @pathname, number: @line_number)
+    @line = ::Minitest::Heat::Backtrace::LineParser.new(pathname: @pathname, number: @line_number)
 
     assert_equal '', @line.container
   end
@@ -23,7 +23,7 @@ class Minitest::Heat::Backtrace::LineTest < Minitest::Test
   end
 
   def test_fails_gracefully_with_invalid_values
-    line = ::Minitest::Heat::Backtrace::Line.new(pathname: 'fake', number: nil, container: nil)
+    line = ::Minitest::Heat::Backtrace::LineParser.new(pathname: 'fake', number: nil, container: nil)
     refute_nil line
 
     assert_equal('(Unrecognized File)', line.path)
@@ -34,7 +34,7 @@ class Minitest::Heat::Backtrace::LineTest < Minitest::Test
 
   def test_parsing
     fake_backtrace = "#{__FILE__}:1:in `capture_exceptions'"
-    line = Minitest::Heat::Backtrace::Line.parse_backtrace(fake_backtrace)
+    line = Minitest::Heat::Backtrace::LineParser.parse_backtrace(fake_backtrace)
 
     assert_equal Pathname(__FILE__), line.pathname
     assert_equal 1, line.number
@@ -46,25 +46,25 @@ class Minitest::Heat::Backtrace::LineTest < Minitest::Test
     number = '29'
     container = 'method_name'
 
-    line = Minitest::Heat::Backtrace::Line.new(
+    line = Minitest::Heat::Backtrace::LineParser.new(
       pathname: pathname,
       number: number,
       container: container
     )
 
-    assert_match %r{/test/minitest/heat/backtrace/line_test.rb:29 in `method_name`}, line.to_s
-    assert_match %r{/test/minitest/heat/backtrace/line_test.rb}, line.pathname.to_s
-    assert_match %r{/test/minitest/heat/backtrace/line_test.rb:29}, line.location
-    assert_match(/line_test.rb:29/, line.short_location)
+    assert_match %r{/test/minitest/heat/backtrace/line_parser_test.rb:29 in `method_name`}, line.to_s
+    assert_match %r{/test/minitest/heat/backtrace/line_parser_test.rb}, line.pathname.to_s
+    assert_match %r{/test/minitest/heat/backtrace/line_parser_test.rb:29}, line.location
+    assert_match(/line_parser_test.rb:29/, line.short_location)
   end
 
   def test_line_knows_if_test_file
     # This is a test file and should be recognized as one
-    line = Minitest::Heat::Backtrace::Line.new(pathname: Pathname(__FILE__), number: 1)
+    line = Minitest::Heat::Backtrace::LineParser.new(pathname: Pathname(__FILE__), number: 1)
     assert line.test_file?
 
     # Root path is not a test file and should be recognized as one
-    line = Minitest::Heat::Backtrace::Line.new(pathname: Pathname('/'), number: 1)
+    line = Minitest::Heat::Backtrace::LineParser.new(pathname: Pathname('/'), number: 1)
     refute line.test_file?
   end
 end

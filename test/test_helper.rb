@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'awesome_print'
-
 if ENV['COVERAGE']
   require 'simplecov'
 
@@ -30,8 +28,8 @@ end
 require 'pry'
 
 $LOAD_PATH.unshift File.expand_path('../lib', __dir__)
-# require 'dead_end'
 
+
+require 'awesome_print'
 require 'minitest/heat'
-
 require 'minitest/autorun'

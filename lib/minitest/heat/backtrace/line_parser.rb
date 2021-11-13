@@ -7,7 +7,7 @@ module Minitest
     class Backtrace
       # Represents a line from a backtrace to provide more convenient access to information about
       #   the relevant file and line number for displaying in test results
-      class Line
+      class LineParser
         attr_accessor :pathname, :number, :container
         alias line_number number
 
