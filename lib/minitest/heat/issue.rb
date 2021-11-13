@@ -66,7 +66,7 @@ module Minitest
       # @param skipped: false [Boolean] true if the test was skipped
       #
       # @return [type] [description]
-      def initialize(assertions: 1, test_location: ['unknown', 1], backtrace: [], execution_time: 0.0, message: nil, test_class: nil, test_identifier: nil, passed: false, error: false, skipped: false)
+      def initialize(assertions: 1, test_location: ['Unrecognized Test File', 1], backtrace: [], execution_time: 0.0, message: nil, test_class: nil, test_identifier: nil, passed: false, error: false, skipped: false)
         @message = message
 
         @assertions = Integer(assertions)
