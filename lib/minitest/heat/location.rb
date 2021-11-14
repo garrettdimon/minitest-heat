@@ -22,7 +22,7 @@ module Minitest
       #
       # @return [String] a consistently-formatted, human-readable string about the line of code
       def to_s
-        "#{absolute_pathname}#{filename}:#{line_number} in `#{container}`"
+        "#{absolute_path}#{filename}:#{line_number} in `#{container}`"
       end
 
       def to_a
@@ -33,7 +33,7 @@ module Minitest
       end
 
       def short
-        "#{relative_pathname}:#{line_number}"
+        "#{relative_path}:#{line_number}"
       end
 
       def exists?
@@ -54,6 +54,14 @@ module Minitest
         pathname.exist? ? pathname.dirname.to_s : UNRECOGNIZED
       end
 
+      def absolute_path
+        pathname.exist? ? "#{path.to_s}/" : UNRECOGNIZED
+      end
+
+      def relative_path
+        pathname.exist? ? absolute_path.delete_prefix(project_root_dir) : UNRECOGNIZED
+      end
+
       # A safe interface for getting a string representing the filename portion of the file
       #
       # @return [String] either the filename portion of the file or '(Unrecognized File)'
@@ -62,12 +70,12 @@ module Minitest
         pathname.exist? ? pathname.basename.to_s : UNRECOGNIZED
       end
 
-      def absolute_pathname
-        pathname.exist? ? "#{path.to_s}/" : UNRECOGNIZED
+      def absolute_filename
+        pathname.exist? ? pathname.to_s : UNRECOGNIZED
       end
 
-      def relative_pathname
-        pathname.exist? ? absolute_pathname.delete_prefix(project_root_dir) : UNRECOGNIZED
+      def relative_filename
+        pathname.exist? ? pathname.to_s.delete_prefix(project_root_dir) : UNRECOGNIZED
       end
 
       # Line number identifying the specific line in the file

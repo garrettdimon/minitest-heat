@@ -124,18 +124,18 @@ module Minitest
 
         def test_location_tokens
           [
-            [:default, locations.test_definition.pathname.to_s],
+            [:default, locations.test_definition.relative_filename],
             [:muted, ':'],
             [:default, locations.test_definition.line_number],
             arrow_token,
             [:default, locations.test_failure.line_number],
-            [:muted, "\n  #{locations.test_failure.source_code}"]
+            [:muted, "\n  #{locations.test_failure.source_code.line.strip}"]
           ]
         end
 
         def location_tokens
           [
-            [:default, locations.most_relevant.pathname.to_s],
+            [:default, locations.most_relevant.relative_filename],
             [:muted, ':'],
             [:default, locations.most_relevant.line_number],
             [:muted, "\n  #{locations.most_relevant.source_code.line.strip}"]
@@ -158,7 +158,7 @@ module Minitest
           [
             [:bold, slowness(issue)],
             spacer_token,
-            [:default, locations.test_definition.relative_pathname],
+            [:default, locations.test_definition.relative_path],
             [:default, locations.test_definition.filename],
             [:muted, ':'],
             [:default, locations.test_definition.line_number]

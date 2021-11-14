@@ -79,7 +79,7 @@ module Minitest
 
           # If *all* of the backtrace lines are from the project, no point in the added redundant
           # noise of showing the project root directory over and over again
-          path_format = all_backtrace_from_project? ? :relative_pathname : :absolute_pathname
+          path_format = all_backtrace_from_project? ? :relative_path : :absolute_path
 
           [style, location.send(path_format)]
         end

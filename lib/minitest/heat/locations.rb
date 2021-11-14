@@ -30,7 +30,7 @@ module Minitest
       #
       # @return [String] ex. 'path/to/file.rb:12'
       def to_s
-        "#{most_relevant.absolute_pathname}/#{most_relevant.filename}:#{most_relevant.line_number}"
+        "#{most_relevant.absolute_filename}:#{most_relevant.line_number}"
       end
 
       # Knows if the failure is contained within the test. For example, if there's bad code in a
