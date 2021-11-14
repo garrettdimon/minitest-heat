@@ -39,7 +39,7 @@ module Minitest
       #
       # @return [Boolean] true if final file in the backtrace is the same as the test location file
       def broken_test?
-        !test_file.nil? && test_file == final_file
+        !test_failure.nil? && test_failure == final
       end
 
       # Knows if the failure occurred in the actual project source code—as opposed to the test or
@@ -112,12 +112,17 @@ module Minitest
 
 
 
-      # The final location of the stacktrace regardless of whether it's from within the project
-      #
-      # @return [String] the relative path to the file from the project root
-      def final_file
-        final&.pathname
-      end
+
+
+
+
+
+      # # The final location of the stacktrace regardless of whether it's from within the project
+      # #
+      # # @return [String] the relative path to the file from the project root
+      # def final_file
+      #   final&.pathname
+      # end
 
       # The file most likely to be the source of the underlying problem. Often, the most recent
       #   backtrace files will be a gem or external library that's failing indirectly as a result
@@ -150,19 +155,28 @@ module Minitest
         project&.pathname
       end
 
-      # The second-to-last location of the stacktrace from within the project (source or test code)
-      #
-      # @return [String, nil] the relative path to the file from the project root
-      def preceding_file
-        possible_instigator&.pathname
-      end
+      # # The second-to-last location of the stacktrace from within the project (source or test code)
+      # #
+      # # @return [String, nil] the relative path to the file from the project root
+      # def preceding_file
+      #   possible_instigator&.pathname
+      # end
 
-      # The line number of the `final_file` where the failure originated
-      #
-      # @return [Integer] line number
-      def final_failure_line
-        final&.line_number
-      end
+
+
+
+
+
+
+
+
+
+      # # The line number of the `final_file` where the failure originated
+      # #
+      # # @return [Integer] line number
+      # def final_failure_line
+      #   final&.line_number
+      # end
 
       # The line number of the `most_relevant_file` where the failure originated
       #
@@ -203,12 +217,12 @@ module Minitest
         end
       end
 
-      # The line number of the second-to-last project line from the backtrace
-      #
-      # @return [Integer] line number
-      def preceding_failure_line
-        possible_instigator&.line_number
-      end
+      # # The line number of the second-to-last project line from the backtrace
+      # #
+      # # @return [Integer] line number
+      # def preceding_failure_line
+      #   possible_instigator&.line_number
+      # end
     end
   end
 end

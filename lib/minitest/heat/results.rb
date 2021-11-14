@@ -27,12 +27,8 @@ module Minitest
       end
 
       def update_heat_map(issue)
-        filename              = issue.locations.project_file.to_s
-        line_number           = issue.locations.project_failure_line.to_i
-        possible_instigator    = [
-          issue.locations.preceding_file&.to_s,
-          issue.locations.preceding_failure_line&.to_i
-        ]
+        filename, line_number = issue.locations.project.to_a
+        possible_instigator   = issue.locations.possible_instigator.to_a
         @heat_map.add(filename, line_number, issue.type, possible_instigator: possible_instigator)
       end
 

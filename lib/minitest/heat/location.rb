@@ -25,6 +25,13 @@ module Minitest
         "#{absolute_pathname}#{filename}:#{line_number} in `#{container}`"
       end
 
+      def to_a
+        [
+          pathname,
+          line_number
+        ]
+      end
+
       def short
         "#{relative_pathname}:#{line_number}"
       end
