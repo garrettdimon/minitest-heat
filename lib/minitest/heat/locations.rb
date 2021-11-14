@@ -30,7 +30,7 @@ module Minitest
       #
       # @return [String] ex. 'path/to/file.rb:12'
       def to_s
-        "#{most_relevant_file}:#{most_relevant_failure_line}"
+        "#{most_relevant.absolute_pathname}/#{most_relevant.filename}:#{most_relevant.line_number}"
       end
 
       # Knows if the failure is contained within the test. For example, if there's bad code in a
@@ -48,7 +48,7 @@ module Minitest
       # @return [Boolean] true if there's a non-test project file in the stacktrace but it's not
       #   a result of a broken test
       def proper_failure?
-        !source_code_file.nil? && !broken_test?
+        !source_code.nil? && !broken_test?
       end
 
       # The file most likely to be the source of the underlying problem. Often, the most recent
@@ -108,121 +108,6 @@ module Minitest
       def possible_instigator
         backtrace.project_locations.any? ? backtrace.project_locations[1] : test_definition
       end
-
-
-
-
-
-
-
-
-
-      # # The final location of the stacktrace regardless of whether it's from within the project
-      # #
-      # # @return [String] the relative path to the file from the project root
-      # def final_file
-      #   final&.pathname
-      # end
-
-      # The file most likely to be the source of the underlying problem. Often, the most recent
-      #   backtrace files will be a gem or external library that's failing indirectly as a result
-      #   of a problem with local source code (not always, but frequently). In that case, the best
-      #   first place to focus is on the code you control.
-      #
-      # @return [String] the relative path to the file from the project root
-      def most_relevant_file
-        most_relevant&.pathname
-      end
-
-      # The final location from the stacktrace that is a test file
-      #
-      # @return [String, nil] the relative path to the file from the project root
-      def test_file
-        test_failure&.pathname
-      end
-
-      # The final location from the stacktrace that is within the project directory
-      #
-      # @return [String, nil] the relative path to the file from the project root
-      def source_code_file
-        source_code&.pathname
-      end
-
-      # The final location of the stacktrace from within the project (source code or test code)
-      #
-      # @return [String,nil] the relative path to the file from the project root
-      def project_file
-        project&.pathname
-      end
-
-      # # The second-to-last location of the stacktrace from within the project (source or test code)
-      # #
-      # # @return [String, nil] the relative path to the file from the project root
-      # def preceding_file
-      #   possible_instigator&.pathname
-      # end
-
-
-
-
-
-
-
-
-
-
-      # # The line number of the `final_file` where the failure originated
-      # #
-      # # @return [Integer] line number
-      # def final_failure_line
-      #   final&.line_number
-      # end
-
-      # The line number of the `most_relevant_file` where the failure originated
-      #
-      # @return [Integer] line number
-      def most_relevant_failure_line
-        most_relevant&.line_number
-      end
-
-      # The line number of the `test_file` where the test is defined
-      #
-      # @return [Integer] line number
-      def test_definition_line
-        test_definition&.line_number
-      end
-
-      # The line number from within the `test_file` test definition where the failure occurred
-      #
-      # @return [Integer] line number
-      def test_failure_line
-        test_failure&.line_number
-      end
-
-      # The line number of the `source_code_file` where the failure originated
-      #
-      # @return [Integer] line number
-      def source_code_failure_line
-        source_code&.line_number
-      end
-
-      # The line number of the `project_file` where the failure originated
-      #
-      # @return [Integer] line number
-      def project_failure_line
-        if !broken_test? && !source_code_file.nil?
-          source_code_failure_line
-        else
-          test_failure_line
-        end
-      end
-
-      # # The line number of the second-to-last project line from the backtrace
-      # #
-      # # @return [Integer] line number
-      # def preceding_failure_line
-      #   possible_instigator&.line_number
-      # end
     end
   end
 end
