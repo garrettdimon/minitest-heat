@@ -13,26 +13,19 @@ module Minitest
         end
 
         def tokens
-          map.file_hits.each do |hit|
+          results.heat_map.file_hits.each do |hit|
             file_tokens = pathname(hit)
             line_number_tokens = line_numbers(hit)
 
             next if line_number_tokens.empty?
 
-            @tokens << [
-              *file_tokens,
-              *line_number_tokens
-            ]
+            @tokens << [*file_tokens, *line_number_tokens]
           end
 
           @tokens
         end
 
         private
-
-        def map
-          results.heat_map
-        end
 
         def relevant_issue_types
           # These are always relevant.

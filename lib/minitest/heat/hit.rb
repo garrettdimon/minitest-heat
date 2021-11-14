@@ -42,15 +42,17 @@ module Minitest
       # Adds a record of a given issue type for the line number
       # @param type [Symbol] one of Issue::TYPES
       # @param line_number [Integer,String] the line number to record the issue on
-      # @param backtrace [Array<Location>] the
+      # @param backtrace: nil [Array<Location>] the project locations from the backtrace
       #
       # @return [void]
       def log(type, line_number, backtrace: [])
         line_number = Integer(line_number)
 
+        # Store issues by issue type with an array of line numbers
         @issues[type.to_sym] ||= []
         @issues[type.to_sym] << line_number
 
+        # Store issues by line number with an array of Traces
         @lines[line_number.to_s] ||= []
         @lines[line_number.to_s] << Trace.new(line_number, backtrace)
       end

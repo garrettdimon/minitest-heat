@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-require_relative 'contrived_exceptions'
+require_relative 'contrived_code'
 
 # rubocop:disable
 

@@ -29,7 +29,9 @@ module Minitest
       def update_heat_map(issue)
         # For heat map purposes, only the project backtrace lines are interesting
         pathname, line_number = issue.locations.project.to_a
-        backtrace = issue.locations.backtrace.project_locations
+
+        # Backtrace is only relevant for exception-generating issues, not slows, skips, or failures
+        backtrace = issue.error? ? issue.locations.backtrace.project_locations : []
 
         @heat_map.add(pathname, line_number, issue.type, backtrace: backtrace)
       end
