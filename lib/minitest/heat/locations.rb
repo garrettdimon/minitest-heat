@@ -16,12 +16,11 @@ module Minitest
     #     code and then looking to the test code with final line of the backtrace as a fallback
     #   - 'possible_instigator' represents the second-to-last project file in the trace
     class Locations
-      attr_reader :test_definition, :test_definition_location, :backtrace
+      attr_reader :test_definition, :backtrace
 
       def initialize(test_definition_location, backtrace = [])
         test_definition_pathname, test_definition_line_number = test_definition_location
         @test_definition          = ::Minitest::Heat::Location.new(pathname: test_definition_pathname, line_number: test_definition_line_number)
-        @test_definition_location = ::Minitest::Heat::Location.new(pathname: test_definition_pathname, line_number: test_definition_line_number)
 
         @backtrace = Backtrace.new(backtrace)
       end
@@ -110,11 +109,14 @@ module Minitest
         backtrace.project_locations.any? ? backtrace.project_locations[1] : test_definition
       end
 
+
+
+
       # The final location of the stacktrace regardless of whether it's from within the project
       #
       # @return [String] the relative path to the file from the project root
       def final_file
-        Pathname(final.pathname)
+        final&.pathname
       end
 
       # The file most likely to be the source of the underlying problem. Often, the most recent
@@ -124,69 +126,63 @@ module Minitest
       #
       # @return [String] the relative path to the file from the project root
       def most_relevant_file
-        Pathname(most_relevant.pathname)
+        most_relevant&.pathname
       end
 
       # The final location from the stacktrace that is a test file
       #
       # @return [String, nil] the relative path to the file from the project root
       def test_file
-        Pathname(test_failure.pathname)
+        test_failure&.pathname
       end
 
       # The final location from the stacktrace that is within the project directory
       #
       # @return [String, nil] the relative path to the file from the project root
       def source_code_file
-        return nil if source_code.nil?
-
-        Pathname(source_code.pathname)
+        source_code&.pathname
       end
 
       # The final location of the stacktrace from within the project (source code or test code)
       #
       # @return [String,nil] the relative path to the file from the project root
       def project_file
-        return nil if project.nil?
-
-        Pathname(project.pathname)
+        project&.pathname
       end
 
       # The second-to-last location of the stacktrace from within the project (source or test code)
       #
       # @return [String, nil] the relative path to the file from the project root
       def preceding_file
-        return nil if possible_instigator.nil?
-
-        Pathname(possible_instigator.pathname)
+        possible_instigator&.pathname
       end
 
       # The line number of the `final_file` where the failure originated
       #
       # @return [Integer] line number
       def final_failure_line
-        final.line_number
+        final&.line_number
       end
 
       # The line number of the `most_relevant_file` where the failure originated
       #
       # @return [Integer] line number
       def most_relevant_failure_line
-        most_relevant.line_number
+        most_relevant&.line_number
       end
 
       # The line number of the `test_file` where the test is defined
       #
       # @return [Integer] line number
       def test_definition_line
-        test_definition_location.line_number
+        test_definition&.line_number
       end
 
       # The line number from within the `test_file` test definition where the failure occurred
       #
       # @return [Integer] line number
       def test_failure_line
-        test_failure.line_number
+        test_failure&.line_number
       end
 
       # The line number of the `source_code_file` where the failure originated
@@ -213,26 +209,6 @@ module Minitest
       def preceding_failure_line
         possible_instigator&.line_number
       end
-
-      # def final
-      #   final
-      # end
-
-      # def test_failure
-      #   test_failure
-      # end
-
-      # def source_code
-      #   source_code
-      # end
-
-      # def possible_instigator
-      #   possible_instigator
-      # end
-
-      # def project_location
-      #   project
-      # end
     end
   end
 end
