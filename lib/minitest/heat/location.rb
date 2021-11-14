@@ -60,15 +60,22 @@ module Minitest
       end
 
       def relative_pathname
-        pathname.exist? ? absolute_pathname.delete_prefix(Dir.pwd) : UNRECOGNIZED
+        pathname.exist? ? absolute_pathname.delete_prefix(project_root_dir) : UNRECOGNIZED
       end
 
+      # Line number identifying the specific line in the file
+      #
+      # @return [Integer] line number for the file
+      #
       def line_number
         Integer(raw_line_number)
       rescue ArgumentError
         1
       end
 
+      # The containing method or block details for the location
+      #
+      # @return [String] the containing method of the line of code
       def container
         raw_container.nil? ? '(Unknown Container)' : String(raw_container)
       end
@@ -81,11 +88,19 @@ module Minitest
         )
       end
 
+      def project_file?
+        path.include?(project_root_dir)
+      end
+
       # Determines if a given file follows the standard approaching to naming test files.
       #
       # @return [Boolean] true if the file name starts with `test_` or ends with `_test.rb`
       def test_file?
         filename.to_s.start_with?('test_') || filename.to_s.end_with?('_test.rb')
+      end
+
+      def source_code_file?
+        project_file? && !!test_file?
       end
 
       # A safe interface to getting the last modified time for the file in question
@@ -105,6 +120,10 @@ module Minitest
       end
 
       private
+
+      def project_root_dir
+        Dir.pwd
+      end
 
       def seconds_ago
         (Time.now - mtime).to_i

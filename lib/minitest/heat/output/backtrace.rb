@@ -21,14 +21,8 @@ module Minitest
           # final backtrace line if it might be relevant/helpful?
 
           # Iterate over the selected lines from the backtrace
-          backtrace_entries.each do |backtrace_entry|
-            # Get the source code for the line from the backtrace
-            parts = backtrace_line_tokens(backtrace_entry)
-
-            # If it's the most recently modified file in the trace, add the token for that
-            parts << file_freshness(backtrace_entry) if most_recently_modified?(backtrace_entry)
-
-            @tokens << parts
+          backtrace_lines.each do |location|
+            @tokens << backtrace_line_tokens(location)
           end
 
           @tokens
@@ -47,63 +41,52 @@ module Minitest
         # ...it could be influenced by a "compact" or "robust" reporter super-style?
         # ...it's smart about exceptions that were raised outside of the project?
         # ...it's smart about highlighting lines of code differently based on whether it's source code, test code, or external code?
-        def backtrace_entries
-          all_entries
+        def backtrace_lines
+          backtrace.parsed_entries.take(line_count)
         end
 
         private
 
-        def backtrace_line_tokens(backtrace_entry)
+        def backtrace_line_tokens(location)
           [
             indentation_token,
-            path_token(backtrace_entry),
-            *file_and_line_number_tokens(backtrace_entry),
-            source_code_line_token(backtrace_entry.source_code)
-          ]
+            path_token(location),
+            *file_and_line_number_tokens(location),
+            source_code_line_token(location.source_code),
+            most_recently_modified_token(location)
+          ].compact
         end
 
-        def all_backtrace_entries_from_project?
-          backtrace_entries.all? { |line| line.path.to_s.include?(project_root_dir) }
+        def all_backtrace_from_project?
+          backtrace_lines.all? { |location| location.project_file? }
         end
 
-        def project_root_dir
-          Dir.pwd
-        end
-
-        def project_entries
-          backtrace.project_entries.take(line_count)
-        end
-
-        def all_entries
-          backtrace.parsed_entries.take(line_count)
-        end
-
-        def most_recently_modified?(line)
+        def most_recently_modified?(location)
           # If there's more than one line being displayed, and the current line is the freshest
-          backtrace_entries.size > 1 && line == backtrace.freshest_project_location
+          backtrace_lines.size > 1 && location == backtrace.freshest_project_location
         end
 
         def indentation_token
           [:default, ' ' * indentation]
         end
 
-        def path_token(line)
-          style = line.to_s.include?(Dir.pwd) ? :default : :muted
-          path = "#{line.path}/"
+        def path_token(location)
+          # If the line is a project file, help it stand out from the backtrace noise
+          style = location.project_file? ? :default : :muted
 
-          # If all of the backtrace lines are from the project, no point in the added redundant
-          #  noise of showing the project root directory over and over again
-          path = path.delete_prefix(project_root_dir) if all_backtrace_entries_from_project?
+          # If *all* of the backtrace lines are from the project, no point in the added redundant
+          # noise of showing the project root directory over and over again
+          path_format = all_backtrace_from_project? ? :relative_pathname : :absolute_pathname
 
-          [style, path]
+          [style, location.send(path_format)]
         end
 
-        def file_and_line_number_tokens(backtrace_entry)
-          style = backtrace_entry.to_s.include?(Dir.pwd) ? :bold : :muted
+        def file_and_line_number_tokens(location)
+          style = location.to_s.include?(Dir.pwd) ? :bold : :muted
           [
-            [style, backtrace_entry.filename],
+            [style, location.filename],
             [:muted, ':'],
-            [style, backtrace_entry.line_number]
+            [style, location.line_number]
           ]
         end
 
@@ -111,7 +94,9 @@ module Minitest
           [:muted, " #{Output::SYMBOLS[:arrow]} `#{source_code.line.strip}`"]
         end
 
-        def file_freshness(_line)
+        def most_recently_modified_token(location)
+          return nil unless most_recently_modified?(location)
+
           [:default, " #{Output::SYMBOLS[:middot]} Most Recently Modified File"]
         end
 
@@ -125,10 +110,6 @@ module Minitest
         # @return [type] [description]
         def indentation
           DEFAULT_INDENTATION_SPACES
-        end
-
-        def style_for(path)
-          path.to_s.include?(Dir.pwd) ? :default : :muted
         end
       end
     end
