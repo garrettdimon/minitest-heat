@@ -18,6 +18,17 @@ module Minitest
         @raw_container = container
       end
 
+      # Generates a formatted string describing the line of code similar to the original backtrace
+      #
+      # @return [String] a consistently-formatted, human-readable string about the line of code
+      def to_s
+        "#{absolute_pathname}:#{line_number} in `#{container}`"
+      end
+
+      def short
+        "#{relative_pathname}:#{line_number}"
+      end
+
       def exists?
         pathname.exist? && source_code.lines.any?
       end
@@ -74,7 +85,7 @@ module Minitest
       #
       # @return [Boolean] true if the file name starts with `test_` or ends with `_test.rb`
       def test_file?
-        file.to_s.start_with?('test_') || file.to_s.end_with?('_test.rb')
+        filename.to_s.start_with?('test_') || filename.to_s.end_with?('_test.rb')
       end
 
       # A safe interface to getting the last modified time for the file in question

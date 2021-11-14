@@ -101,7 +101,7 @@ module Minitest
         def file_and_line_number_tokens(backtrace_entry)
           style = backtrace_entry.to_s.include?(Dir.pwd) ? :bold : :muted
           [
-            [style, backtrace_entry.file],
+            [style, backtrace_entry.filename],
             [:muted, ':'],
             [style, backtrace_entry.line_number]
           ]

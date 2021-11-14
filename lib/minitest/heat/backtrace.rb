@@ -107,7 +107,7 @@ module Minitest
       def parsed_entries
         return [] if raw_backtrace.nil?
 
-        @parsed_entries ||= raw_backtrace.map { |entry| Backtrace::LineParser.parse_backtrace(entry) }
+        @parsed_entries ||= raw_backtrace.map { |entry| Backtrace::LineParser.read(entry) }
       end
     end
   end

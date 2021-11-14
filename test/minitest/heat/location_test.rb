@@ -61,4 +61,17 @@ class Minitest::Heat::LocationTest < Minitest::Test
   def test_relative_pathname
     assert_equal '/test/minitest/heat/location_test.rb', @location.relative_pathname
   end
+
+  def test_casts_to_string
+    assert_equal "#{@location.pathname}:#{@location.line_number} in `#{@location.container}`", @location.to_s
+  end
+
+  def test_knows_if_test_file
+    # This is a test file and should be recognized as one
+    assert @location.test_file?
+
+    # Root path is not a test file and should be recognized as one
+    @location.raw_pathname = '/'
+    refute @location.test_file?
+  end
 end
