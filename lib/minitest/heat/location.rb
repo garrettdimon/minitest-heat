@@ -12,6 +12,13 @@ module Minitest
 
       attr_accessor :raw_pathname, :raw_line_number, :raw_container
 
+      # Initialize a new Location
+      #
+      # @param [Pathname, String] pathname: the pathname to the file
+      # @param [Integer] line_number: the line number of the location within the file
+      # @param [String] container: nil the containing method or block for the issue
+      #
+      # @return [self]
       def initialize(pathname:, line_number:, container: nil)
         @raw_pathname = pathname
         @raw_line_number = line_number
@@ -25,6 +32,9 @@ module Minitest
         "#{absolute_path}#{filename}:#{line_number} in `#{container}`"
       end
 
+      # Generates a simplified location array with the pathname and line number
+      #
+      # @return [Array<Pathname, Integer>] a no-frills location pair
       def to_a
         [
           pathname,
@@ -32,14 +42,24 @@ module Minitest
         ]
       end
 
+      # A short relative pathname and line number pair
+      #
+      # @return [String] the short filename/line number combo. ex. `dir/file.rb:23`
       def short
-        "#{relative_path}:#{line_number}"
+        "#{relative_filename}:#{line_number}"
       end
 
+      # Determine if there is a file and text at the given line number
+      #
+      # @return [Boolean] true if the file exists and has text at the given line number
       def exists?
         pathname.exist? && source_code.lines.any?
       end
 
+      # The pathanme for the location. Written to be safe and fallbackto the project directory if
+      #   an exception is raised ocnverting the value to a pathname
+      #
+      # @return [Pathname] a pathname instance for the relevant file
       def pathname
         Pathname(raw_pathname)
       rescue ArgumentError
