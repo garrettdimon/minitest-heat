@@ -7,6 +7,8 @@ module Minitest
     # Kind of like an issue, but instead of focusing on a failing test, it covers all issues for a
     #   given file to build a heat map of the affected files
     class Hit
+      Trace = Struct.new(:line_number, :locations)
+
       # So we can sort hot spots by liklihood of being the most important spot to check out before
       #   trying to fix something. These are ranked based on the possibility they represent ripple
       #   effects where fixing one problem could potentially fix multiple other failures.
@@ -34,16 +36,23 @@ module Minitest
       def initialize(pathname)
         @pathname = Pathname(pathname)
         @issues = {}
+        @lines = {}
       end
 
       # Adds a record of a given issue type for the line number
       # @param type [Symbol] one of Issue::TYPES
       # @param line_number [Integer,String] the line number to record the issue on
+      # @param backtrace [Array<Location>] the
       #
       # @return [void]
-      def log(type, line_number, possible_instigator: nil)
-        @issues[type] ||= []
-        @issues[type] << Integer(line_number)
+      def log(type, line_number, backtrace: [])
+        line_number = Integer(line_number)
+
+        @issues[type.to_sym] ||= []
+        @issues[type.to_sym] << line_number
+
+        @lines[line_number.to_s] ||= []
+        @lines[line_number.to_s] << Trace.new(line_number, backtrace)
       end
 
       # Calcuates an approximate weight to serve as a proxy for which files are most likely to be

@@ -75,7 +75,7 @@ module Minitest
       end
 
       def absolute_path
-        pathname.exist? ? "#{path.to_s}/" : UNRECOGNIZED
+        pathname.exist? ? "#{path}/" : UNRECOGNIZED
       end
 
       def relative_path

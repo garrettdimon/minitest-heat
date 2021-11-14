@@ -29,7 +29,6 @@ require 'pry'
 
 $LOAD_PATH.unshift File.expand_path('../lib', __dir__)
 
-
 require 'awesome_print'
 require 'minitest/heat'
 require 'minitest/autorun'

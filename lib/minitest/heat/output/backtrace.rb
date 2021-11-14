@@ -61,7 +61,7 @@ module Minitest
         #
         # @return [Boolean] true if all lines of the backtrace being displayed are from the project
         def all_backtrace_from_project?
-          backtrace_locations.all? { |location| location.project_file? }
+          backtrace_locations.all?(&:project_file?)
         end
 
         def most_recently_modified?(location)

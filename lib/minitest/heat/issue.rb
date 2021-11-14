@@ -47,7 +47,7 @@ module Minitest
           error: result.error?,
           skipped: result.skipped?,
           message: exception&.message,
-          backtrace: exception&.backtrace,
+          backtrace: exception&.backtrace
         )
       end
 

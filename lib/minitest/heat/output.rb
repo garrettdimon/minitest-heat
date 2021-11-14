@@ -11,7 +11,7 @@ require_relative 'output/token'
 module Minitest
   module Heat
     # Friendly API for printing nicely-formatted output to the console
-    class Output
+    class Output # rubocop:disable Metrics/ClassLength
       SYMBOLS = {
         middot: '·',
         arrow: '➜',
@@ -56,14 +56,14 @@ module Minitest
 
           results.send(issue_category).each { |issue| issue_details(issue) }
         end
-      rescue => e
+      rescue StandardError => e
         message = "Sorry, but Minitest Heat couldn't display the details of any failures."
         exception_guidance(message, e)
       end
 
       def issue_details(issue)
         print_tokens Minitest::Heat::Output::Issue.new(issue).tokens
-      rescue => e
+      rescue StandardError => e
         message = "Sorry, but Minitest Heat couldn't display output for a failure."
         exception_guidance(message, e)
       end
@@ -75,7 +75,7 @@ module Minitest
       def compact_summary(results, timer)
         newline
         print_tokens ::Minitest::Heat::Output::Results.new(results, timer).tokens
-      rescue => e
+      rescue StandardError => e
         message = "Sorry, but Minitest Heat couldn't display the summary."
         exception_guidance(message, e)
       end
@@ -84,7 +84,7 @@ module Minitest
         newline
         print_tokens ::Minitest::Heat::Output::Map.new(map).tokens
         newline
-      rescue => e
+      rescue StandardError => e
         message = "Sorry, but Minitest Heat couldn't display the heat map."
         exception_guidance(message, e)
       end
@@ -92,7 +92,7 @@ module Minitest
       def exception_guidance(message, exception)
         newline
         puts "#{message} Disabling Minitest Heat can get you back on track until the problem can be fixed."
-        puts "Please use the following exception details to submit an issue at https://github.com/garrettdimon/minitest-heat/issues"
+        puts 'Please use the following exception details to submit an issue at https://github.com/garrettdimon/minitest-heat/issues'
         puts "#{exception.message}:"
         exception.backtrace.each do |line|
           puts "  #{line}"

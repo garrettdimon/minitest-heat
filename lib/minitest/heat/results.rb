@@ -27,9 +27,11 @@ module Minitest
       end
 
       def update_heat_map(issue)
-        filename, line_number = issue.locations.project.to_a
-        possible_instigator   = issue.locations.possible_instigator.to_a
-        @heat_map.add(filename, line_number, issue.type, possible_instigator: possible_instigator)
+        # For heat map purposes, only the project backtrace lines are interesting
+        pathname, line_number = issue.locations.project.to_a
+        backtrace = issue.locations.backtrace.project_locations
+
+        @heat_map.add(pathname, line_number, issue.type, backtrace: backtrace)
       end
 
       def problems?

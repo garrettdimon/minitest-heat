@@ -93,7 +93,7 @@ module Minitest
           end
         end
 
-        def label(issue)
+        def label(issue) # rubocop:disable Metrics
           if issue.error? && issue.in_test?
             # When the exception came out of the test itself, that's a different kind of exception
             # that really only indicates there's a problem with the code in the test. It's kind of

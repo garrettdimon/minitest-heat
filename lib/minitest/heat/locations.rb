@@ -14,7 +14,6 @@ module Minitest
     #   - 'project' represents the last source line, but falls back to the last test line
     #   - 'most_relevant' represents the most specific file to investigate starting with the source
     #     code and then looking to the test code with final line of the backtrace as a fallback
-    #   - 'possible_instigator' represents the second-to-last project file in the trace
     class Locations
       attr_reader :test_definition, :backtrace
 
@@ -100,13 +99,6 @@ module Minitest
       #   was not passed to the initializer
       def final
         backtrace.locations.any? ? backtrace.locations.first : test_definition
-      end
-
-      # Returns the second-to-last project location based on the backtrace
-      #
-      # @return [Location] the final location from the project files
-      def possible_instigator
-        backtrace.project_locations.any? ? backtrace.project_locations[1] : test_definition
       end
     end
   end
