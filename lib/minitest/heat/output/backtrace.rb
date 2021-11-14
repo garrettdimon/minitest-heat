@@ -21,8 +21,8 @@ module Minitest
           # final backtrace line if it might be relevant/helpful?
 
           # Iterate over the selected lines from the backtrace
-          backtrace_lines.each do |location|
-            @tokens << backtrace_line_tokens(location)
+          backtrace_locations.each do |location|
+            @tokens << backtrace_location_tokens(location)
           end
 
           @tokens
@@ -41,13 +41,13 @@ module Minitest
         # ...it could be influenced by a "compact" or "robust" reporter super-style?
         # ...it's smart about exceptions that were raised outside of the project?
         # ...it's smart about highlighting lines of code differently based on whether it's source code, test code, or external code?
-        def backtrace_lines
-          backtrace.parsed_entries.take(line_count)
+        def backtrace_locations
+          backtrace.locations.take(line_count)
         end
 
         private
 
-        def backtrace_line_tokens(location)
+        def backtrace_location_tokens(location)
           [
             indentation_token,
             path_token(location),
@@ -57,13 +57,16 @@ module Minitest
           ].compact
         end
 
+        # Determines if all lines to be displayed are from within the project directory
+        #
+        # @return [Boolean] true if all lines of the backtrace being displayed are from the project
         def all_backtrace_from_project?
-          backtrace_lines.all? { |location| location.project_file? }
+          backtrace_locations.all? { |location| location.project_file? }
         end
 
         def most_recently_modified?(location)
           # If there's more than one line being displayed, and the current line is the freshest
-          backtrace_lines.size > 1 && location == backtrace.freshest_project_location
+          backtrace_locations.size > 1 && location == locations.freshest
         end
 
         def indentation_token

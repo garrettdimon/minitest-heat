@@ -22,7 +22,7 @@ module Minitest
       #
       # @return [String] a consistently-formatted, human-readable string about the line of code
       def to_s
-        "#{absolute_pathname}:#{line_number} in `#{container}`"
+        "#{absolute_pathname}#{filename}:#{line_number} in `#{container}`"
       end
 
       def short
@@ -56,7 +56,7 @@ module Minitest
       end
 
       def absolute_pathname
-        pathname.exist? ? pathname.to_s : UNRECOGNIZED
+        pathname.exist? ? "#{path.to_s}/" : UNRECOGNIZED
       end
 
       def relative_pathname
@@ -80,6 +80,12 @@ module Minitest
         raw_container.nil? ? '(Unknown Container)' : String(raw_container)
       end
 
+      # Looks up the source code for the location. Can return multiple lines of source code from
+      #   the surrounding lines of code for the primary line
+      #
+      # @param [Integer] max_line_count: 1 the maximum number of lines to return from the source
+      #
+      # @return [Source] an instance of Source for accessing lines and their line numbers
       def source_code(max_line_count: 1)
         Minitest::Heat::Source.new(
           pathname.to_s,
@@ -88,6 +94,9 @@ module Minitest
         )
       end
 
+      # Determines if a given file is from the project directory
+      #
+      # @return [Boolean] true if the file is in the project (source code or test)
       def project_file?
         path.include?(project_root_dir)
       end
@@ -99,8 +108,11 @@ module Minitest
         filename.to_s.start_with?('test_') || filename.to_s.end_with?('_test.rb')
       end
 
+      # Determines if a given file is a non-test file from the project directory
+      #
+      # @return [Boolean] true if the file is in the project but not a test file
       def source_code_file?
-        project_file? && !!test_file?
+        project_file? && !test_file?
       end
 
       # A safe interface to getting the last modified time for the file in question

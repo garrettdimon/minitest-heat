@@ -41,7 +41,7 @@ module Minitest
       # @param line_number [Integer,String] the line number to record the issue on
       #
       # @return [void]
-      def log(type, line_number, preceding_location: nil)
+      def log(type, line_number, possible_instigator: nil)
         @issues[type] ||= []
         @issues[type] << Integer(line_number)
       end

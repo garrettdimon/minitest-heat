@@ -9,7 +9,7 @@ module Minitest
       attr_reader :raw_backtrace
 
       # Creates a more flexible backtrace data structure by parsing the lines of the backtrace to
-      #   extract individual elements for investigating the offending files and line numbers
+      #   extract specific subsets of lines for investigating the offending files and line numbers
       # @param raw_backtrace [Array] the array of lines from the backtrace
       #
       # @return [self]
@@ -24,90 +24,42 @@ module Minitest
         raw_backtrace.empty?
       end
 
-      # The final location exposed in the backtrace. Could be a line from the project or from a
-      #   dependency or the Ruby core libraries
+      # All lines of the backtrace converted to Backtrace::LineParser's
       #
-      # @return [Line] the final location from the backtrace parsed as a Backtrace::LineParser
-      def final_location
-        parsed_entries.first
-      end
+      # @return [Line] the full set of backtrace lines parsed as Backtrace::LineParser instances
+      def locations
+        return [] if raw_backtrace.nil?
 
-      # The final location from within the project exposed in the backtrace. Could be test files or
-      #   source code files
-      #
-      # @return [Line] the final project location from the backtrace parsed as a Backtrace::LineParser
-      def final_project_location
-        project_entries.first
-      end
-
-      # The most recently modified location from within the project
-      #
-      # @return [Line] the most recently modified project location from the backtrace parsed as a
-      #   Backtrace::LineParser
-      def freshest_project_location
-        recently_modified_entries.first
-      end
-
-      # The final location from within the project source code (i.e. excluding tests)
-      #
-      # @return [Line] the final source code location from the backtrace parsed as a Backtrace::LineParser
-      def final_source_code_location
-        source_code_entries.first
-      end
-
-      # The second-to-last project location in the backtrace. When something goes wrong in
-      #   multiple locations, but they all lead to the final source location, the preceding source
-      #   code location is often helpful for discerning the pattern.
-      #
-      # @return [Line] the second-to-last source code location from the backtrace parsed as a
-      #   Backtrace::LineParser
-      def preceding_location
-        project_entries[1]
-      end
-
-      # The final location from within the project's tests (i.e. excluding source code)
-      #
-      # @return [Line] the final test location from the backtrace parsed as a Backtrace::LineParser
-      def final_test_location
-        test_entries.first
-      end
-
-      # All entries from the backtrace that are files within the project
-      #
-      # @return [Line] the backtrace lines from within the project parsed as Backtrace::LineParser's
-      def project_entries
-        @project_entries ||= parsed_entries.select { |entry| entry.path.to_s.include?(Dir.pwd) }
+        @locations ||= raw_backtrace.map { |entry| Backtrace::LineParser.read(entry) }
       end
 
       # All entries from the backtrace within the project and sorted with the most recently modified
       #   files at the beginning
       #
       # @return [Line] the sorted backtrace lines from the project parsed as Backtrace::LineParser's
-      def recently_modified_entries
-        @recently_modified_entries ||= project_entries.sort_by(&:mtime).reverse
+      def recently_modified_locations
+        @recently_modified_locations ||= project_locations.sort_by(&:mtime).reverse
+      end
+
+      # All entries from the backtrace that are files within the project
+      #
+      # @return [Line] the backtrace lines from within the project parsed as Backtrace::LineParser's
+      def project_locations
+        @project_locations ||= locations.select(&:project_file?)
       end
 
       # All entries from the backtrace within the project tests
       #
       # @return [Line] the backtrace lines from within the project tests parsed as Backtrace::LineParser's
-      def test_entries
-        @test_entries ||= project_entries.select(&:test_file?)
+      def test_locations
+        @test_locations ||= project_locations.select(&:test_file?)
       end
 
       # All source code entries from the backtrace (i.e. excluding tests)
       #
       # @return [Line] the backtrace lines from within the source code parsed as Backtrace::LineParser's
-      def source_code_entries
-        @source_code_entries ||= project_entries - test_entries
-      end
-
-      # All lines of the backtrace converted to Backtrace::LineParser's
-      #
-      # @return [Line] the full set of backtrace lines parsed as Backtrace::LineParser instances
-      def parsed_entries
-        return [] if raw_backtrace.nil?
-
-        @parsed_entries ||= raw_backtrace.map { |entry| Backtrace::LineParser.read(entry) }
+      def source_code_locations
+        @source_code_locations ||= project_locations.select(&:source_code_file?)
       end
     end
   end

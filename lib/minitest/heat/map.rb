@@ -32,10 +32,10 @@ module Minitest
       # @param type [Symbol] the type of issue that was encountered (i.e. :failure, :error, etc.)
       #
       # @return [void]
-      def add(filename, line_number, type, preceding_location: [nil, nil])
+      def add(filename, line_number, type, possible_instigator: [nil, nil])
         @hits[filename] ||= Hit.new(filename)
 
-        @hits[filename].log(type.to_sym, line_number, preceding_location: preceding_location)
+        @hits[filename].log(type.to_sym, line_number, possible_instigator: possible_instigator)
       end
 
       # Returns a subset of affected files to keep the list from being overwhelming

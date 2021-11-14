@@ -55,11 +55,11 @@ class Minitest::Heat::LocationTest < Minitest::Test
   end
 
   def test_absolute_pathname
-    assert_equal '/Users/garrettdimon/Code/minitest-heat/test/minitest/heat/location_test.rb', @location.absolute_pathname
+    assert_equal '/Users/garrettdimon/Code/minitest-heat/test/minitest/heat/', @location.absolute_pathname
   end
 
   def test_relative_pathname
-    assert_equal '/test/minitest/heat/location_test.rb', @location.relative_pathname
+    assert_equal '/test/minitest/heat/', @location.relative_pathname
   end
 
   def test_casts_to_string

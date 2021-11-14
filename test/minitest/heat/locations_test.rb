@@ -21,7 +21,7 @@ class Minitest::Heat::LocationsTest < Minitest::Test
 
   def test_can_be_initialized_without_backtrace
     location = Minitest::Heat::Locations.new(@test_location)
-    refute location.backtrace?
+    refute location.backtrace.locations.any?
     assert_nil location.source_code_file
     refute_nil location.project_file
     refute_nil location.test_file
@@ -48,7 +48,7 @@ class Minitest::Heat::LocationsTest < Minitest::Test
     @raw_backtrace.shift
     @location = Minitest::Heat::Locations.new(@test_location, @raw_backtrace)
 
-    assert @location.backtrace?
+    assert @location.backtrace.locations.any?
     assert @location.broken_test?
   end
 
