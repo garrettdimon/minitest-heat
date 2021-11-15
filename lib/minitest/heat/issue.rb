@@ -99,9 +99,9 @@ module Minitest
           :skipped
         elsif !passed?
           :failure
-        elsif painful?
+        elsif passed? && painful?
           :painful
-        elsif slow?
+        elsif passed? && slow?
           :slow
         else
           :success

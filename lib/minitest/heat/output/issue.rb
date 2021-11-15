@@ -79,7 +79,7 @@ module Minitest
         end
 
         def headline_tokens
-          [[issue.type, label(issue)], spacer_token, [:default, test_name(issue)]]
+          [label_token(issue), spacer_token, [:default, test_name(issue)]]
         end
 
         def test_name(issue)
@@ -93,24 +93,20 @@ module Minitest
           end
         end
 
-        def label(issue) # rubocop:disable Metrics
-          if issue.error? && issue.in_test?
-            # When the exception came out of the test itself, that's a different kind of exception
-            # that really only indicates there's a problem with the code in the test. It's kind of
-            # between an error and a test.
-            'Broken Test'
-          elsif issue.error?
-            'Error'
-          elsif issue.skipped?
-            'Skipped'
-          elsif issue.painful?
-            'Passed but Very Slow'
-          elsif issue.slow?
-            'Passed but Slow'
-          elsif !issue.passed?
-            'Failure'
-          else
-            'Success'
+        def label_token(issue)
+          [issue.type, issue_label(issue.type)]
+        end
+
+        def issue_label(issue_type)
+          case issue_type
+          when :error   then 'Error'
+          when :broken  then 'Broken Test'
+          when :failure then 'Failure'
+          when :skipped then 'Skipped'
+          when :slow    then 'Passed but Slow'
+          when :painful then 'Passed but Very Slow'
+          when :passed  then 'Success'
+          else 'Unknown'
           end
         end
 
