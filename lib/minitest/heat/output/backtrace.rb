@@ -53,7 +53,8 @@ module Minitest
             path_token(location),
             *file_and_line_number_tokens(location),
             source_code_line_token(location.source_code),
-            most_recently_modified_token(location)
+            containining_element_token(location),
+            most_recently_modified_token(location),
           ].compact
         end
 
@@ -95,6 +96,12 @@ module Minitest
 
         def source_code_line_token(source_code)
           [:muted, " #{Output::SYMBOLS[:arrow]} `#{source_code.line.strip}`"]
+        end
+
+        def containining_element_token(location)
+          return nil if location.container.nil? || location.container.empty?
+
+          [:muted, " in `#{location.container}`"]
         end
 
         def most_recently_modified_token(location)

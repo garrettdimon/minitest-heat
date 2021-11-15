@@ -4,18 +4,6 @@ module Minitest
   module Heat
     class Output
       # Generates the tokens to output the resulting heat map
-      # @example
-      #   test/minitest/contrived_examples_test.rb · 14 18 22 26 30 38 42 46 50 61 67 71 77 81 87 93
-      #   test/minitest/contrived_heat_map_test.rb · 40 40 40
-      #     Problems on line 40 originated from multiple locations:
-      #     - test/minitest/contrived_issue.rb:5 · `source_code`
-      #     - test/minitest/contrived_locations.rb:8 · `source_code`
-      #     - test/minitest/contrived_locations.rb:15 · `source_code`
-      #   test/minitest/contrived_locations.rb · 9 9
-      #     Problems on line 9 originated from multiple locations:
-      #     - test/minitest/contrived_issue.rb:5 · `source_code`
-      #     - test/minitest/contrived_locations.rb:8 · `source_code`
-
       class Map
         attr_accessor :results
 
@@ -38,6 +26,7 @@ module Minitest
             repeats.each do |line_number|
               @tokens << [[:muted, "  Problems on line #{line_number} originated from multiple locations:"]]
               hit.lines[line_number.to_s].each do |trace|
+                ap trace.locations
                 @tokens << origination_location_token(trace)
               end
             end

@@ -10,19 +10,20 @@ require_relative 'contrived_code'
 #   visual presentation of the various errors based on different contexts
 if ENV['FORCE_FAILURES'] || ENV['IMPLODE']
 
-  class Minitest::ContrivedHeatMapTest < Minitest::Test
-    def test_trigger_the_first_exception
+  class Minitest::ContrivedSetupFailuresTest < Minitest::Test
+    def setup
       example_indirect_code(raise_error: true)
+    end
+
+    def test_trigger_the_first_exception
       assert true
     end
 
     def test_trigger_the_second_exception
-      other_example_indirect_code(raise_error: true)
       refute false
     end
 
     def test_trigger_the_third_exception
-      even_more_example_indirect_code(raise_error: true)
       refute false
     end
 
@@ -30,20 +31,6 @@ if ENV['FORCE_FAILURES'] || ENV['IMPLODE']
 
     # Both tests call this method which then calls a different method
     def example_indirect_code(raise_error: false)
-      return unless raise_error
-
-      raise_error_indirectly
-    end
-
-    # Both tests call this method which then calls a different method
-    def other_example_indirect_code(raise_error: false)
-      return unless raise_error
-
-      even_more_example_indirect_code(raise_error: raise_error)
-    end
-
-    # Both tests call this method which then calls a different method
-    def even_more_example_indirect_code(raise_error: false)
       return unless raise_error
 
       raise_error_indirectly
