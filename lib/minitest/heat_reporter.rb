@@ -103,6 +103,9 @@ module Minitest
       # If there were issues, shows a short heat map summary of which files and lines were the most
       # common sources of issues
       output.heat_map(results)
+
+      output.newline
+      output.newline
     end
 
     # Did this run pass?

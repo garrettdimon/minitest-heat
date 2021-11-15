@@ -24,9 +24,12 @@ module Minitest
             next unless repeats.any?
 
             repeats.each do |line_number|
-              @tokens << [[:muted, "  Problems on line #{line_number} originated from multiple locations:"]]
-              hit.lines[line_number.to_s].each do |trace|
-                ap trace.locations
+              @tokens << [[:muted, "  Issues on Line #{line_number} initially triggered from these locations:"]]
+
+              traces = hit.lines[line_number.to_s]
+              sorted_traces = traces.sort_by { |trace| trace.locations.last.line_number }
+
+              sorted_traces.each do |trace|
                 @tokens << origination_location_token(trace)
               end
             end
@@ -45,15 +48,17 @@ module Minitest
         end
 
         def origination_location_token(trace)
+          # The earliest project line from the backtrace—this is probabyl wholly incorrect in terms
+          # of what would be the most helpful line to display, but it's a start.
           location = trace.locations.last
 
           [
-            [:muted, '  - '],
+            [:muted, "  #{Output::SYMBOLS[:arrow]} "],
             [:default, location.relative_filename],
             [:muted, ':'],
             [:default, location.line_number],
-            [:muted, " #{Output::SYMBOLS[:arrow]} "],
-            [:muted, location.source_code.line.strip]
+            [:muted, " in #{location.container}"],
+            [:muted, " #{Output::SYMBOLS[:arrow]} `location.source_code.line.strip`"],
           ]
         end
 

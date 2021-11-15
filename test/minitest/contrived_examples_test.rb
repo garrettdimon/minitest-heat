@@ -83,14 +83,13 @@ class Minitest::ContrivedExamplesTest < Minitest::Test
       end
     end
 
-    def test_nothing_raised_assertion
-      assert_nothing_raised 'Expect nothing to be raised' do
-        raise StandardError, 'Something *was* raised!'
-      end
+    def test_fails_after
+      now = Time.now
+      fail_after(now.year, now.month, now.day, 'This should explicitly fail because today is after the date')
     end
 
-    def test_nothing_thrown_assertion
-      assert_nothing_thrown 'Expect nothing to be thrown' do
+    def test_throws_assertion
+      assert_throws :error? do
         throw :problem?
       end
     end

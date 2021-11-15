@@ -79,7 +79,7 @@ module Minitest
       end
 
       def relative_path
-        pathname.exist? ? absolute_path.delete_prefix(project_root_dir) : UNRECOGNIZED
+        pathname.exist? ? absolute_path.delete_prefix("#{project_root_dir}/") : UNRECOGNIZED
       end
 
       # A safe interface for getting a string representing the filename portion of the file
@@ -95,7 +95,7 @@ module Minitest
       end
 
       def relative_filename
-        pathname.exist? ? pathname.to_s.delete_prefix(project_root_dir) : UNRECOGNIZED
+        pathname.exist? ? pathname.to_s.delete_prefix("#{project_root_dir}/") : UNRECOGNIZED
       end
 
       # Line number identifying the specific line in the file

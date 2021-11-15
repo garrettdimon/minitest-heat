@@ -52,8 +52,8 @@ module Minitest
             indentation_token,
             path_token(location),
             *file_and_line_number_tokens(location),
-            source_code_line_token(location.source_code),
             containining_element_token(location),
+            source_code_line_token(location),
             most_recently_modified_token(location),
           ].compact
         end
@@ -94,14 +94,16 @@ module Minitest
           ]
         end
 
-        def source_code_line_token(source_code)
-          [:muted, " #{Output::SYMBOLS[:arrow]} `#{source_code.line.strip}`"]
+        def source_code_line_token(location)
+          return nil unless location.project_file?
+
+          [:muted, " #{Output::SYMBOLS[:arrow]} `#{location.source_code.line.strip}`"]
         end
 
         def containining_element_token(location)
-          return nil if location.container.nil? || location.container.empty?
+          return nil if !location.project_file? || location.container.nil? || location.container.empty?
 
-          [:muted, " in `#{location.container}`"]
+          [:muted, " in #{location.container}"]
         end
 
         def most_recently_modified_token(location)

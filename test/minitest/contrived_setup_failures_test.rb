@@ -12,33 +12,22 @@ if ENV['FORCE_FAILURES'] || ENV['IMPLODE']
 
   class Minitest::ContrivedSetupFailuresTest < Minitest::Test
     def setup
-      example_indirect_code(raise_error: true)
+      @example_lambda = -> { raise StandardError, 'This happened in the setup' }
     end
 
     def test_trigger_the_first_exception
       assert true
+      @example_lambda.call
     end
 
     def test_trigger_the_second_exception
       refute false
+      @example_lambda.call
     end
 
     def test_trigger_the_third_exception
+      @example_lambda.call
       refute false
-    end
-
-    private
-
-    # Both tests call this method which then calls a different method
-    def example_indirect_code(raise_error: false)
-      return unless raise_error
-
-      raise_error_indirectly
-    end
-
-    def raise_error_indirectly
-      # Both tests should end up here and thus have duplicate entries in the heat map
-      raise StandardError, 'Here is an indirectly raise exception'
     end
   end
 end
