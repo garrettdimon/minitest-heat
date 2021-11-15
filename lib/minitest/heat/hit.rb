@@ -5,9 +5,9 @@ require 'forwardable'
 module Minitest
   module Heat
     # Kind of like an issue, but instead of focusing on a failing test, it covers all issues for a
-    #   given file to build a heat map of the affected files
+    #   given file to build a heat map of the affected files and line numbers
     class Hit
-      Trace = Struct.new(:line_number, :locations)
+      Trace = Struct.new(:type, :line_number, :locations)
 
       # So we can sort hot spots by liklihood of being the most important spot to check out before
       #   trying to fix something. These are ranked based on the possibility they represent ripple
@@ -47,14 +47,15 @@ module Minitest
       # @return [void]
       def log(type, line_number, backtrace: [])
         line_number = Integer(line_number)
+        issue_type = type.to_sym
 
         # Store issues by issue type with an array of line numbers
-        @issues[type.to_sym] ||= []
-        @issues[type.to_sym] << line_number
+        @issues[issue_type] ||= []
+        @issues[issue_type] << line_number
 
         # Store issues by line number with an array of Traces
         @lines[line_number.to_s] ||= []
-        @lines[line_number.to_s] << Trace.new(line_number, backtrace)
+        @lines[line_number.to_s] << Trace.new(issue_type, line_number, backtrace)
       end
 
       # Calcuates an approximate weight to serve as a proxy for which files are most likely to be

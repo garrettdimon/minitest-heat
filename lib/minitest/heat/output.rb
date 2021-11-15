@@ -138,7 +138,11 @@ module Minitest
       def print_tokens(lines_of_tokens)
         lines_of_tokens.each do |tokens|
           tokens.each do |token|
-            print Token.new(*token).to_s(token_format)
+            begin
+              print Token.new(*token).to_s(token_format)
+            rescue
+              puts token.inspect
+            end
           end
           newline
         end
