@@ -58,7 +58,7 @@ module Minitest
             [:muted, ':'],
             [:default, location.line_number],
             [:muted, " in #{location.container}"],
-            [:muted, " #{Output::SYMBOLS[:arrow]} `location.source_code.line.strip`"],
+            [:muted, " #{Output::SYMBOLS[:arrow]} `#{location.source_code.line.strip}`"],
           ]
         end
 
