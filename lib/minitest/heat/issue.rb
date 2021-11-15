@@ -18,7 +18,7 @@ module Minitest
       }.freeze
 
       attr_reader :assertions,
-                  :location,
+                  :locations,
                   :message,
                   :test_class,
                   :test_identifier,
@@ -27,7 +27,7 @@ module Minitest
                   :error,
                   :skipped
 
-      def_delegators :@location, :backtrace, :test_definition_line, :test_failure_line
+      def_delegators :@locations, :backtrace, :test_definition_line, :test_failure_line
 
       # Extracts the necessary data from result.
       # @param result [Minitest::Result] the instance of Minitest::Result to examine
@@ -39,7 +39,7 @@ module Minitest
 
         new(
           assertions: result.assertions,
-          location: result.source_location,
+          test_location: result.source_location,
           test_class: result.klass,
           test_identifier: result.name,
           execution_time: result.time,
@@ -47,7 +47,7 @@ module Minitest
           error: result.error?,
           skipped: result.skipped?,
           message: exception&.message,
-          backtrace: exception&.backtrace,
+          backtrace: exception&.backtrace
         )
       end
 
@@ -57,7 +57,7 @@ module Minitest
       # @param assertions: 1 [Integer] the number of assertions in the result
       # @param message: nil [String] exception if there is one
       # @param backtrace: [] [Array<String>] the array of backtrace lines from an exception
-      # @param location: nil [String] the location identifier for a test
+      # @param test_location: nil [Array<String, Integer>] the locations identifier for a test
       # @param test_class: nil [String] the class name for the test result's containing class
       # @param test_identifier: nil [String] the name of the test
       # @param execution_time: nil [Float] the time it took to run the test
@@ -66,11 +66,11 @@ module Minitest
       # @param skipped: false [Boolean] true if the test was skipped
       #
       # @return [type] [description]
-      def initialize(assertions: 1, location: ['unknown', 1], backtrace: [], execution_time: 0.0, message: nil, test_class: nil, test_identifier: nil, passed: false, error: false, skipped: false)
+      def initialize(assertions: 1, test_location: ['Unrecognized Test File', 1], backtrace: [], execution_time: 0.0, message: nil, test_class: nil, test_identifier: nil, passed: false, error: false, skipped: false)
         @message = message
 
         @assertions = Integer(assertions)
-        @location = Location.new(location, backtrace)
+        @locations = Locations.new(test_location, backtrace)
 
         @test_class = test_class
         @test_identifier = test_identifier
@@ -135,18 +135,18 @@ module Minitest
       # Determines if the issue is an exception that was raised from directly within a test
       #   definition. In these cases, it's more likely to be a quick fix.
       #
-      # @return [Boolean] true if the final location of the stacktrace was a test file
+      # @return [Boolean] true if the final locations of the stacktrace was a test file
       def in_test?
-        location.broken_test?
+        locations.broken_test?
       end
 
       # Determines if the issue is an exception that was raised from directly within the project
       #   codebase.
       #
-      # @return [Boolean] true if the final location of the stacktrace was a file from the project
+      # @return [Boolean] true if the final locations of the stacktrace was a file from the project
       #   (as opposed to a dependency or Ruby library)
       def in_source?
-        location.proper_failure?
+        locations.proper_failure?
       end
 
       # Was the result a pass? i.e. Skips aren't passes or failures. Slows are still passes. So this

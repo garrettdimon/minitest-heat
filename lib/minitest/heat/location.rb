@@ -2,197 +2,178 @@
 
 module Minitest
   module Heat
-    # Convenience methods for determining the file and line number where the problem occurred.
-    #   There are several layers of specificity to help make it easy to communicate the relative
-    #   location of the failure:
-    #   - 'final' represents the final line of the backtrace regardless of where it is
-    #   - 'test' represents the last line from the project's tests. It is further differentiated by
-    #     the line where the test is defined and the actual line of code in the test that geneated
-    #     the failure or exception
-    #   - 'source_code' represents the last line from the project's source code
-    #   - 'project' represents the last source line, but falls back to the last test line
-    #   - 'most_relevant' represents the most specific file to investigate starting with the source
-    #     code and then looking to the test code with final line of the backtrace as a fallback
+    # Consistent structure for extracting information about a given location. In addition to the
+    #   pathname to the file and the line number in the file, it can also include information about
+    #   the containing method or block and retrieve source code for the location.
     class Location
-      TestDefinition = Struct.new(:pathname, :line_number) do
-        def initialize(pathname, line_number)
-          @pathname = Pathname(pathname)
-          @line_number = Integer(line_number)
-          super
-        end
-      end
+      UNRECOGNIZED = '(Unrecognized File)'
+      UNKNOWN_MODIFICATION_TIME = Time.at(0)
+      UNKNOWN_MODIFICATION_SECONDS = -1
 
-      attr_reader :test_definition_location, :backtrace
+      attr_accessor :raw_pathname, :raw_line_number, :raw_container
 
-      def initialize(test_definition_location, backtrace = [])
-        @test_definition_location = TestDefinition.new(*test_definition_location)
-        @backtrace = Backtrace.new(backtrace)
-      end
-
-      # Prints the pathname and line number of the location most likely to be the source of the
-      #   test failure
+      # Initialize a new Location
       #
-      # @return [String] ex. 'path/to/file.rb:12'
+      # @param [Pathname, String] pathname: the pathname to the file
+      # @param [Integer] line_number: the line number of the location within the file
+      # @param [String] container: nil the containing method or block for the issue
+      #
+      # @return [self]
+      def initialize(pathname:, line_number:, container: nil)
+        @raw_pathname = pathname
+        @raw_line_number = line_number
+        @raw_container = container
+      end
+
+      # Generates a formatted string describing the line of code similar to the original backtrace
+      #
+      # @return [String] a consistently-formatted, human-readable string about the line of code
       def to_s
-        "#{most_relevant_file}:#{most_relevant_failure_line}"
+        "#{absolute_path}#{filename}:#{line_number} in `#{container}`"
       end
 
-      def local?
-        broken_test? || proper_failure?
-      end
-
-      # Knows if the failure is contained within the test. For example, if there's bad code in a
-      #   test, and it raises an exception, then it's really a broken test rather than a proper
-      #   faiure.
+      # Generates a simplified location array with the pathname and line number
       #
-      # @return [Boolean] true if final file in the backtrace is the same as the test location file
-      def broken_test?
-        !test_file.nil? && test_file == final_file
-      end
-
-      # Knows if the failure occurred in the actual project source code—as opposed to the test or
-      #   an external piece of code like a gem.
-      #
-      # @return [Boolean] true if there's a non-test project file in the stacktrace but it's not
-      #   a result of a broken test
-      def proper_failure?
-        !source_code_file.nil? && !broken_test?
-      end
-
-
-
-      # The final location of the stacktrace regardless of whether it's from within the project
-      #
-      # @return [String] the relative path to the file from the project root
-      def final_file
-        Pathname(final_location.pathname)
-      end
-
-      # The file most likely to be the source of the underlying problem. Often, the most recent
-      #   backtrace files will be a gem or external library that's failing indirectly as a result
-      #   of a problem with local source code (not always, but frequently). In that case, the best
-      #   first place to focus is on the code you control.
-      #
-      # @return [String] the relative path to the file from the project root
-      def most_relevant_file
-        Pathname(most_relevant_location.pathname)
-      end
-
-      # The final location from the stacktrace that is a test file
-      #
-      # @return [String, nil] the relative path to the file from the project root
-      def test_file
-        Pathname(final_test_location.pathname)
-      end
-
-      # The final location from the stacktrace that is within the project directory
-      #
-      # @return [String, nil] the relative path to the file from the project root
-      def source_code_file
-        return nil if final_source_code_location.nil?
-
-        Pathname(final_source_code_location.pathname)
-      end
-
-      # The final location of the stacktrace from within the project (source code or test code)
-      #
-      # @return [String] the relative path to the file from the project root
-      def project_file
-        return nil if project_location.nil?
-
-        Pathname(project_location.pathname)
-      end
-
-
-      # The line number of the `final_file` where the failure originated
-      #
-      # @return [Integer] line number
-      def final_failure_line
-        final_location.line_number
-      end
-
-      # The line number of the `most_relevant_file` where the failure originated
-      #
-      # @return [Integer] line number
-      def most_relevant_failure_line
-        most_relevant_location.line_number
-      end
-
-      # The line number of the `test_file` where the test is defined
-      #
-      # @return [Integer] line number
-      def test_definition_line
-        test_definition_location.line_number
-      end
-
-      # The line number from within the `test_file` test definition where the failure occurred
-      #
-      # @return [Integer] line number
-      def test_failure_line
-        final_test_location.line_number
-      end
-
-      # The line number of the `source_code_file` where the failure originated
-      #
-      # @return [Integer] line number
-      def source_code_failure_line
-        final_source_code_location&.line_number
-      end
-
-      # The line number of the `project_file` where the failure originated
-      #
-      # @return [Integer] line number
-      def project_failure_line
-        if !broken_test? && !source_code_file.nil?
-          source_code_failure_line
-        else
-          test_failure_line
-        end
-      end
-
-      # The line number from within the `test_file` test definition where the failure occurred
-      #
-      # @return [Location] the last location from the backtrace or the test location if a backtrace
-      #   was not passed to the initializer
-      def final_location
-        backtrace.parsed_entries.any? ? backtrace.final_location : test_definition_location
-      end
-
-      # The file most likely to be the source of the underlying problem. Often, the most recent
-      #   backtrace files will be a gem or external library that's failing indirectly as a result
-      #   of a problem with local source code (not always, but frequently). In that case, the best
-      #   first place to focus is on the code you control.
-      #
-      # @return [Array] file and line number of the most likely source of the problem
-      def most_relevant_location
+      # @return [Array<Pathname, Integer>] a no-frills location pair
+      def to_a
         [
-          final_source_code_location,
-          final_test_location,
-          final_location
-        ].compact.first
+          pathname,
+          line_number
+        ]
       end
 
-      # Returns the final test location based on the backtrace if present. Otherwise falls back to
-      #   the test location which represents the test definition.
+      # A short relative pathname and line number pair
       #
-      # @return [Location] the final location from the test files
-      def final_test_location
-        backtrace.final_test_location || test_definition_location
+      # @return [String] the short filename/line number combo. ex. `dir/file.rb:23`
+      def short
+        "#{relative_filename}:#{line_number}"
       end
 
-      # Returns the final source code location based on the backtrace
+      # Determine if there is a file and text at the given line number
       #
-      # @return [Location] the final location from the source code files
-      def final_source_code_location
-        backtrace.final_source_code_location
+      # @return [Boolean] true if the file exists and has text at the given line number
+      def exists?
+        pathname.exist? && source_code.lines.any?
       end
 
-      # Returns the final project location based on the backtrace if present. Otherwise falls back
-      #   to the test location which represents the test definition.
+      # The pathanme for the location. Written to be safe and fallbackto the project directory if
+      #   an exception is raised ocnverting the value to a pathname
       #
-      # @return [Location] the final location from the project files
-      def project_location
-        backtrace.final_project_location || test_definition_location
+      # @return [Pathname] a pathname instance for the relevant file
+      def pathname
+        Pathname(raw_pathname)
+      rescue ArgumentError
+        Pathname(Dir.pwd)
+      end
+
+      # A safe interface to getting a string representing the path portion of the file
+      #
+      # @return [String] either the path/directory portion of the file name or '(Unrecognized File)'
+      #   if the offending file can't be found for some reason
+      def path
+        pathname.exist? ? pathname.dirname.to_s : UNRECOGNIZED
+      end
+
+      def absolute_path
+        pathname.exist? ? "#{path}/" : UNRECOGNIZED
+      end
+
+      def relative_path
+        pathname.exist? ? absolute_path.delete_prefix("#{project_root_dir}/") : UNRECOGNIZED
+      end
+
+      # A safe interface for getting a string representing the filename portion of the file
+      #
+      # @return [String] either the filename portion of the file or '(Unrecognized File)'
+      #   if the offending file can't be found for some reason
+      def filename
+        pathname.exist? ? pathname.basename.to_s : UNRECOGNIZED
+      end
+
+      def absolute_filename
+        pathname.exist? ? pathname.to_s : UNRECOGNIZED
+      end
+
+      def relative_filename
+        pathname.exist? ? pathname.to_s.delete_prefix("#{project_root_dir}/") : UNRECOGNIZED
+      end
+
+      # Line number identifying the specific line in the file
+      #
+      # @return [Integer] line number for the file
+      #
+      def line_number
+        Integer(raw_line_number)
+      rescue ArgumentError
+        1
+      end
+
+      # The containing method or block details for the location
+      #
+      # @return [String] the containing method of the line of code
+      def container
+        raw_container.nil? ? '(Unknown Container)' : String(raw_container)
+      end
+
+      # Looks up the source code for the location. Can return multiple lines of source code from
+      #   the surrounding lines of code for the primary line
+      #
+      # @param [Integer] max_line_count: 1 the maximum number of lines to return from the source
+      #
+      # @return [Source] an instance of Source for accessing lines and their line numbers
+      def source_code(max_line_count: 1)
+        Minitest::Heat::Source.new(
+          pathname.to_s,
+          line_number: line_number,
+          max_line_count: max_line_count
+        )
+      end
+
+      # Determines if a given file is from the project directory
+      #
+      # @return [Boolean] true if the file is in the project (source code or test)
+      def project_file?
+        path.include?(project_root_dir)
+      end
+
+      # Determines if a given file follows the standard approaching to naming test files.
+      #
+      # @return [Boolean] true if the file name starts with `test_` or ends with `_test.rb`
+      def test_file?
+        filename.to_s.start_with?('test_') || filename.to_s.end_with?('_test.rb')
+      end
+
+      # Determines if a given file is a non-test file from the project directory
+      #
+      # @return [Boolean] true if the file is in the project but not a test file
+      def source_code_file?
+        project_file? && !test_file?
+      end
+
+      # A safe interface to getting the last modified time for the file in question
+      #
+      # @return [Time] the timestamp for when the file in question was last modified or `Time.at(0)`
+      #   if the offending file can't be found for some reason
+      def mtime
+        pathname.exist? ? pathname.mtime : UNKNOWN_MODIFICATION_TIME
+      end
+
+      # A safe interface to getting the number of seconds since the file was modified
+      #
+      # @return [Integer] the number of seconds since the file was modified or `-1` if the offending
+      #   file can't be found for some reason
+      def age_in_seconds
+        pathname.exist? ? seconds_ago : UNKNOWN_MODIFICATION_SECONDS
+      end
+
+      private
+
+      def project_root_dir
+        Dir.pwd
+      end
+
+      def seconds_ago
+        (Time.now - mtime).to_i
       end
     end
   end

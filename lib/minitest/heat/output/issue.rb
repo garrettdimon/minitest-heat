@@ -5,10 +5,11 @@ module Minitest
     class Output
       # Formats issues to output based on the issue type
       class Issue # rubocop:disable Metrics/ClassLength
-        attr_accessor :issue
+        attr_accessor :issue, :locations
 
         def initialize(issue)
           @issue = issue
+          @locations = issue.locations
         end
 
         def tokens
@@ -92,7 +93,7 @@ module Minitest
           end
         end
 
-        def label(issue)
+        def label(issue) # rubocop:disable Metrics
           if issue.error? && issue.in_test?
             # When the exception came out of the test itself, that's a different kind of exception
             # that really only indicates there's a problem with the code in the test. It's kind of
@@ -118,24 +119,34 @@ module Minitest
         end
 
         def backtrace_tokens
-          backtrace = ::Minitest::Heat::Output::Backtrace.new(issue.location)
-
-          backtrace.tokens
+          @backtrace_tokens ||= ::Minitest::Heat::Output::Backtrace.new(locations).tokens
         end
 
         def test_location_tokens
-          [[:default, test_file_short_location], [:muted, ':'], [:default, issue.test_definition_line], arrow_token, [:default, issue.test_failure_line], [:muted, test_line_source]]
+          [
+            [:default, locations.test_definition.relative_filename],
+            [:muted, ':'],
+            [:default, locations.test_definition.line_number],
+            arrow_token,
+            [:default, locations.test_failure.line_number],
+            [:muted, "\n  #{locations.test_failure.source_code.line.strip}"]
+          ]
         end
 
         def location_tokens
-          [[:default, most_relevant_short_location], [:muted, ':'], [:default, issue.location.most_relevant_failure_line], [:muted, most_relevant_line_source]]
+          [
+            [:default, locations.most_relevant.relative_filename],
+            [:muted, ':'],
+            [:default, locations.most_relevant.line_number],
+            [:muted, "\n  #{locations.most_relevant.source_code.line.strip}"]
+          ]
         end
 
         def source_tokens
-          filename    = issue.location.project_file
-          line_number = issue.location.project_failure_line
-
+          filename    = locations.project.filename
+          line_number = locations.project.line_number
           source = Minitest::Heat::Source.new(filename, line_number: line_number)
+
           [[:muted, " #{Output::SYMBOLS[:arrow]} `#{source.line.strip}`"]]
         end
 
@@ -147,9 +158,10 @@ module Minitest
           [
             [:bold, slowness(issue)],
             spacer_token,
-            [:default, issue.location.test_file.to_s.delete_prefix(Dir.pwd)],
+            [:default, locations.test_definition.relative_path],
+            [:default, locations.test_definition.filename],
             [:muted, ':'],
-            [:default, issue.location.test_definition_line]
+            [:default, locations.test_definition.line_number]
           ]
         end
 
@@ -159,30 +171,6 @@ module Minitest
 
         def newline_tokens
           []
-        end
-
-        def most_relevant_short_location
-          issue.location.most_relevant_file.to_s.delete_prefix("#{Dir.pwd}/")
-        end
-
-        def test_file_short_location
-          issue.location.test_file.to_s.delete_prefix("#{Dir.pwd}/")
-        end
-
-        def most_relevant_line_source
-          filename    = issue.location.project_file
-          line_number = issue.location.project_failure_line
-
-          source = Minitest::Heat::Source.new(filename, line_number: line_number)
-          "\n  #{source.line.strip}"
-        end
-
-        def test_line_source
-          filename    = issue.location.test_file
-          line_number = issue.location.test_failure_line
-
-          source = Minitest::Heat::Source.new(filename, line_number: line_number)
-          "\n  #{source.line.strip}"
         end
 
         def spacer_token

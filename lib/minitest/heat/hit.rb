@@ -5,8 +5,10 @@ require 'forwardable'
 module Minitest
   module Heat
     # Kind of like an issue, but instead of focusing on a failing test, it covers all issues for a
-    #   given file to build a heat map of the affected files
+    #   given file to build a heat map of the affected files and line numbers
     class Hit
+      Trace = Struct.new(:type, :line_number, :locations)
+
       # So we can sort hot spots by liklihood of being the most important spot to check out before
       #   trying to fix something. These are ranked based on the possibility they represent ripple
       #   effects where fixing one problem could potentially fix multiple other failures.
@@ -23,7 +25,7 @@ module Minitest
         slow: 0
       }.freeze
 
-      attr_reader :pathname, :issues
+      attr_reader :pathname, :issues, :lines
 
       # Creates an instance of a Hit for the given pathname. It must be the full pathname to
       #   uniquely identify the file or we could run into collisions that muddy the water and
@@ -34,16 +36,26 @@ module Minitest
       def initialize(pathname)
         @pathname = Pathname(pathname)
         @issues = {}
+        @lines = {}
       end
 
       # Adds a record of a given issue type for the line number
       # @param type [Symbol] one of Issue::TYPES
       # @param line_number [Integer,String] the line number to record the issue on
+      # @param backtrace: nil [Array<Location>] the project locations from the backtrace
       #
-      # @return [type] [description]
-      def log(type, line_number)
-        @issues[type] ||= []
-        @issues[type] << Integer(line_number)
+      # @return [void]
+      def log(type, line_number, backtrace: [])
+        line_number = Integer(line_number)
+        issue_type = type.to_sym
+
+        # Store issues by issue type with an array of line numbers
+        @issues[issue_type] ||= []
+        @issues[issue_type] << line_number
+
+        # Store issues by line number with an array of Traces
+        @lines[line_number.to_s] ||= []
+        @lines[line_number.to_s] << Trace.new(issue_type, line_number, backtrace)
       end
 
       # Calcuates an approximate weight to serve as a proxy for which files are most likely to be

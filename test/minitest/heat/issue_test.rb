@@ -11,7 +11,7 @@ class Minitest::Heat::IssueTest < Minitest::Test
 
     @source_backtrace = [
       "#{@source_filename}:1:in `method_name'",
-      "#{@test_filename}:1:in `other_method_name'",
+      "#{@test_filename}:1:in `other_method_name'"
     ]
 
     # This creates a version with the test file first
@@ -24,13 +24,13 @@ class Minitest::Heat::IssueTest < Minitest::Test
       assertions: 1,
       message: '',
       backtrace: @source_backtrace,
-      location: @location,
+      test_location: @location,
       test_class: 'Minitest::ClassName',
       test_identifier: 'Test Name',
       execution_time: 1.1,
       passed: false,
       error: false,
-      skipped: false,
+      skipped: false
     )
     refute_nil issue
   end
@@ -38,8 +38,8 @@ class Minitest::Heat::IssueTest < Minitest::Test
   def test_broken_test_issue
     issue = ::Minitest::Heat::Issue.new(
       backtrace: @test_backtrace,
-      location: @location,
-      error: true,
+      test_location: @location,
+      error: true
     )
 
     assert_equal :broken, issue.type
@@ -52,8 +52,8 @@ class Minitest::Heat::IssueTest < Minitest::Test
   def test_error_issue
     issue = ::Minitest::Heat::Issue.new(
       backtrace: @source_backtrace,
-      location: @location,
-      error: true,
+      test_location: @location,
+      error: true
     )
 
     assert_equal :error, issue.type

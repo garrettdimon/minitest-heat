@@ -74,12 +74,16 @@ module Minitest
 
       # Show the marker
       output.marker(issue.type)
-    rescue => e
+    rescue StandardError => e
+      display_exception_guidance(e)
+    end
+
+    def display_exception_guidance(exception)
       output.newline
-      puts "Sorry, but Minitest Heat encountered an exception recording an issue. Disabling Minitest Heat will get you back on track."
-      puts "Please use the following exception details to submit an issue at https://github.com/garrettdimon/minitest-heat/issues"
-      puts "#{e.message}:"
-      e.backtrace.each do |line|
+      puts 'Sorry, but Minitest Heat encountered an exception recording an issue. Disabling Minitest Heat will get you back on track.'
+      puts 'Please use the following exception details to submit an issue at https://github.com/garrettdimon/minitest-heat/issues'
+      puts "#{exception.message}:"
+      exception.backtrace.each do |line|
         puts "  #{line}"
       end
       output.newline
@@ -99,6 +103,9 @@ module Minitest
       # If there were issues, shows a short heat map summary of which files and lines were the most
       # common sources of issues
       output.heat_map(results)
+
+      output.newline
+      output.newline
     end
 
     # Did this run pass?

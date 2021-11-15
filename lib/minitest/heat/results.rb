@@ -19,16 +19,21 @@ module Minitest
         # Record everything—even if it's a success
         @issues.push(issue)
 
-        # If it's not a genuine problem, we're done here, otherwise update the heat map
-        update_heat_map(issue) if issue.hit?
+        # If it's not a genuine problem, we're done here...
+        return unless issue.hit?
+
+        # ...otherwise update the heat map
+        update_heat_map(issue)
       end
 
       def update_heat_map(issue)
-        # Get the elements we need to generate a heat map entry
-        pathname    = issue.location.project_file.to_s
-        line_number = issue.location.project_failure_line.to_i
+        # For heat map purposes, only the project backtrace lines are interesting
+        pathname, line_number = issue.locations.project.to_a
 
-        @heat_map.add(pathname, line_number, issue.type)
+        # Backtrace is only relevant for exception-generating issues, not slows, skips, or failures
+        backtrace = issue.error? ? issue.locations.backtrace.project_locations : []
+
+        @heat_map.add(pathname, line_number, issue.type, backtrace: backtrace)
       end
 
       def problems?

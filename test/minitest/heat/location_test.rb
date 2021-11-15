@@ -4,70 +4,74 @@ require 'test_helper'
 
 class Minitest::Heat::LocationTest < Minitest::Test
   def setup
-    @project_dir = Dir.pwd
-    @gem_dir = Gem.dir
+    @raw_pathname = __FILE__
+    @raw_line_number = 8
+    @container = 'setup'
 
-    @test_location = ["#{@project_dir}/test/minitest/heat_test.rb", 23]
-    @raw_backtrace = [
-      "#{@project_dir}/lib/minitest/heat.rb:29:in `method_name'",
-      "#{@project_dir}/test/minitest/heat_test.rb:27:in `other_method_name'",
-      "#{@gem_dir}/gems/minitest-5.14.4/lib/minitest/test.rb:98:in `block (3 levels) in run'",
-      "#{@gem_dir}/gems/minitest-5.14.4/lib/minitest/test.rb:195:in `capture_exceptions'",
-      "#{@gem_dir}/gems/minitest-5.14.4/lib/minitest/test.rb:95:in `block (2 levels) in run'"
-    ]
-
-    @location = Minitest::Heat::Location.new(@test_location, @raw_backtrace)
+    @location = ::Minitest::Heat::Location.new(pathname: @raw_pathname, line_number: @raw_line_number, container: @container)
   end
 
-  def test_can_be_initialized_without_backtrace
-    location = Minitest::Heat::Location.new(@test_location)
-    assert_nil location.source_code_file
-    refute_nil location.project_file
-    refute_nil location.test_file
-    refute_nil location.final_file
+  def test_full_initialization
+    assert_equal Pathname(@raw_pathname), @location.pathname
+    assert_equal Integer(@raw_line_number), @location.line_number
+    assert_equal @container, @location.container
+    refute_nil @location.source_code
+    assert @location.exists?
   end
 
-  def test_knows_test_file_and_lines
-    assert_equal Pathname("#{@project_dir}/test/minitest/heat_test.rb"), @location.test_file
-    assert_equal 23, @location.test_definition_line
-    assert_equal 27, @location.test_failure_line
+  def test_no_container
+    @location.raw_container = nil
+    assert_equal Pathname(@raw_pathname), @location.pathname
+    assert_equal Integer(@raw_line_number), @location.line_number
+    assert_equal '(Unknown Container)', @location.container
+    refute_empty @location.source_code.lines
+    assert @location.exists?
   end
 
-  def test_knows_source_code_file_and_line
-    assert_equal Pathname("#{@project_dir}/lib/minitest/heat.rb"), @location.source_code_file
-    assert_equal 29, @location.source_code_failure_line
+  def test_non_existent_file
+    fake_file_name = 'fake_file.rb'
+    @location.raw_pathname = fake_file_name
+
+    assert_equal Pathname(fake_file_name), @location.pathname
+    assert_empty @location.source_code.lines
+    refute @location.exists?
   end
 
-  def test_knows_when_problem_is_in_source
-    assert @location.proper_failure?
+  def test_non_existent_line_number
+    fake_line_number = 1_000_000
+    @location.raw_line_number = fake_line_number
+
+    assert_equal fake_line_number, @location.line_number
+    assert_empty @location.source_code.lines
+    refute @location.exists?
   end
 
-  def test_knows_when_problem_is_in_test
-    # Remove the project source line so the test is the last location
-    @raw_backtrace.shift
-    @location = Minitest::Heat::Location.new(@test_location, @raw_backtrace)
-
-    assert @location.broken_test?
+  def test_extracting_path
+    assert_equal '/Users/garrettdimon/Code/minitest-heat/test/minitest/heat', @location.path
   end
 
-  def test_backtrace_without_source_code_lines
-    # Remove the project source line so the test is the last location
-    @raw_backtrace.shift
-    assert_nil @location.source_code_file
-    refute_nil @location.project_file
-    refute_nil @location.test_file
-    refute_nil @location.final_file
+  def test_extracting_filename
+    assert_equal 'location_test.rb', @location.filename
   end
 
-  def test_backtrace_without_source_or_test_lines
-    # Remove the project source line so the test is the last location
-    @raw_backtrace.shift
+  def test_absolute_path
+    assert_equal '/Users/garrettdimon/Code/minitest-heat/test/minitest/heat/', @location.absolute_path
+  end
 
-    # Remove the project test line so an external file is the last location
-    @raw_backtrace.shift
+  def test_relative_path
+    assert_equal 'test/minitest/heat/', @location.relative_path
+  end
 
-    assert_nil @location.source_code_file
-    refute_nil @location.test_file
-    refute_nil @location.final_file
+  def test_casts_to_string
+    assert_equal "#{@location.pathname}:#{@location.line_number} in `#{@location.container}`", @location.to_s
+  end
+
+  def test_knows_if_test_file
+    # This is a test file and should be recognized as one
+    assert @location.test_file?
+
+    # Root path is not a test file and should be recognized as one
+    @location.raw_pathname = '/'
+    refute @location.test_file?
   end
 end

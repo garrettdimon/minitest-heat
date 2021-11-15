@@ -26,35 +26,29 @@ class Minitest::Heat::BacktraceTest < Minitest::Test
     @raw_backtrace = ["/file/does/not/exist.rb:5:in `capture_exceptions'"]
     @backtrace = Minitest::Heat::Backtrace.new(@raw_backtrace)
 
-    refute_nil @backtrace.parsed_entries.first
+    refute_nil @backtrace.locations.first
   end
 
-  def test_keeping_only_project_entries
-    refute_equal @backtrace.parsed_entries, @backtrace.project_entries
-    assert_equal @backtrace.parsed_entries.first, @backtrace.project_entries.first
-    refute_equal @backtrace.parsed_entries.last, @backtrace.project_entries.last
-    assert_equal @backtrace.project_entries.first, @backtrace.final_project_location
+  def test_keeping_only_project_locations
+    refute_equal @backtrace.locations, @backtrace.project_locations
+    assert_equal @backtrace.locations.first, @backtrace.project_locations.first
+    refute_equal @backtrace.locations.last, @backtrace.project_locations.last
   end
 
-  def test_keeping_only_source_code_entries
-    refute_equal @backtrace.parsed_entries, @backtrace.source_code_entries
-    assert_equal @backtrace.parsed_entries.first, @backtrace.source_code_entries.first
-    refute_equal @backtrace.parsed_entries.last, @backtrace.source_code_entries.last
-    assert_equal @backtrace.project_entries.first, @backtrace.final_source_code_location
+  def test_keeping_only_source_code_locations
+    refute_equal @backtrace.locations, @backtrace.source_code_locations
+    assert_equal @backtrace.locations.first, @backtrace.source_code_locations.first
+    refute_equal @backtrace.locations.last, @backtrace.source_code_locations.last
   end
 
-  def test_sorting_by_modified_time
-    test_file_location = File.expand_path(__dir__)
-    pathname = Pathname.new(test_file_location)
-    pathname.utime(Time.now, Time.now)
-
-    assert @backtrace.project_entries.size > 1
-    assert_equal @backtrace.recently_modified_entries.first, @backtrace.freshest_project_location
+  def test_sorting_locations_by_modified_time
+    sorted_locations = @backtrace.project_locations.sort_by(&:mtime).reverse
+    assert sorted_locations.first.mtime > sorted_locations.last.mtime
+    assert_equal sorted_locations, @backtrace.recently_modified_locations
   end
 
-  def test_identifying_last_run_test_line
-    refute_equal @backtrace.project_entries, @backtrace.test_entries
-
-    assert_equal @backtrace.project_entries[1], @backtrace.final_test_location
+  def test_keeping_only_test_locations
+    assert_equal 1, @backtrace.test_locations.size
+    refute_equal @backtrace.project_locations, @backtrace.test_locations
   end
 end
