@@ -59,7 +59,7 @@ class Minitest::Heat::LocationTest < Minitest::Test
   end
 
   def test_relative_path
-    assert_equal '/test/minitest/heat/', @location.relative_path
+    assert_equal 'test/minitest/heat/', @location.relative_path
   end
 
   def test_casts_to_string
