@@ -14,28 +14,16 @@ module Minitest
 
         def tokens
           case issue.type
-          when :error then error_tokens
-          when :broken then broken_tokens
-          when :failure then failure_tokens
-          when :skipped then skipped_tokens
-          when :painful then painful_tokens
-          when :slow then slow_tokens
+          when :error, :broken  then exception_tokens
+          when :failure         then failure_tokens
+          when :skipped         then skipped_tokens
+          when :painful, :slow  then slow_tokens
           end
         end
 
         private
 
-        def error_tokens
-          [
-            headline_tokens,
-            test_location_tokens,
-            summary_tokens,
-            *backtrace_tokens,
-            newline_tokens
-          ]
-        end
-
-        def broken_tokens
+        def exception_tokens
           [
             headline_tokens,
             test_location_tokens,
@@ -62,14 +50,6 @@ module Minitest
           ]
         end
 
-        def painful_tokens
-          [
-            headline_tokens,
-            slowness_summary_tokens,
-            newline_tokens
-          ]
-        end
-
         def slow_tokens
           [
             headline_tokens,
@@ -82,6 +62,11 @@ module Minitest
           [label_token(issue), spacer_token, [:default, test_name(issue)]]
         end
 
+        # Creates a display-friendly version of the test name with underscores removed and the
+        #   first letter capitalized regardless of the formatt used for the test definition
+        # @param issue [Issue] the issue to use to generate the test name
+        #
+        # @return [String] the cleaned up version of the test name
         def test_name(issue)
           test_prefix = 'test_'
           identifier = issue.test_identifier
@@ -97,25 +82,8 @@ module Minitest
           [issue.type, issue_label(issue.type)]
         end
 
-        def issue_label(issue_type)
-          case issue_type
-          when :error   then 'Error'
-          when :broken  then 'Broken Test'
-          when :failure then 'Failure'
-          when :skipped then 'Skipped'
-          when :slow    then 'Passed but Slow'
-          when :painful then 'Passed but Very Slow'
-          when :passed  then 'Success'
-          else 'Unknown'
-          end
-        end
-
         def test_name_and_class_tokens
           [[:default, issue.test_class], *test_location_tokens]
-        end
-
-        def backtrace_tokens
-          @backtrace_tokens ||= ::Minitest::Heat::Output::Backtrace.new(locations).tokens
         end
 
         def test_location_tokens
@@ -175,6 +143,27 @@ module Minitest
 
         def arrow_token
           Output::TOKENS[:muted_arrow]
+        end
+
+        def backtrace_tokens
+          @backtrace_tokens ||= ::Minitest::Heat::Output::Backtrace.new(locations).tokens
+        end
+
+        # The string to use to describe the failure type when displaying results/
+        # @param issue_type [Symbol] the symbol representing the issue's failure type
+        #
+        # @return [String] the display-friendly string describing the failure reason
+        def issue_label(issue_type)
+          case issue_type
+          when :error   then 'Error'
+          when :broken  then 'Broken Test'
+          when :failure then 'Failure'
+          when :skipped then 'Skipped'
+          when :slow    then 'Passed but Slow'
+          when :painful then 'Passed but Very Slow'
+          when :passed  then 'Success'
+          else 'Unknown'
+          end
         end
       end
     end

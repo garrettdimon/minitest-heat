@@ -96,7 +96,7 @@ module Minitest
       # The list of individual issues and their associated details
       output.issues_list(results)
 
-      # Display a short summary of the total issue counts fore ach category as well as performance
+      # Display a short summary of the total issue counts for each category as well as performance
       # details for the test suite as a whole
       output.compact_summary(results, timer)
 

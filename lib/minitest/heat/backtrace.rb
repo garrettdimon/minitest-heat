@@ -26,7 +26,7 @@ module Minitest
 
       # All lines of the backtrace converted to Backtrace::LineParser's
       #
-      # @return [Line] the full set of backtrace lines parsed as Backtrace::LineParser instances
+      # @return [Array<Location>] the full set of backtrace lines parsed as Location instances
       def locations
         return [] if raw_backtrace.nil?
 
@@ -36,28 +36,28 @@ module Minitest
       # All entries from the backtrace within the project and sorted with the most recently modified
       #   files at the beginning
       #
-      # @return [Line] the sorted backtrace lines from the project parsed as Backtrace::LineParser's
+      # @return [Array<Location>] the sorted backtrace lines from the project
       def recently_modified_locations
         @recently_modified_locations ||= project_locations.sort_by(&:mtime).reverse
       end
 
       # All entries from the backtrace that are files within the project
       #
-      # @return [Line] the backtrace lines from within the project parsed as Backtrace::LineParser's
+      # @return [Array<Location>] the backtrace lines from within the project
       def project_locations
         @project_locations ||= locations.select(&:project_file?)
       end
 
       # All entries from the backtrace within the project tests
       #
-      # @return [Line] the backtrace lines from within the project tests parsed as Backtrace::LineParser's
+      # @return [Array<Location>] the backtrace lines from within the tests
       def test_locations
         @test_locations ||= project_locations.select(&:test_file?)
       end
 
       # All source code entries from the backtrace (i.e. excluding tests)
       #
-      # @return [Line] the backtrace lines from within the source code parsed as Backtrace::LineParser's
+      # @return [Array<Location>] the backtrace lines from within the source code
       def source_code_locations
         @source_code_locations ||= project_locations.select(&:source_code_file?)
       end

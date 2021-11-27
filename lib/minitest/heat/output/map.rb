@@ -25,22 +25,22 @@ module Minitest
             @tokens << file_summary_tokens(hit)
 
             # Get the set of line numbers that appear more than once
-            repeats = repeated_line_numbers(hit)
+            repeated_line_numbers = find_repeated_line_numbers_in(hit)
 
             # Only display more details if the same line number shows up more than once
-            next unless repeats.any?
+            next unless repeated_line_numbers.any?
 
-            repeats.each do |line_number|
+            repeated_line_numbers.each do |line_number|
               # Get the backtraces for the given line numbers
               traces = hit.lines[line_number.to_s]
 
               # If there aren't any traces there's no way to provide additional details
               break unless traces.any?
 
-              # Print a short summary explaining the details that will follow
+              # A short summary explaining the details that will follow
               @tokens << [[:muted, "  Issues on Line #{line_number} initially triggered from these locations:"]]
 
-              # Print the last relevant location for each error's backtrace
+              # The last relevant location for each error's backtrace
               @tokens += origination_sources(traces)
             end
           end
@@ -93,26 +93,24 @@ module Minitest
         end
 
         def relevant_issue_types?(hit)
+          # The intersection of which issue types are relevant based on the context and which issues
+          # matc those issue types
           intersection_issue_types = relevant_issue_types & hit.issues.keys
 
           intersection_issue_types.any?
         end
 
-        def repeated_line_numbers(hit)
+        def find_repeated_line_numbers_in(hit)
           repeated_line_numbers = []
 
           hit.lines.each_pair do |line_number, traces|
-            # If there aren't multiple traces for a line number, it's not a repeat, right?
+            # If there aren't multiple traces for a line number, it's not a repeat
             next unless traces.size > 1
 
             repeated_line_numbers << Integer(line_number)
           end
 
           repeated_line_numbers.sort
-        end
-
-        def repeated_line_numbers?(hit)
-          repeated_line_numbers(hit).any?
         end
 
         def pathname(hit)
@@ -126,6 +124,11 @@ module Minitest
           ]
         end
 
+        # Gets the list of line numbers for a given hit location (i.e. file) so they can be
+        #   displayed after the file name to show which lines were problematic
+        # @param hit [Hit] the instance to extract line numbers from
+        #
+        # @return [Array<Symbol,String>] [description]
         def line_number_tokens_for_hit(hit)
           line_number_tokens = []
 
@@ -142,16 +145,23 @@ module Minitest
           line_number_tokens.compact
         end
 
+        # Builds a token representing a styled line number
+        #
+        # @param style [Symbol] the relevant display style for the issue
+        # @param line_number [Integer] the affected line number
+        #
+        # @return [Array<Symbol,Integer>] array token representing the line number and issue type
         def line_number_token(style, line_number)
           [style, "#{line_number} "]
         end
 
-        # Generates the line number tokens styled based on their error type
+        # Sorts line number tokens so that line numbers are displayed in order regardless of their
+        #   underlying issue type
         #
-        # @param [Hit] hit the instance of the hit file details to build the heat map entry
+        # @param hit [Hit] the instance of the hit file details to build the heat map entry
         #
         # @return [Array] the arrays representing the line number tokens to display next to a file
-        #   name in the heat map
+        #   name in the heat map. ex [[:error, 12], [:falure, 13]]
         def sorted_line_number_list(hit)
           # Sort the collected group of line number hits so they're in order
           line_number_tokens_for_hit(hit).sort do |a, b|

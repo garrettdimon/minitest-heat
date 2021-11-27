@@ -116,6 +116,14 @@ module Minitest
         !passed? || slow? || painful?
       end
 
+      def slow_threshold
+        Float(ENV['SLOW']) || SLOW_THRESHOLDS[:slow]
+      end
+
+      def painfully_slow_threshold
+        Float(ENV['PAINFUL']) || SLOW_THRESHOLDS[:painful]
+      end
+
       # Determines if a test should be considered slow by comparing it to the low end definition of
       #   what is considered slow.
       #

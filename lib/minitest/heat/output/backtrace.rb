@@ -17,31 +17,47 @@ module Minitest
         end
 
         def tokens
-          # There could be option to expand and display more than one line of source code for the
-          # final backtrace line if it might be relevant/helpful?
-
           # Iterate over the selected lines from the backtrace
-          backtrace_locations.each do |location|
-            @tokens << backtrace_location_tokens(location)
-          end
-
-          @tokens
+          @tokens = backtrace_locations.map { |location| backtrace_location_tokens(location) }
         end
 
+        # Determines the number of lines to display from the backtrace.
+        #
+        # @return [Integer] the number of lines to limit the backtrace to
         def line_count
+          # Defined as a method instead of using the constant directlyr in order to easily support
+          # adding options for controlling how many lines are displayed from a backtrace.
+          #
+          # For example, instead of a fixed number, the backtrace could dynamically calculate how
+          # many lines it should displaye in order to get to the origination point. Or it could have
+          # a default, but inteligently go back further if the backtrace meets some criteria for
+          # displaying more lines.
           DEFAULT_LINE_COUNT
         end
 
-        # This should probably be smart about what lines are displayed in a backtrace.
-        # Maybe...
-        # ...it could intelligently display the full back trace?
-        # ...only the backtrace from the first/last line of project source?
-        # ...it behaves a little different when it's a broken test vs. a true exception?
-        # ...it could be smart about subtly flagging the lines that show up in the heat map frequently?
-        # ...it could be influenced by a "compact" or "robust" reporter super-style?
-        # ...it's smart about exceptions that were raised outside of the project?
-        # ...it's smart about highlighting lines of code differently based on whether it's source code, test code, or external code?
+        # A subset of parsed lines from the backtrace.
+        #
+        # @return [Array<Location>] the backtrace locations determined to be most relevant to the
+        #   context of the underlying issue
         def backtrace_locations
+          # This could eventually have additional intelligence to determine what lines are most
+          # relevant for a given type of issue. For now, it simply takes the line numbers, but the
+          # idea is that long-term, it could adjust that on the fly to keep the line count as low
+          # as possible but expand it if necessary to ensure enough context is displayed.
+          #
+          # - If there's no clear cut details about the source of the error from within the project,
+          #   it could display the entire backtrace without filtering anything.
+          # - It could scan the backtrace to the first appearance of project files and then display
+          #   all of the lines that occurred after that instance
+          # - It coudl filter the lines differently whether the issue originated from a test or from
+          #   the source code.
+          # - It could allow supporting a "compact" or "robust" reporter style so that someone on
+          #   a smaller screen could easily reduce the information shown so that the results could
+          #   be higher density even if it means truncating some occasionally useful details
+          # - It could be smarter about displaying context/guidance when the full backtrace is from
+          #   outside the project's code
+          #
+          # But for now. It just grabs some lines.
           backtrace.locations.take(line_count)
         end
 
@@ -65,8 +81,17 @@ module Minitest
           backtrace_locations.all?(&:project_file?)
         end
 
+        # Determines if the file referenced by a backtrace line is the most recently modified file
+        #   of all the files referenced in the visible backtrace locations.
+        #
+        # @param [Location] location the location to examine
+        #
+        # @return [<type>] <description>
+        #
         def most_recently_modified?(location)
-          # If there's more than one line being displayed, and the current line is the freshest
+          # If there's more than one line being displayed (otherwise, with one line, of course it's
+          # the most recently modified because there_aren't any others) and the current line is the
+          # same as the freshest location in the backtrace
           backtrace_locations.size > 1 && location == locations.freshest
         end
 
