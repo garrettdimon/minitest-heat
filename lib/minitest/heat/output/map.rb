@@ -14,24 +14,34 @@ module Minitest
 
         def tokens
           results.heat_map.file_hits.each do |hit|
-            # If there's legitimate failures or errors, skips and slows aren't relevant
+            # Focus on the relevant issues based on most significant problems. i.e. If there are
+            # legitimate failures or errors, skips and slows aren't relevant
             next unless relevant_issue_types?(hit)
 
+            # Add a new line
             @tokens << [[:muted, ""]]
+
+            # Build the summary line for the file
             @tokens << file_summary_tokens(hit)
 
+            # Get the set of line numbers that appear more than once
             repeats = repeated_line_numbers(hit)
+
+            # Only display more details if the same line number shows up more than once
             next unless repeats.any?
 
             repeats.each do |line_number|
+              # Get the backtraces for the given line numbers
+              traces = hit.lines[line_number.to_s]
+
+              # If there aren't any traces there's no way to provide additional details
+              break unless traces.any?
+
+              # Print a short summary explaining the details that will follow
               @tokens << [[:muted, "  Issues on Line #{line_number} initially triggered from these locations:"]]
 
-              traces = hit.lines[line_number.to_s]
-              sorted_traces = traces.sort_by { |trace| trace.locations.last.line_number }
-
-              sorted_traces.each do |trace|
-                @tokens << origination_location_token(trace)
-              end
+              # Print the last relevant location for each error's backtrace
+              @tokens += origination_sources(traces)
             end
           end
 
@@ -39,6 +49,14 @@ module Minitest
         end
 
         private
+
+        def origination_sources(traces)
+          # 1. Sort the traces by the most recent line number so they're displayed in numeric order
+          # 2. Get the final relevant location from the trace
+          traces.
+            sort_by { |trace| trace.locations.last.line_number }.
+            map     { |trace| origination_location_token(trace) }
+        end
 
         def file_summary_tokens(hit)
           pathname_tokens = pathname(hit)

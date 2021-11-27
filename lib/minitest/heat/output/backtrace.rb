@@ -3,7 +3,7 @@
 module Minitest
   module Heat
     class Output
-      # Builds the collection of tokens for a backtrace when an exception occurs
+      # Builds the collection of tokens for displaying a backtrace when an exception occurs
       class Backtrace
         DEFAULT_LINE_COUNT = 10
         DEFAULT_INDENTATION_SPACES = 2
