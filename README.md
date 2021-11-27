@@ -9,13 +9,26 @@ It suppresses less critical issues like skips or slows when there are legitimate
 
 It presents failures differently depending on the context of failure. For instance, it treats exceptions differently based on whether they arose directly from a test or from source code. It also treats extremely slow tests differently from moderately slow tests.
 
+Markers get some nuance so that slow tests receive different markers than standard passing tests, and exception-triggered failures get different markers for source-code triggered exceptions (E) and test-triggered exceptions ('B' for 'Broken Test').
+
 ![Example Markers Displayed by Minitest Heat](https://raw.githubusercontent.com/garrettdimon/minitest-heat/main/examples/markers.png)
 
 It also formats the failure details and backtraces to make them more scannable by emphasizing the project-relates lines from the backtrace.
 
+It intelligently recognizes when an exception was raised from a test defintion vs. when an exception is genuinely triggered from the source code in order to help focus on fixing deeper exceptions first.
+
 ![Example Exceptions Displayed by Minitest Heat](https://raw.githubusercontent.com/garrettdimon/minitest-heat/main/examples/exceptions.png)
+
+Failures are displayed ina  fairly predictable manner but formatted to show the source code from the test so you can see the assertion that failed in addition to the summary of values that didn't satisfy the assertion.
+
 ![Example Failures Displayed by Minitest Heat](https://raw.githubusercontent.com/garrettdimon/minitest-heat/main/examples/failures.png)
+
+Skipped tests are displayed in a simple manner as well so that it's easy to see the source of the skipped test as well as the reason it was skipped.
+
 ![Example Skips Displayed by Minitest Heat](https://raw.githubusercontent.com/garrettdimon/minitest-heat/main/examples/skips.png)
+
+Slow tests get slightly more informative labels to indicate that they did pass, but they could use performance improvements. Tests that are particularly slow are called out with a little more emphasis so it's easier to focus on really slow tests first as they frequently represent the most potential for performance gains.
+
 ![Example Slows Displayed by Minitest Heat](https://raw.githubusercontent.com/garrettdimon/minitest-heat/main/examples/slows.png)
 
 It also always displays the most significant issues at the bottom of the list in order to reduce the need to scroll up through the test failures. As you fix issues, the list becomes shorter, and the less significant issues will make there way to the bottom and be visible without scrolling.
