@@ -3,22 +3,20 @@ Minitest::Heat helps you identify problems faster so you can more efficiently re
 
 It collects failures and inspects backtraces to identify patterns and provide a heat map summary of the files and line numbers that most frequently appear to be the causes of issues.
 
-https://github.com/garrettdimon/minitest-heat/blob/main/examples/exceptions.png
-
-![Example Heat Map Displayed by Minitest Heat](/garrettdimon/minitest-heat/blob/main/examples/map.png)
+![Example Heat Map Displayed by Minitest Heat](https://raw.githubusercontent.com/garrettdimon/minitest-heat/main/examples/map.png)
 
 It suppresses less critical issues like skips or slows when there are legitimate failures. It won't display information about slow tests unless all tests are passing (meaning no errors, failures, or skips)
 
 It presents failures differently depending on the context of failure. For instance, it treats exceptions differently based on whether they arose directly from a test or from source code. It also treats extremely slow tests differently from moderately slow tests.
 
-![Example Markers Displayed by Minitest Heat](/garrettdimon/minitest-heat/blob/main/examples/markers.png)
+![Example Markers Displayed by Minitest Heat](https://raw.githubusercontent.com/garrettdimon/minitest-heat/main/examples/markers.png)
 
 It also formats the failure details and backtraces to make them more scannable by emphasizing the project-relates lines from the backtrace.
 
-![Example Exceptions Displayed by Minitest Heat](/garrettdimon/minitest-heat/blob/main/examples/exceptions.png)
-![Example Failures Displayed by Minitest Heat](/garrettdimon/minitest-heat/blob/main/examples/failures.png)
-![Example Skips Displayed by Minitest Heat](/garrettdimon/minitest-heat/blob/main/examples/skips.png)
-![Example Slows Displayed by Minitest Heat](/garrettdimon/minitest-heat/blob/main/examples/slows.png)
+![Example Exceptions Displayed by Minitest Heat](https://raw.githubusercontent.com/garrettdimon/minitest-heat/main/examples/exceptions.png)
+![Example Failures Displayed by Minitest Heat](https://raw.githubusercontent.com/garrettdimon/minitest-heat/main/examples/failures.png)
+![Example Skips Displayed by Minitest Heat](https://raw.githubusercontent.com/garrettdimon/minitest-heat/main/examples/skips.png)
+![Example Slows Displayed by Minitest Heat](https://raw.githubusercontent.com/garrettdimon/minitest-heat/main/examples/slows.png)
 
 It also always displays the most significant issues at the bottom of the list in order to reduce the need to scroll up through the test failures. As you fix issues, the list becomes shorter, and the less significant issues will make there way to the bottom and be visible without scrolling.
 
