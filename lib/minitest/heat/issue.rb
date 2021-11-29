@@ -139,15 +139,15 @@ module Minitest
       #
       # @return [Boolean] true if the test took longer to run than `slow_threshold`
       def slow?
-        execution_time >= slow_threshold && execution_time < painful_threshold
+        execution_time >= slow_threshold && execution_time < painfully_slow_threshold
       end
 
       # Determines if a test should be considered painfully slow by comparing it to the high end
       #   definition of what is considered slow.
       #
-      # @return [Boolean] true if the test took longer to run than `painful_threshold`
+      # @return [Boolean] true if the test took longer to run than `painfully_slow_threshold`
       def painful?
-        execution_time >= painful_threshold
+        execution_time >= painfully_slow_threshold
       end
 
       # Determines if the issue is an exception that was raised from directly within a test
