@@ -116,28 +116,38 @@ module Minitest
         !passed? || slow? || painful?
       end
 
+      # The number, in seconds, for a test to be considered "slow"
+      #
+      # @return [Float] number of seconds after which a test is considered slow
       def slow_threshold
-        Float(ENV['SLOW']) || SLOW_THRESHOLDS[:slow]
+        # Using a method here so that this can eventually be configurable such that the constant is
+        # only a fallback value if it's not specified anywhere else
+        SLOW_THRESHOLDS[:slow]
       end
 
+      # The number, in seconds, for a test to be considered "painfully slow"
+      #
+      # @return [Float] number of seconds after which a test is considered painfully slow
       def painfully_slow_threshold
-        Float(ENV['PAINFUL']) || SLOW_THRESHOLDS[:painful]
+        # Using a method here so that this can eventually be configurable such that the constant is
+        # only a fallback value if it's not specified anywhere else
+        SLOW_THRESHOLDS[:painful]
       end
 
       # Determines if a test should be considered slow by comparing it to the low end definition of
       #   what is considered slow.
       #
-      # @return [Boolean] true if the test took longer to run than `SLOW_THRESHOLDS[:slow]`
+      # @return [Boolean] true if the test took longer to run than `slow_threshold`
       def slow?
-        execution_time >= SLOW_THRESHOLDS[:slow] && execution_time < SLOW_THRESHOLDS[:painful]
+        execution_time >= slow_threshold && execution_time < painful_threshold
       end
 
       # Determines if a test should be considered painfully slow by comparing it to the high end
       #   definition of what is considered slow.
       #
-      # @return [Boolean] true if the test took longer to run than `SLOW_THRESHOLDS[:painful]`
+      # @return [Boolean] true if the test took longer to run than `painful_threshold`
       def painful?
-        execution_time >= SLOW_THRESHOLDS[:painful]
+        execution_time >= painful_threshold
       end
 
       # Determines if the issue is an exception that was raised from directly within a test
