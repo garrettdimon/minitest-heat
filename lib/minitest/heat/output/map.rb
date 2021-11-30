@@ -38,7 +38,7 @@ module Minitest
               break unless traces.any?
 
               # A short summary explaining the details that will follow
-              @tokens << [[:muted, "  Issues on Line #{line_number} initially triggered from these locations:"]]
+              @tokens << [[:default, "  Line #{line_number}"], [:muted, ' issues triggered from:']]
 
               # The last relevant location for each error's backtrace
               @tokens += origination_sources(traces)
@@ -62,7 +62,7 @@ module Minitest
 
         def file_summary_tokens(hit)
           pathname_tokens = pathname(hit)
-          line_number_list_tokens = sorted_line_number_list(hit)
+          line_number_list_tokens = line_number_tokens_for_hit(hit)
 
           [*pathname_tokens, *line_number_list_tokens]
         end
@@ -141,8 +141,10 @@ module Minitest
             line_numbers_for_issue_type = hit.issues.fetch(issue_type) { [] }
 
             # Build the list of tokens representing styled line numbers
-            line_numbers_for_issue_type.each do |line_number|
-              line_number_tokens << line_number_token(issue_type, line_number)
+            line_numbers_for_issue_type.uniq.sort.each do |line_number|
+              frequency = line_numbers_for_issue_type.count(line_number)
+
+              line_number_tokens += line_number_token(issue_type, line_number, frequency)
             end
           end
 
@@ -155,27 +157,34 @@ module Minitest
         # @param line_number [Integer] the affected line number
         #
         # @return [Array<Symbol,Integer>] array token representing the line number and issue type
-        def line_number_token(style, line_number)
-          [style, "#{line_number} "]
-        end
-
-        # Sorts line number tokens so that line numbers are displayed in order regardless of their
-        #   underlying issue type
-        #
-        # @param hit [Hit] the instance of the hit file details to build the heat map entry
-        #
-        # @return [Array] the arrays representing the line number tokens to display next to a file
-        #   name in the heat map. ex [[:error, 12], [:falure, 13]]
-        def sorted_line_number_list(hit)
-          # Sort the collected group of line number hits so they're in order
-          line_number_tokens_for_hit(hit).sort do |a, b|
-            # Ensure the line numbers are integers for sorting (otherwise '100' comes before '12')
-            first_line_number = Integer(a[1].strip)
-            second_line_number = Integer(b[1].strip)
-
-            first_line_number <=> second_line_number
+        def line_number_token(style, line_number, frequency)
+          if frequency > 1
+            [
+              [style, "#{line_number}"],
+              [:muted, "✖#{frequency} "]
+            ]
+          else
+            [[style, "#{line_number} "]]
           end
         end
+
+        # # Sorts line number tokens so that line numbers are displayed in order regardless of their
+        # #   underlying issue type
+        # #
+        # # @param hit [Hit] the instance of the hit file details to build the heat map entry
+        # #
+        # # @return [Array] the arrays representing the line number tokens to display next to a file
+        # #   name in the heat map. ex [[:error, 12], [:falure, 13]]
+        # def sorted_line_number_list(hit)
+        #   # Sort the collected group of line number hits so they're in order
+        #   line_number_tokens_for_hit(hit).sort do |a, b|
+        #     # Ensure the line numbers are integers for sorting (otherwise '100' comes before '12')
+        #     first_line_number = Integer(a[1].strip)
+        #     second_line_number = Integer(b[1].strip)
+
+        #     first_line_number <=> second_line_number
+        #   end
+        # end
       end
     end
   end

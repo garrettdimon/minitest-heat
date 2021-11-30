@@ -57,7 +57,11 @@ module Minitest
           # suppress them until the more critical issues are resolved.
           next unless show?(issue_category, results)
 
-          results.send(issue_category).each { |issue| issue_details(issue) }
+          issues = results.send(issue_category)
+
+          issues
+            .sort_by { |issue| issue.locations.most_relevant.to_a }
+            .each { |issue| issue_details(issue) }
         end
       rescue StandardError => e
         message = "Sorry, but Minitest Heat couldn't display the details of any failures."
