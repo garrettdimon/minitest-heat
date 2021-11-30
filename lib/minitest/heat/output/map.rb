@@ -51,9 +51,11 @@ module Minitest
         private
 
         def origination_sources(traces)
-          # 1. Sort the traces by the most recent line number so they're displayed in numeric order
-          # 2. Get the final relevant location from the trace
+          # 1. Only pull the traces that have proper locations
+          # 2. Sort the traces by the most recent line number so they're displayed in numeric order
+          # 3. Get the final relevant location from the trace
           traces.
+            select  { |trace| trace.locations.any? }.
             sort_by { |trace| trace.locations.last.line_number }.
             map     { |trace| origination_location_token(trace) }
         end
@@ -67,7 +69,9 @@ module Minitest
 
         def origination_location_token(trace)
           # The earliest project line from the backtrace—this is probabyl wholly incorrect in terms
-          # of what would be the most helpful line to display, but it's a start.
+          # of what would be the most helpful line to display, but it's a start. Otherwise, the
+          # logic will need to compare all traces for the issue and find the unique origination
+          # lines
           location = trace.locations.last
 
           [

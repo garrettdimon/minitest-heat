@@ -30,8 +30,20 @@ module Minitest
         # For heat map purposes, only the project backtrace lines are interesting
         pathname, line_number = issue.locations.project.to_a
 
-        # Backtrace is only relevant for exception-generating issues, not slows, skips, or failures
-        backtrace = issue.error? ? issue.locations.backtrace.project_locations : []
+        # A backtrace is only relevant for exception-generating issues (i.e. errors), not slows or skips
+        # However, while assertion failures won't have a backtrace, there can still be repeated line
+        # numbers if the tests reference a shared method with an assertion in it. So in those cases,
+        # the backtrace is simply the test definition
+        backtrace = if issue.error?
+          # With errors, we have a backtrace
+          issue.locations.backtrace.project_locations
+        else
+          # With failures, the test definition is the most granular backtrace equivalent
+          location = issue.locations.test_definition
+          location.raw_container = issue.test_identifier
+
+          [location]
+        end
 
         @heat_map.add(pathname, line_number, issue.type, backtrace: backtrace)
       end
