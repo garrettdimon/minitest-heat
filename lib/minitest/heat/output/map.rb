@@ -161,7 +161,7 @@ module Minitest
           if frequency > 1
             [
               [style, "#{line_number}"],
-              [:muted, "✖#{frequency} "]
+              [:muted, "✕#{frequency} "]
             ]
           else
             [[style, "#{line_number} "]]
