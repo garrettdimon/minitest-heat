@@ -1,4 +1,4 @@
-# Minitest::Heat
+# 🔥 Minitest::Heat 🔥
 Minitest::Heat helps you identify problems faster so you can more efficiently resolve test failures. It does this through a few different methods.
 
 It collects failures and inspects backtraces to identify patterns and provide a heat map summary of the files and line numbers that most frequently appear to be the causes of issues.
