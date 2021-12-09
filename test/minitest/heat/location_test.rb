@@ -47,7 +47,7 @@ class Minitest::Heat::LocationTest < Minitest::Test
   end
 
   def test_extracting_path
-    assert_equal '/Users/garrettdimon/Code/minitest-heat/test/minitest/heat', @location.path
+    assert_equal "#{Dir.pwd}/test/minitest/heat", @location.path
   end
 
   def test_extracting_filename
@@ -55,7 +55,7 @@ class Minitest::Heat::LocationTest < Minitest::Test
   end
 
   def test_absolute_path
-    assert_equal '/Users/garrettdimon/Code/minitest-heat/test/minitest/heat/', @location.absolute_path
+    assert_equal "#{Dir.pwd}/test/minitest/heat/", @location.absolute_path
   end
 
   def test_relative_path
