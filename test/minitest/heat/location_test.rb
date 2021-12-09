@@ -69,9 +69,20 @@ class Minitest::Heat::LocationTest < Minitest::Test
   def test_knows_if_test_file
     # This is a test file and should be recognized as one
     assert @location.test_file?
+    assert @location.project_file?
 
     # Root path is not a test file and should be recognized as one
     @location.raw_pathname = '/'
     refute @location.test_file?
+  end
+
+  def test_knows_if_source_code_file
+    @location.raw_pathname = "#{Dir.pwd}/lib/minitest/heat.rb"
+    assert @location.source_code_file?
+    assert @location.project_file?
+
+    # Root path is not a project file and should be recognized as one
+    @location.raw_pathname = '/'
+    refute @location.source_code_file?
   end
 end
