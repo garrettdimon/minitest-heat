@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative 'heat/configuration'
 require_relative 'heat/backtrace'
 require_relative 'heat/hit'
 require_relative 'heat/issue'
@@ -32,5 +33,20 @@ module Minitest
   # Pulls from minitest-color as well:
   #   https://github.com/teoljungberg/minitest-color/blob/master/lib/minitest/color_plugin.rb
   module Heat
+    class << self
+      attr_writer :configuration
+    end
+
+    def self.configuration
+      @configuration ||= Configuration.new
+    end
+
+    def self.reset
+      @configuration = Configuration.new
+    end
+
+    def self.configure
+      yield(configuration)
+    end
   end
 end
