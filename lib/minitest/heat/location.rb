@@ -131,9 +131,16 @@ module Minitest
 
       # Determines if a given file is from the project directory
       #
-      # @return [Boolean] true if the file is in the project (source code or test)
+      # @return [Boolean] true if the file is in the project (source code or test) but not vendored
       def project_file?
-        path.include?(project_root_dir)
+        path.include?(project_root_dir) && !bundled_file?
+      end
+
+      # Determines if the file is in the project `vendor/bundle` directory.
+      #
+      # @return [Boolean] true if the file is in `<project_root>/vendor/bundle
+      def bundled_file?
+        path.include?("#{project_root_dir}/vendor/bundle")
       end
 
       # Determines if a given file follows the standard approaching to naming test files.
@@ -145,9 +152,9 @@ module Minitest
 
       # Determines if a given file is a non-test file from the project directory
       #
-      # @return [Boolean] true if the file is in the project but not a test file
+      # @return [Boolean] true if the file is in the project but not a test file or vendored file
       def source_code_file?
-        project_file? && !test_file?
+        project_file? && !test_file? && !bundled_file?
       end
 
       # A safe interface to getting the last modified time for the file in question

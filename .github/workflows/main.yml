@@ -9,7 +9,8 @@ jobs:
   build:
     strategy:
       matrix:
-        ruby: [2.5.9, 2.6.9, 2.7.5, 3.0.3]
+        os: [ubuntu-latest, macos-latest]
+        ruby: [2.5.9, 2.6.9, 2.7.5, 3.0.3, 3.1.0-preview1]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2

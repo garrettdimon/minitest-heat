@@ -67,22 +67,45 @@ class Minitest::Heat::LocationTest < Minitest::Test
   end
 
   def test_knows_if_test_file
-    # This is a test file and should be recognized as one
-    assert @location.test_file?
-    assert @location.project_file?
-
     # Root path is not a test file and should be recognized as one
     @location.raw_pathname = '/'
     refute @location.test_file?
+
+    # This is a test file and should be recognized as one
+    @location.raw_pathname = @raw_pathname
+    assert @location.test_file?
+    assert @location.project_file?
   end
 
   def test_knows_if_source_code_file
-    @location.raw_pathname = "#{Dir.pwd}/lib/minitest/heat.rb"
-    assert @location.source_code_file?
-    assert @location.project_file?
-
     # Root path is not a project file and should be recognized as one
     @location.raw_pathname = '/'
     refute @location.source_code_file?
+
+    # Set up a project source code file
+    @location.raw_pathname = "#{Dir.pwd}/lib/minitest/heat.rb"
+    assert @location.source_code_file?
+    assert @location.project_file?
+  end
+
+  def test_knows_if_bundled_file
+    # Root path is not a project file and should be recognized as one
+    @location.raw_pathname = '/'
+    refute @location.bundled_file?
+
+    # Manually create a file in vendor/bundle
+    directory = "#{Dir.pwd}/vendor/bundle"
+    filename = "heat.rb"
+    pathname = "#{directory}/#{filename}"
+    FileUtils.mkdir_p(directory)
+    FileUtils.touch(pathname)
+
+    @location.raw_pathname = pathname
+    assert @location.bundled_file?
+    refute @location.source_code_file?
+    refute @location.project_file?
+
+    # Get rid of the manually-created file and directory
+    FileUtils.rm_rf(directory)
   end
 end
