@@ -42,8 +42,11 @@ class Minitest::Heat::BacktraceTest < Minitest::Test
   end
 
   def test_sorting_locations_by_modified_time
+    # Ensure the first file was recently updated
+    FileUtils.touch(@backtrace.locations.first.pathname)
     sorted_locations = @backtrace.project_locations.sort_by(&:mtime).reverse
-    assert sorted_locations.first.mtime > sorted_locations.last.mtime
+
+    assert sorted_locations.first.mtime >= sorted_locations.last.mtime, "#{sorted_locations.first.mtime} was not greater than #{sorted_locations.last.mtime}"
     assert_equal sorted_locations, @backtrace.recently_modified_locations
   end
 
