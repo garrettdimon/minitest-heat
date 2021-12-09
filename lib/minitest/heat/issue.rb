@@ -120,18 +120,14 @@ module Minitest
       #
       # @return [Float] number of seconds after which a test is considered slow
       def slow_threshold
-        # Using a method here so that this can eventually be configurable such that the constant is
-        # only a fallback value if it's not specified anywhere else
-        SLOW_THRESHOLDS[:slow]
+        Minitest::Heat.configuration.slow_threshold || SLOW_THRESHOLDS[:slow]
       end
 
       # The number, in seconds, for a test to be considered "painfully slow"
       #
       # @return [Float] number of seconds after which a test is considered painfully slow
       def painfully_slow_threshold
-        # Using a method here so that this can eventually be configurable such that the constant is
-        # only a fallback value if it's not specified anywhere else
-        SLOW_THRESHOLDS[:painful]
+        Minitest::Heat.configuration.painfully_slow_threshold || SLOW_THRESHOLDS[:painful]
       end
 
       # Determines if a test should be considered slow by comparing it to the low end definition of
