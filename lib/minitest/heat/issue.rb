@@ -10,12 +10,12 @@ module Minitest
 
       TYPES = %i[error broken failure skipped painful slow].freeze
 
-      # Long-term, these could be configurable so that people can determine their own thresholds of
-      # pain for slow tests
-      SLOW_THRESHOLDS = {
-        slow: 1.0,
-        painful: 3.0
-      }.freeze
+      # # Long-term, these could be configurable so that people can determine their own thresholds of
+      # # pain for slow tests
+      # SLOW_THRESHOLDS = {
+      #   slow: 1.0,
+      #   painful: 3.0
+      # }.freeze
 
       attr_reader :assertions,
                   :locations,
@@ -120,14 +120,14 @@ module Minitest
       #
       # @return [Float] number of seconds after which a test is considered slow
       def slow_threshold
-        Minitest::Heat.configuration.slow_threshold || SLOW_THRESHOLDS[:slow]
+        Minitest::Heat.configuration.slow_threshold
       end
 
       # The number, in seconds, for a test to be considered "painfully slow"
       #
       # @return [Float] number of seconds after which a test is considered painfully slow
       def painfully_slow_threshold
-        Minitest::Heat.configuration.painfully_slow_threshold || SLOW_THRESHOLDS[:painful]
+        Minitest::Heat.configuration.painfully_slow_threshold
       end
 
       # Determines if a test should be considered slow by comparing it to the low end definition of

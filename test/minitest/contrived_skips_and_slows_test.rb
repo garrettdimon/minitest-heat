@@ -24,17 +24,17 @@ if ENV['FORCE_SKIPS'] || ENV['FORCE_SLOWS'] || ENV['IMPLODE']
     end
 
     def test_exposes_when_tests_are_slow
-      sleep Minitest::Heat::Issue::SLOW_THRESHOLDS[:slow] + 0.1
+      sleep Minitest::Heat::Configuration.slow_threshold + 0.1
       assert true
     end
 
     def test_exposes_when_tests_are_top_three_slow
-      sleep Minitest::Heat::Issue::SLOW_THRESHOLDS[:painful] + 0.1
+      sleep Minitest::Heat::Configuration.painfully_slow_threshold + 0.1
       assert true
     end
 
     def test_exposes_when_tests_are_slow_but_not_top_three
-      sleep Minitest::Heat::Issue::SLOW_THRESHOLDS[:slow] + 0.05
+      sleep Minitest::Heat::Configuration.slow_threshold + 0.05
       assert true
     end
 

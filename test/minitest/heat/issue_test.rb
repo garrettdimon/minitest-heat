@@ -82,7 +82,7 @@ class Minitest::Heat::IssueTest < Minitest::Test
   end
 
   def test_painfully_slow_issue
-    painful_time = Minitest::Heat::Issue::SLOW_THRESHOLDS[:painful] + 1.0
+    painful_time = Minitest::Heat.configuration.painfully_slow_threshold + 1.0
 
     issue = ::Minitest::Heat::Issue.new(
       execution_time: painful_time,
@@ -97,7 +97,7 @@ class Minitest::Heat::IssueTest < Minitest::Test
   end
 
   def test_slow_issue
-    slow_time = Minitest::Heat::Issue::SLOW_THRESHOLDS[:slow]
+    slow_time = Minitest::Heat.configuration.slow_threshold
     issue = ::Minitest::Heat::Issue.new(
       execution_time: slow_time,
       passed: true

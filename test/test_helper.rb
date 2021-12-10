@@ -32,3 +32,8 @@ $LOAD_PATH.unshift File.expand_path('../lib', __dir__)
 require 'awesome_print'
 require 'minitest/heat'
 require 'minitest/autorun'
+
+Minitest::Heat.configure do |config|
+  config.slow_threshold = 0.0005
+  config.painfully_slow_threshold = 0.01
+end
