@@ -1,7 +1,7 @@
-# 🔥 Minitest::Heat 🔥
-Minitest::Heat helps you identify problems faster so you can more efficiently resolve test failures. It does this through a few different methods.
+# 🔥 Minitest Heat 🔥
+Minitest Heat helps you identify problems faster so you can more efficiently resolve test failures by generating a heat map that shows where failures are concentrated.
 
-For a more detailed explanation of Minitest Heat with screenshots, [head over the wiki for the full story](https://github.com/garrettdimon/minitest-heat/wiki).
+For a more detailed explanation of Minitest Heat with screenshots, [head over to the wiki for the full story](https://github.com/garrettdimon/minitest-heat/wiki).
 
 Or for some additional insight about priorities and how it works, this [Twitter thread](https://twitter.com/garrettdimon/status/1432703746526560266) is a good read.
 
