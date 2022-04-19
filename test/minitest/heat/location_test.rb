@@ -101,7 +101,30 @@ class Minitest::Heat::LocationTest < Minitest::Test
     FileUtils.touch(pathname)
 
     @location.raw_pathname = pathname
+    refute @location.binstub_file?
     assert @location.bundled_file?
+    refute @location.source_code_file?
+    refute @location.project_file?
+
+    # Get rid of the manually-created file and directory
+    FileUtils.rm_rf(directory)
+  end
+
+  def test_knows_if_binstub_file
+    # Root path is not a project file and should be recognized as one
+    @location.raw_pathname = '/'
+    refute @location.bundled_file?
+
+    # Manually create a file in vendor/bundle
+    directory = "#{Dir.pwd}/bin"
+    filename = "stub"
+    pathname = "#{directory}/#{filename}"
+    FileUtils.mkdir_p(directory)
+    FileUtils.touch(pathname)
+
+    @location.raw_pathname = pathname
+    assert @location.binstub_file?
+    refute @location.bundled_file?
     refute @location.source_code_file?
     refute @location.project_file?
 

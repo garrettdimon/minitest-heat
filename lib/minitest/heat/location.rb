@@ -133,7 +133,7 @@ module Minitest
       #
       # @return [Boolean] true if the file is in the project (source code or test) but not vendored
       def project_file?
-        path.include?(project_root_dir) && !bundled_file?
+        path.include?(project_root_dir) && !bundled_file? && !binstub_file?
       end
 
       # Determines if the file is in the project `vendor/bundle` directory.
@@ -141,6 +141,15 @@ module Minitest
       # @return [Boolean] true if the file is in `<project_root>/vendor/bundle
       def bundled_file?
         path.include?("#{project_root_dir}/vendor/bundle")
+      end
+
+      # Determines if the file is in the project `bin` directory. With binstub'd gems, they'll
+      #   appear to be source code because the code is located in the project directory. This helps
+      #   make sure the backtraces don't think that's the case
+      #
+      # @return [Boolean] true if the file is in `<project_root>/vendor/bundle
+      def binstub_file?
+        path.include?("#{project_root_dir}/bin")
       end
 
       # Determines if a given file follows the standard approaching to naming test files.
@@ -154,7 +163,7 @@ module Minitest
       #
       # @return [Boolean] true if the file is in the project but not a test file or vendored file
       def source_code_file?
-        project_file? && !test_file? && !bundled_file?
+        project_file? && !test_file?
       end
 
       # A safe interface to getting the last modified time for the file in question
