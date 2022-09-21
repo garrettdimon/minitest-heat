@@ -129,6 +129,6 @@ class Minitest::Heat::LocationTest < Minitest::Test
     refute @location.project_file?
 
     # Get rid of the manually-created file and directory
-    FileUtils.rm_rf(directory)
+    FileUtils.rm_rf(pathname)
   end
 end

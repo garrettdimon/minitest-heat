@@ -147,7 +147,7 @@ module Minitest
       #   appear to be source code because the code is located in the project directory. This helps
       #   make sure the backtraces don't think that's the case
       #
-      # @return [Boolean] true if the file is in `<project_root>/vendor/bundle
+      # @return [Boolean] true if the file is in `<project_root>/bin
       def binstub_file?
         path.include?("#{project_root_dir}/bin")
       end
