@@ -16,5 +16,17 @@ module Minitest
     def self.raise_another_example_error
       Issue.raise_another_example_error_from_issue
     end
+
+    def self.increase_the_stack_level
+      increase_the_stack_level_more
+    end
+
+    def self.increase_the_stack_level_more
+      increase_the_stack_level_even_more
+    end
+
+    def self.increase_the_stack_level_even_more
+      increase_the_stack_level
+    end
   end
 end

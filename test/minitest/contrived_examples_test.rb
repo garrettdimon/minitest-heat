@@ -83,6 +83,10 @@ class Minitest::ContrivedExamplesTest < Minitest::Test
       end
     end
 
+    def test_does_better_with_deep_stack_levels
+      ::Minitest::Heat.increase_the_stack_level
+    end
+
     def test_fails_after
       now = Time.now
       fail_after(now.year, now.month, now.day, 'This should explicitly fail because today is after the date')
