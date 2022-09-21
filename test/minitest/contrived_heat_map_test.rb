@@ -51,7 +51,7 @@ if ENV['FORCE_FAILURES'] || ENV['IMPLODE']
 
     def raise_error_indirectly
       # Both tests should end up here and thus have duplicate entries in the heat map
-      raise StandardError, 'Here is an indirectly raise exception'
+      raise StandardError, 'Here is an indirectly-raised exception'
     end
   end
 end
