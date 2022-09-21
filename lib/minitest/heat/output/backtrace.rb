@@ -5,7 +5,6 @@ module Minitest
     class Output
       # Builds the collection of tokens for displaying a backtrace when an exception occurs
       class Backtrace
-        DEFAULT_LINE_COUNT = 10
         DEFAULT_INDENTATION_SPACES = 2
 
         attr_accessor :locations, :backtrace
@@ -25,14 +24,14 @@ module Minitest
         #
         # @return [Integer] the number of lines to limit the backtrace to
         def line_count
-          # Defined as a method instead of using the constant directlyr in order to easily support
+          # Defined as a method instead of using the constant directly in order to easily support
           # adding options for controlling how many lines are displayed from a backtrace.
           #
           # For example, instead of a fixed number, the backtrace could dynamically calculate how
           # many lines it should displaye in order to get to the origination point. Or it could have
           # a default, but inteligently go back further if the backtrace meets some criteria for
           # displaying more lines.
-          DEFAULT_LINE_COUNT
+          ::Minitest::Heat::Backtrace::LineCount.new(backtrace.locations).limit
         end
 
         # A subset of parsed lines from the backtrace.
@@ -49,7 +48,7 @@ module Minitest
           #   it could display the entire backtrace without filtering anything.
           # - It could scan the backtrace to the first appearance of project files and then display
           #   all of the lines that occurred after that instance
-          # - It coudl filter the lines differently whether the issue originated from a test or from
+          # - It could filter the lines differently whether the issue originated from a test or from
           #   the source code.
           # - It could allow supporting a "compact" or "robust" reporter style so that someone on
           #   a smaller screen could easily reduce the information shown so that the results could
