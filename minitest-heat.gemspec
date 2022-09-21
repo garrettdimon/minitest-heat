@@ -34,7 +34,7 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency 'awesome_print'
   spec.add_development_dependency 'dead_end'
-  spec.add_development_dependency 'pry'
+  spec.add_development_dependency 'debug'
   spec.add_development_dependency 'rubocop'
   spec.add_development_dependency 'rubocop-minitest'
   spec.add_development_dependency 'rubocop-rake'
