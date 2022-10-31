@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative 'backtrace/line_count'
 require_relative 'backtrace/line_parser'
 
 module Minitest

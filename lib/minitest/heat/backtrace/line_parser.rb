@@ -11,7 +11,7 @@ module Minitest
         # Parses a line from a backtrace in order to convert it to usable components
         def self.read(raw_text)
           raw_pathname, raw_line_number, raw_container = raw_text.split(':')
-          raw_container = raw_container.delete_prefix('in `').delete_suffix("'")
+          raw_container = raw_container&.delete_prefix('in `')&.delete_suffix("'")
 
           ::Minitest::Heat::Location.new(
             pathname: raw_pathname,

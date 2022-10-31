@@ -2,6 +2,17 @@
 
 Nothing at the moment.
 
+## [1.2.0] - 2022-10-31
+
+Mainly some improvements to make test failures more resilient and improve the formatting when there are issues.
+
+- Don't consider binstubs project files when colorizing the stacktrace.
+- Switch debugging from Pry to debug
+- Ensure overly-long exception messages are truncated to reduce excessive scrolling
+- Make backtrace display smarter about how many lines to display
+- Fix bug that was incorrectly deleting the bin directory
+- Prepare for better handling of "stack level too deep" traces
+
 ## [1.1.0] - 2021-12-09
 
 The biggest update is that the slow thresholds are now configurable.
