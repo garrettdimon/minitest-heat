@@ -87,8 +87,8 @@ class Minitest::Heat::Output::BacktraceTest < Minitest::Test
   def test_tokens_include_line_numbers
     tokens = @backtrace_output.tokens
 
-    # At least one line should include line number
-    all_content = tokens.flatten.select { |t| t.is_a?(String) }.join
+    # At least one line should include line number (line_number is an Integer, not String)
+    all_content = tokens.flatten.map(&:to_s).join
     assert_match(/\d+/, all_content)
   end
 

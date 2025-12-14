@@ -52,10 +52,11 @@ module Minitest
       # @return [type] [description]
       def file_lines
         @raw_lines ||= File.readlines(filename, chomp: true)
-        @raw_lines.pop while @raw_lines.last.strip.empty?
+        # Remove trailing empty lines, checking for nil/empty safely
+        @raw_lines.pop while @raw_lines.any? && @raw_lines.last&.strip.to_s.empty?
 
         @raw_lines
-      rescue Errno::ENOENT
+      rescue Errno::ENOENT, Errno::EACCES, Errno::EISDIR, IOError, Encoding::UndefinedConversionError
         # Occasionally, for a variety of reasons, a file can't be read. In those cases, it's best to
         # return no source code lines rather than have the test suite raise an error unrelated to
         # the code being tested becaues that gets confusing.
