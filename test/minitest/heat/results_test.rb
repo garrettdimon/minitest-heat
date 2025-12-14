@@ -37,7 +37,8 @@ class Minitest::Heat::ResultsTest < Minitest::Test
   end
 
   def test_record_does_not_update_heat_map_for_successes
-    issue = build_issue(passed: true)
+    # Use execution_time: 0.0 to ensure it's below slow_threshold and truly a success
+    issue = build_issue(passed: true, execution_time: 0.0)
     @results.record(issue)
 
     assert_empty @results.heat_map.hits
@@ -56,7 +57,7 @@ class Minitest::Heat::ResultsTest < Minitest::Test
   end
 
   def test_problems_returns_false_when_only_successes
-    @results.record(build_issue(passed: true))
+    @results.record(build_issue(passed: true, execution_time: 0.0))
 
     refute @results.problems?
   end
@@ -70,7 +71,7 @@ class Minitest::Heat::ResultsTest < Minitest::Test
   def test_errors_returns_only_error_issues
     @results.record(build_issue(error: true, backtrace: @source_backtrace))
     @results.record(build_issue(passed: false))
-    @results.record(build_issue(passed: true))
+    @results.record(build_issue(passed: true, execution_time: 0.0))
 
     assert_equal 1, @results.errors.length
     assert_equal :error, @results.errors.first.type
@@ -88,7 +89,7 @@ class Minitest::Heat::ResultsTest < Minitest::Test
 
   def test_failures_returns_only_failure_issues
     @results.record(build_issue(passed: false))
-    @results.record(build_issue(passed: true))
+    @results.record(build_issue(passed: true, execution_time: 0.0))
     @results.record(build_issue(skipped: true))
 
     assert_equal 1, @results.failures.length
@@ -97,7 +98,7 @@ class Minitest::Heat::ResultsTest < Minitest::Test
 
   def test_skips_returns_only_skipped_issues
     @results.record(build_issue(skipped: true))
-    @results.record(build_issue(passed: true))
+    @results.record(build_issue(passed: true, execution_time: 0.0))
 
     assert_equal 1, @results.skips.length
     assert_equal :skipped, @results.skips.first.type

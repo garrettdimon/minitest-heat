@@ -19,7 +19,7 @@ module Minitest
         end
 
         def max_location
-          locations.size - 1
+          [locations.size - 1, 0].max
         end
 
         def limit

@@ -102,7 +102,8 @@ class Minitest::Heat::Output::IssueTest < Minitest::Test
   end
 
   def test_tokens_for_success_returns_nil
-    issue = build_issue(passed: true)
+    # Use execution_time: 0.0 to ensure it's below slow_threshold and truly a success
+    issue = build_issue(passed: true, execution_time: 0.0)
     output_issue = ::Minitest::Heat::Output::Issue.new(issue)
 
     tokens = output_issue.tokens
