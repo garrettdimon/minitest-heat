@@ -154,8 +154,9 @@ module Minitest
           tokens.each do |token|
             begin
               print Token.new(*token).to_s(token_format)
-            rescue
-              puts token.inspect
+            rescue ArgumentError => e
+              # Token format error - output debug info and continue
+              puts "Token error (#{e.message}): #{token.inspect}"
             end
           end
           newline

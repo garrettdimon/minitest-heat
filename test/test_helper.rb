@@ -11,25 +11,27 @@ if ENV['COVERAGE']
     refuse_coverage_drop
   end
 
-  if ENV['CI'] == 'true'
-    require 'codecov'
-    SimpleCov.formatter = SimpleCov::Formatter::Codecov
-  else
-    # With the JSON formatter, Reviewwer can look at the results and show guidance without needing
-    # to open the HTML view
-    formatters = [
-      SimpleCov::Formatter::SimpleFormatter,
-      SimpleCov::Formatter::HTMLFormatter
-    ]
-    SimpleCov.formatters = SimpleCov::Formatter::MultiFormatter.new(formatters)
-  end
+  # With the JSON formatter, code review tools can analyze results without opening the HTML view
+  formatters = [
+    SimpleCov::Formatter::SimpleFormatter,
+    SimpleCov::Formatter::HTMLFormatter
+  ]
+  SimpleCov.formatters = SimpleCov::Formatter::MultiFormatter.new(formatters)
 end
 
-require 'debug'
+begin
+  require 'debug'
+rescue LoadError
+  # debug gem is optional for development
+end
 
 $LOAD_PATH.unshift File.expand_path('../lib', __dir__)
 
-require 'awesome_print'
+begin
+  require 'awesome_print'
+rescue LoadError
+  # awesome_print gem is optional for development
+end
 require 'minitest/heat'
 require 'minitest/autorun'
 
