@@ -2,7 +2,7 @@ AllCops:
   NewCops: enable
   UseCache: true
   CacheRootDirectory: './'
-  TargetRubyVersion: 2.7
+  TargetRubyVersion: 3.0
   Exclude:
     - 'bin/**/*'
     - 'test/files/source.rb' # An example test file for reading source code
