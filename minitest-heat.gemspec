@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.description   = 'Presents test results in a visual manner to guide you to where to look first.'
   spec.homepage      = 'https://github.com/garrettdimon/minitest-heat'
   spec.license       = 'MIT'
-  spec.required_ruby_version = Gem::Requirement.new('>= 3.0')
+  spec.required_ruby_version = Gem::Requirement.new('>= 3.1')
 
   spec.metadata['homepage_uri'] = spec.homepage
   spec.metadata['bug_tracker_uri'] = 'https://github.com/garrettdimon/minitest-heat/issues'
@@ -33,7 +33,6 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'minitest'
 
   spec.add_development_dependency 'awesome_print'
-  spec.add_development_dependency 'dead_end'
   spec.add_development_dependency 'debug'
   spec.add_development_dependency 'rubocop'
   spec.add_development_dependency 'rubocop-minitest'
