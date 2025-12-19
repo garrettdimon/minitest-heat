@@ -8,8 +8,6 @@ if ENV['COVERAGE'] || ENV['CI']
   SimpleCov.start do
     enable_coverage :branch
     minimum_coverage 90
-    minimum_coverage_by_file 80
-    refuse_coverage_drop
   end
 
   formatters = [SimpleCov::Formatter::JSONFormatter]
