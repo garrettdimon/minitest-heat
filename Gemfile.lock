@@ -9,12 +9,14 @@ GEM
   specs:
     ast (2.4.3)
     awesome_print (1.9.2)
+    cgi (0.5.1)
     date (3.5.1)
     debug (1.11.1)
       irb (~> 1.10)
       reline (>= 0.3.8)
     docile (1.4.1)
-    erb (6.0.1)
+    erb (4.0.4)
+      cgi (>= 0.3.3)
     io-console (0.8.2)
     irb (1.16.0)
       pp (>= 0.6.0)
@@ -86,6 +88,7 @@ PLATFORMS
 DEPENDENCIES
   awesome_print
   debug
+  erb (< 5.0)
   minitest (~> 5.0)
   minitest-heat!
   rake (>= 13.0)
@@ -95,4 +98,4 @@ DEPENDENCIES
   simplecov
 
 BUNDLED WITH
-   2.6.9
+   2.7.2
