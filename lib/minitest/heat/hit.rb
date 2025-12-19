@@ -63,33 +63,21 @@ module Minitest
       #
       # @return [Integer] the problem weight for the file
       def weight
-        weight = 0
-        issues.each_pair do |type, values|
-          weight += values.size * WEIGHTS.fetch(type, 0)
-        end
-        weight
+        issues.sum { |type, values| values.size * WEIGHTS.fetch(type, 0) }
       end
 
       # The total issue count for the file across all issue types. Includes duplicates if they exist
       #
       # @return [Integer] the sum of the counts for all line numbers for all issue types
       def count
-        count = 0
-        issues.each_pair do |_type, values|
-          count += values.size
-        end
-        count
+        issues.sum { |_type, values| values.size }
       end
 
       # The full set of unique line numbers across all issue types
       #
       # @return [Array<Integer>] the full set of unique offending line numbers for the hit
       def line_numbers
-        line_numbers = []
-        issues.each_pair do |_type, values|
-          line_numbers += values
-        end
-        line_numbers.uniq.sort
+        issues.values.flatten.uniq.sort
       end
     end
   end
