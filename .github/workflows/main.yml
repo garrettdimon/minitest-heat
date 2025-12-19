@@ -9,7 +9,21 @@ env:
   CI: true
 
 jobs:
-  build:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.4'
+        bundler-cache: true
+    - name: Update vulnerability database
+      run: bundle exec bundle-audit update
+    - name: Run security audit
+      run: bundle exec bundle-audit check
+
+  test:
     strategy:
       fail-fast: false
       matrix:

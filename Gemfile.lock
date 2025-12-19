@@ -9,6 +9,9 @@ GEM
   specs:
     ast (2.4.3)
     awesome_print (1.9.2)
+    bundler-audit (0.9.3)
+      bundler (>= 1.2.0)
+      thor (~> 1.0)
     cgi (0.5.1)
     date (3.5.1)
     debug (1.11.1)
@@ -76,6 +79,7 @@ GEM
     simplecov-html (0.13.2)
     simplecov_json_formatter (0.1.4)
     stringio (3.2.0)
+    thor (1.4.0)
     tsort (0.2.0)
     unicode-display_width (3.2.0)
       unicode-emoji (~> 4.1)
@@ -87,6 +91,7 @@ PLATFORMS
 
 DEPENDENCIES
   awesome_print
+  bundler-audit (>= 0.9)
   debug
   erb (< 5.0)
   minitest (~> 5.0)
