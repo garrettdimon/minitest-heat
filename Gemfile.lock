@@ -96,6 +96,7 @@ DEPENDENCIES
   rubocop-minitest
   rubocop-rake
   simplecov
+  simplecov_json_formatter
 
 BUNDLED WITH
    2.6.9

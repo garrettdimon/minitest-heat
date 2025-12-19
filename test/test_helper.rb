@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
-if ENV['COVERAGE']
+if ENV['COVERAGE'] || ENV['CI']
   require 'simplecov'
+  require 'simplecov_json_formatter'
 
   SimpleCov.print_error_status = false
   SimpleCov.start do
@@ -11,9 +12,8 @@ if ENV['COVERAGE']
     refuse_coverage_drop
   end
 
-  # With the JSON formatter, code review tools can analyze results without opening the HTML view
   formatters = [
-    SimpleCov::Formatter::SimpleFormatter,
+    SimpleCov::Formatter::JSONFormatter,
     SimpleCov::Formatter::HTMLFormatter
   ]
   SimpleCov.formatters = SimpleCov::Formatter::MultiFormatter.new(formatters)
