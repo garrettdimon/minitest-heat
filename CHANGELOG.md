@@ -1,11 +1,11 @@
 ## [Unreleased]
 
 ### Breaking Changes
-- Minimum Ruby version is now 3.1 (Ruby 2.7 reached EOL in March 2023)
+- Minimum Ruby version is now 3.2 (Ruby 3.1 reaches EOL in March 2025)
 
 ### Improvements
 - Significantly improved test coverage for Output classes and Results
-- Updated CI to test on Ruby 3.1, 3.2, 3.3, 3.4, and 4.0.0-preview3 on Ubuntu
+- Updated CI to test on Ruby 3.2, 3.3, 3.4, and 4.0.0-preview3 on Ubuntu
 - Fixed bare rescue clause in output.rb to catch specific exceptions
 - Made development dependencies (debug, awesome_print) optional for easier setup
 - Removed deprecated codecov gem reference
