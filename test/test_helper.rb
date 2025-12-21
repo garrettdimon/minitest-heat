@@ -32,7 +32,13 @@ end
 require 'minitest/heat'
 require 'minitest/autorun'
 
+require_relative 'support/issue_helpers'
+
 Minitest::Heat.configure do |config|
   config.slow_threshold = 0.0005
   config.painfully_slow_threshold = 0.01
+end
+
+class Minitest::Test
+  include IssueHelpers
 end

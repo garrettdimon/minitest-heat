@@ -102,25 +102,4 @@ class Minitest::Heat::Output::MapTest < Minitest::Test
     # Should produce tokens (for the failure) even if skips exist
     assert tokens.any?
   end
-
-  private
-
-  def build_results
-    ::Minitest::Heat::Results.new
-  end
-
-  def build_issue(passed: false, error: false, skipped: false, execution_time: 0.001, backtrace: [])
-    ::Minitest::Heat::Issue.new(
-      assertions: 1,
-      message: 'Test message',
-      backtrace: backtrace,
-      test_location: @location,
-      test_class: 'TestClass',
-      test_identifier: 'test_method',
-      execution_time: execution_time,
-      passed: passed,
-      error: error,
-      skipped: skipped
-    )
-  end
 end

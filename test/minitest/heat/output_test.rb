@@ -148,21 +148,4 @@ class Minitest::Heat::OutputTest < Minitest::Test
 
     assert_includes @stream.string, 'Minitest Heat'
   end
-
-  private
-
-  def build_issue(passed: false, error: false, skipped: false, execution_time: 0.001, backtrace: [])
-    ::Minitest::Heat::Issue.new(
-      assertions: 1,
-      message: 'Test message',
-      backtrace: backtrace,
-      test_location: @location,
-      test_class: 'TestClass',
-      test_identifier: 'test_method',
-      execution_time: execution_time,
-      passed: passed,
-      error: error,
-      skipped: skipped
-    )
-  end
 end
