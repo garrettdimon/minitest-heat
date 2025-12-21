@@ -1,7 +1,7 @@
 ## [Unreleased]
 
 ### Breaking Changes
-- Minimum Ruby version is now 3.0 (Ruby 2.7 reached EOL in March 2023)
+- Minimum Ruby version is now 3.1 (Ruby 2.7 reached EOL in March 2023)
 
 ### Improvements
 - Significantly improved test coverage for Output classes and Results
