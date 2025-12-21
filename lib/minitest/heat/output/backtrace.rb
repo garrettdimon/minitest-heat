@@ -121,7 +121,8 @@ module Minitest
         def source_code_line_token(location)
           return nil unless location.project_file?
 
-          [:muted, " #{Output::SYMBOLS[:arrow]} `#{location.source_code.line.strip}`"]
+          source_line = location.source_code.line
+          [:muted, " #{Output::SYMBOLS[:arrow]} `#{source_line&.strip || '(source unavailable)'}`"]
         end
 
         def containining_element_token(location)

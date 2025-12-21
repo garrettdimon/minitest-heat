@@ -31,7 +31,7 @@ module Minitest
       def locations
         return [] if raw_backtrace.nil?
 
-        @locations ||= raw_backtrace.map { |entry| Backtrace::LineParser.read(entry) }
+        @locations ||= raw_backtrace.map { |entry| Backtrace::LineParser.read(entry) }.compact
       end
 
       # All entries from the backtrace within the project and sorted with the most recently modified

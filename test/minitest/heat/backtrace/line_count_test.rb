@@ -34,7 +34,8 @@ class Minitest::Heat::Backtrace::LineCountTest < Minitest::Test
   end
 
   def test_uses_earliest_project_location_if_present
-    assert_equal 6, @line_count.limit
+    # limit returns count (not index), so it's earliest_project_location + 1 to include that line
+    assert_equal 7, @line_count.limit
   end
 
   def test_uses_default_line_count_if_lots_of_non_project_locations
@@ -58,6 +59,7 @@ class Minitest::Heat::Backtrace::LineCountTest < Minitest::Test
     @locations = Minitest::Heat::Locations.new(@test_location, @raw_backtrace)
     @line_count = ::Minitest::Heat::Backtrace::LineCount.new(@locations.backtrace.locations)
 
-    assert_equal @line_count.max_location, @line_count.limit
+    # limit returns count (not index), so it's max_location + 1 to include all lines
+    assert_equal @line_count.max_location + 1, @line_count.limit
   end
 end

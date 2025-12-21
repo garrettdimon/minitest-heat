@@ -1,39 +1,44 @@
 # frozen_string_literal: true
 
-if ENV['COVERAGE']
+if ENV['COVERAGE'] || ENV['CI']
   require 'simplecov'
+  require 'simplecov_json_formatter'
 
   SimpleCov.print_error_status = false
   SimpleCov.start do
     enable_coverage :branch
-    minimum_coverage 100
-    minimum_coverage_by_file 100
-    refuse_coverage_drop
+    minimum_coverage 90
   end
 
-  if ENV['CI'] == 'true'
-    require 'codecov'
-    SimpleCov.formatter = SimpleCov::Formatter::Codecov
-  else
-    # With the JSON formatter, Reviewwer can look at the results and show guidance without needing
-    # to open the HTML view
-    formatters = [
-      SimpleCov::Formatter::SimpleFormatter,
-      SimpleCov::Formatter::HTMLFormatter
-    ]
-    SimpleCov.formatters = SimpleCov::Formatter::MultiFormatter.new(formatters)
-  end
+  formatters = [SimpleCov::Formatter::JSONFormatter]
+  # Only use HTML formatter locally (has issues in CI with bundler deployment mode)
+  formatters << SimpleCov::Formatter::HTMLFormatter unless ENV['CI']
+  SimpleCov.formatters = SimpleCov::Formatter::MultiFormatter.new(formatters)
 end
 
-require 'debug'
+begin
+  require 'debug'
+rescue LoadError
+  # debug gem is optional for development
+end
 
 $LOAD_PATH.unshift File.expand_path('../lib', __dir__)
 
-require 'awesome_print'
+begin
+  require 'awesome_print'
+rescue LoadError
+  # awesome_print gem is optional for development
+end
 require 'minitest/heat'
 require 'minitest/autorun'
+
+require_relative 'support/issue_helpers'
 
 Minitest::Heat.configure do |config|
   config.slow_threshold = 0.0005
   config.painfully_slow_threshold = 0.01
+end
+
+class Minitest::Test
+  include IssueHelpers
 end

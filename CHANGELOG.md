@@ -1,6 +1,17 @@
 ## [Unreleased]
 
-Nothing at the moment.
+### Breaking Changes
+- Minimum Ruby version is now 3.2 (Ruby 3.1 reaches EOL in March 2025)
+
+### Improvements
+- Significantly improved test coverage for Output classes and Results
+- Updated CI to test on Ruby 3.2, 3.3, 3.4, and 4.0.0-preview3 on Ubuntu
+- Fixed bare rescue clause in output.rb to catch specific exceptions
+- Made development dependencies (debug, awesome_print) optional for easier setup
+- Removed deprecated codecov gem reference
+- Removed outdated Travis CI configuration (GitHub Actions is now the primary CI)
+- Updated GitHub Actions to use checkout@v4
+- Updated Gemfile.lock so CI uses the latest patched dependency versions
 
 ## [1.2.0] - 2022-10-31
 

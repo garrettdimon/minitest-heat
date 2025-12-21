@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'pathname'
+
 module Minitest
   module Heat
     # Consistent structure for extracting information about a given location. In addition to the

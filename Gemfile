@@ -5,5 +5,9 @@ source 'https://rubygems.org'
 # Specify your gem's dependencies in minitest-heat.gemspec
 gemspec
 
+gem 'bundler-audit', '>= 0.9'
 gem 'minitest', '~> 5.0'
-gem 'rake', '~> 12.0'
+gem 'rake', '>= 13.0'
+
+# Constrain erb for Ruby 3.1 compatibility (erb 5.0+ requires Ruby 3.2+)
+gem 'erb', '< 5.0'

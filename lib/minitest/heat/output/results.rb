@@ -9,7 +9,12 @@ module Minitest
 
         attr_accessor :results, :timer
 
-        def_delegators :@results, :issues, :errors, :brokens, :failures, :skips, :painfuls, :slows, :problems?
+        # Explicitly define issues to avoid Forwardable warning about Object#issues private method
+        def issues
+          @results.issues
+        end
+
+        def_delegators :@results, :errors, :brokens, :failures, :skips, :painfuls, :slows, :problems?
 
         def initialize(results, timer)
           @results = results

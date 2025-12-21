@@ -19,15 +19,18 @@ module Minitest
         end
 
         def max_location
-          locations.size - 1
+          [locations.size - 1, 0].max
         end
 
         def limit
+          return 0 if locations.empty?
+
+          # Find the minimum relevant index, then add 1 to convert from index to count
           [
-            DEFAULT_LINE_COUNT,
+            DEFAULT_LINE_COUNT - 1,
             earliest_project_location,
             max_location
-          ].compact.min
+          ].compact.min + 1
         end
       end
     end

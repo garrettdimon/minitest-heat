@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.description   = 'Presents test results in a visual manner to guide you to where to look first.'
   spec.homepage      = 'https://github.com/garrettdimon/minitest-heat'
   spec.license       = 'MIT'
-  spec.required_ruby_version = Gem::Requirement.new('>= 2.7.6')
+  spec.required_ruby_version = Gem::Requirement.new('>= 3.2')
 
   spec.metadata['homepage_uri'] = spec.homepage
   spec.metadata['bug_tracker_uri'] = 'https://github.com/garrettdimon/minitest-heat/issues'
@@ -20,6 +20,7 @@ Gem::Specification.new do |spec|
   spec.metadata['documentation_uri'] = 'https://www.rubydoc.info/gems/minitest-heat'
   spec.metadata['source_code_uri'] = 'https://github.com/garrettdimon/minitest-heat'
   spec.metadata['wiki_uri'] = 'https://github.com/garrettdimon/minitest-heat/wiki'
+  spec.metadata['rubygems_mfa_required'] = 'true'
 
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
@@ -33,10 +34,10 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'minitest'
 
   spec.add_development_dependency 'awesome_print'
-  spec.add_development_dependency 'dead_end'
   spec.add_development_dependency 'debug'
   spec.add_development_dependency 'rubocop'
   spec.add_development_dependency 'rubocop-minitest'
   spec.add_development_dependency 'rubocop-rake'
   spec.add_development_dependency 'simplecov'
+  spec.add_development_dependency 'simplecov_json_formatter'
 end

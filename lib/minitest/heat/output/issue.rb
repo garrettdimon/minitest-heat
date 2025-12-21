@@ -69,7 +69,9 @@ module Minitest
         # @return [String] the cleaned up version of the test name
         def test_name(issue)
           test_prefix = 'test_'
-          identifier = issue.test_identifier
+          identifier = issue.test_identifier.to_s
+
+          return 'Unknown test' if identifier.empty?
 
           if identifier.start_with?(test_prefix)
             identifier.delete_prefix(test_prefix).gsub('_', ' ').capitalize
@@ -87,22 +89,24 @@ module Minitest
         end
 
         def test_location_tokens
+          source_line = locations.test_failure.source_code.line
           [
             [:default, locations.test_definition.relative_filename],
             [:muted, ':'],
             [:default, locations.test_definition.line_number],
             arrow_token,
             [:default, locations.test_failure.line_number],
-            [:muted, "\n  #{locations.test_failure.source_code.line.strip}"]
+            [:muted, "\n  #{source_line&.strip || '(source unavailable)'}"]
           ]
         end
 
         def location_tokens
+          source_line = locations.most_relevant.source_code.line
           [
             [:default, locations.most_relevant.relative_filename],
             [:muted, ':'],
             [:default, locations.most_relevant.line_number],
-            [:muted, "\n  #{locations.most_relevant.source_code.line.strip}"]
+            [:muted, "\n  #{source_line&.strip || '(source unavailable)'}"]
           ]
         end
 
@@ -110,12 +114,15 @@ module Minitest
           filename    = locations.project.filename
           line_number = locations.project.line_number
           source = Minitest::Heat::Source.new(filename, line_number: line_number)
+          source_line = source.line
 
-          [[:muted, " #{Output::SYMBOLS[:arrow]} `#{source.line.strip}`"]]
+          [[:muted, " #{Output::SYMBOLS[:arrow]} `#{source_line&.strip || '(source unavailable)'}`"]]
         end
 
         def summary_tokens
-          [[:italicized, issue.summary.delete_suffix('---------------').strip]]
+          summary_text = issue.summary.to_s
+          cleaned = summary_text.delete_suffix('---------------').strip
+          [[:italicized, cleaned.empty? ? '(no details available)' : cleaned]]
         end
 
         def slowness_summary_tokens

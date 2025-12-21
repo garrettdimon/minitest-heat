@@ -200,7 +200,9 @@ module Minitest
       #
       # @return [String] the first line of the exception message
       def first_line_of_exception_message
-        text = message.split("\n")[0]
+        return '' if message.nil? || message.empty?
+
+        text = message.split("\n")[0].to_s
 
         text.size > exception_message_limit ? "#{text[0..exception_message_limit]}..." : text
       end

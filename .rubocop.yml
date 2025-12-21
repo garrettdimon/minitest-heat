@@ -1,8 +1,9 @@
 AllCops:
+  TargetRubyVersion: 3.1
   NewCops: enable
+  SuggestExtensions: false
   UseCache: true
   CacheRootDirectory: './'
-  TargetRubyVersion: 2.5.9
   Exclude:
     - 'bin/**/*'
     - 'test/files/source.rb' # An example test file for reading source code
@@ -13,7 +14,11 @@ Layout/LineLength:
 
 # One case statement in a single method isn't complex.
 Metrics/CyclomaticComplexity:
-  IgnoredMethods: ['case']
+  AllowedMethods: ['case']
+
+# Development dependencies in gemspec is fine for this gem
+Gemspec/DevelopmentDependencies:
+  Enabled: false
 
 # 10 is a good goal but a little draconian
 Metrics/MethodLength:
