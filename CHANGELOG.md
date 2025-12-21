@@ -11,7 +11,7 @@
 - Removed deprecated codecov gem reference
 - Removed outdated Travis CI configuration (GitHub Actions is now the primary CI)
 - Updated GitHub Actions to use checkout@v4
-- Removed Gemfile.lock to allow CI to use latest patched dependency versions
+- Updated Gemfile.lock so CI uses the latest patched dependency versions
 
 ## [1.2.0] - 2022-10-31
 
