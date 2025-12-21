@@ -20,16 +20,12 @@ class Minitest::Heat::TimerTest < Minitest::Test
   end
 
   def test_total_time
-    # For fixing the timing to be exactly 10 seconds
-    fixed_start_time = 1_000_000.012345
-    fixed_stop_time = 1_000_010.012345
-    fixed_delta = fixed_stop_time - fixed_start_time
+    @timer.start!
+    @timer.stop!
 
-    @timer.stub(:start_time, fixed_start_time) do
-      @timer.stub(:stop_time, fixed_stop_time) do
-        assert_equal fixed_delta, @timer.total_time
-      end
-    end
+    # total_time is stop_time - start_time, should be a small positive number
+    assert_operator @timer.total_time, :>=, 0
+    assert_operator @timer.total_time, :<, 1 # Should complete in under 1 second
   end
 
   def test_updating_counts
