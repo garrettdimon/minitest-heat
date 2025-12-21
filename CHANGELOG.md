@@ -5,7 +5,7 @@
 
 ### Improvements
 - Significantly improved test coverage for Output classes and Results
-- Updated CI to test on Ruby 3.0, 3.1, 3.2, and 3.3 on both Ubuntu and macOS
+- Updated CI to test on Ruby 3.1, 3.2, 3.3, 3.4, and 4.0.0-preview3 on Ubuntu
 - Fixed bare rescue clause in output.rb to catch specific exceptions
 - Made development dependencies (debug, awesome_print) optional for easier setup
 - Removed deprecated codecov gem reference
