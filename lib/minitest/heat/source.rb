@@ -59,7 +59,7 @@ module Minitest
       rescue Errno::ENOENT, Errno::EACCES, Errno::EISDIR, IOError, Encoding::UndefinedConversionError
         # Occasionally, for a variety of reasons, a file can't be read. In those cases, it's best to
         # return no source code lines rather than have the test suite raise an error unrelated to
-        # the code being tested becaues that gets confusing.
+        # the code being tested because that gets confusing.
         []
       end
 
