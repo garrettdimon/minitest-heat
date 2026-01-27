@@ -11,10 +11,11 @@ end
 
 task default: :test
 
+# rubocop:disable Metrics/BlockLength
 namespace :release do
   desc 'Run bundle-audit to check for vulnerable dependencies'
   task :audit do
-    puts '🔒 Running security audit...'
+    puts 'Running security audit...'
     sh 'bundle exec bundle-audit check --update'
   end
 
@@ -23,19 +24,26 @@ namespace :release do
     require_relative 'lib/minitest/heat/version'
     errors = ReleaseChecker.new(Minitest::Heat::VERSION).validate
     if errors.any?
-      puts "\n❌ Release check failed:"
-      errors.each { |e| puts "   - #{e}" }
+      puts "\nRelease check failed:"
+      errors.each { |e| puts "  - #{e}" }
       exit 1
     else
-      puts '✅ All release checks passed!'
+      puts 'All release checks passed.'
     end
   end
 
   desc 'Run all pre-release checks (tests, lint, audit, release:check)'
   task preflight: %i[test lint audit check] do
-    puts "\n🚀 All preflight checks passed! Ready to release."
+    puts "\nAll preflight checks passed. Ready to release."
+  end
+
+  desc 'Build gem locally and show contents (dry run)'
+  task :dry_run do
+    require_relative 'lib/minitest/heat/version'
+    DryRun.new(Minitest::Heat::VERSION).run
   end
 end
+# rubocop:enable Metrics/BlockLength
 
 # Validates release readiness
 class ReleaseChecker
@@ -45,7 +53,7 @@ class ReleaseChecker
   end
 
   def validate
-    puts "📋 Checking release readiness for v#{@version}..."
+    puts "Checking release readiness for v#{@version}..."
     check_version_format
     check_changelog
     check_git_clean
@@ -82,8 +90,46 @@ class ReleaseChecker
   end
 end
 
+# Builds gem and displays contents without publishing
+class DryRun
+  def initialize(version)
+    @version = version
+    @gem_file = "minitest-heat-#{version}.gem"
+  end
+
+  def run
+    build || abort('Gem build failed')
+    show_contents
+    show_size
+  ensure
+    cleanup if File.exist?(@gem_file)
+  end
+
+  private
+
+  def build
+    puts "Building #{@gem_file}..."
+    system 'gem build minitest-heat.gemspec --silent'
+  end
+
+  def show_contents
+    puts "\nGem contents:"
+    system "tar -tf #{@gem_file}"
+  end
+
+  def show_size
+    size = File.size(@gem_file)
+    puts "\nGem size: #{(size / 1024.0).round(1)} KB"
+  end
+
+  def cleanup
+    File.delete(@gem_file)
+    puts "Cleaned up #{@gem_file}"
+  end
+end
+
 desc 'Run RuboCop linter'
 task :lint do
-  puts '🔍 Running RuboCop...'
+  puts 'Running RuboCop...'
   sh 'bundle exec rubocop'
 end

@@ -7,6 +7,7 @@ on:
 
 jobs:
   validate:
+    name: Validate
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -23,6 +24,7 @@ jobs:
         echo "Tag points to commit on main branch"
 
   publish:
+    name: Publish
     needs: validate
     runs-on: ubuntu-latest
     environment: rubygems
@@ -42,6 +44,7 @@ jobs:
       uses: rubygems/release-gem@v1
 
   github-release:
+    name: GitHub Release
     needs: publish
     runs-on: ubuntu-latest
     permissions:

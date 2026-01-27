@@ -82,15 +82,38 @@ Follow [Semantic Versioning](https://semver.org/):
 - Changing default configuration behavior
 - Dropping Ruby version support
 
-## Optional: Local Preflight
+## Local Tools
 
-If you want extra confidence before pushing:
+### Full Preflight Check
+
+Run all checks before pushing:
 
 ```bash
 bundle exec rake release:preflight
 ```
 
-This runs tests, linting, security audit, and validates version/changelog locally.
+This runs tests, linting, security audit, and release validation in sequence.
+
+### Individual Tasks
+
+| Task | Purpose |
+|------|---------|
+| `rake release:preflight` | Run all checks (test, lint, audit, check) |
+| `rake release:check` | Validate version format, changelog entry, git state |
+| `rake release:audit` | Check for vulnerable dependencies |
+| `rake release:dry_run` | Build gem locally, show contents and size |
+| `rake test` | Run test suite |
+| `rake lint` | Run RuboCop |
+
+### Preview a Release
+
+Before tagging, preview what the gem will contain:
+
+```bash
+bundle exec rake release:dry_run
+```
+
+This builds the gem, displays its contents and size, then cleans up.
 
 ## One-Time Setup
 
@@ -115,7 +138,7 @@ This runs tests, linting, security audit, and validates version/changelog locall
 1. Go to repository Settings > Branches
 2. Add rule for `main` branch
 3. Enable "Require status checks to pass before merging"
-4. Select required checks: `test`, `audit`
+4. Select required checks: `test`, `security`, `changelog`, `version`
 
 ## Troubleshooting
 
