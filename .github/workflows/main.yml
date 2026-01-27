@@ -31,9 +31,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: ['3.2', '3.3', '3.4', '4.0.0-preview3']
+        ruby: ['3.2', '3.3', '3.4', '4.0']
     runs-on: ubuntu-latest
-    continue-on-error: ${{ matrix.ruby == '4.0.0-preview3' }}
     steps:
     - uses: actions/checkout@v4
     - name: Set up Ruby
