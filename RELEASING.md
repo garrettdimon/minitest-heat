@@ -48,6 +48,11 @@ The release:check task verifies:
 
 ## Release Process
 
+Releases are automated via GitHub Actions. When you push a version tag, the workflow:
+1. Runs all verification checks (tests, lint, security audit)
+2. Builds and publishes the gem to RubyGems (via trusted publishing)
+3. Creates a GitHub Release with changelog excerpt
+
 ### 1. Update Version
 
 Edit `lib/minitest/heat/version.rb`:
@@ -75,36 +80,61 @@ Move items from `[Unreleased]` to a new version section:
 - Bug fix description
 ```
 
-### 3. Commit the Release
+### 3. Run Preflight Checks
+
+```bash
+bundle exec rake release:preflight
+```
+
+### 4. Commit and Tag
 
 ```bash
 git add lib/minitest/heat/version.rb CHANGELOG.md
 git commit -m "Release vX.Y.Z"
-```
-
-### 4. Create and Push Tag
-
-```bash
-git tag vX.Y.Z
 git push origin main
+git tag vX.Y.Z
 git push origin vX.Y.Z
 ```
 
-### 5. Build and Publish
+GitHub Actions takes over from here and handles publishing automatically.
+
+### 5. Verify
+
+- Watch the [Actions tab](https://github.com/garrettdimon/minitest-heat/actions) for workflow completion
+- Check [RubyGems](https://rubygems.org/gems/minitest-heat) for the new version
+- Verify the [GitHub Release](https://github.com/garrettdimon/minitest-heat/releases) was created
+
+### Manual Release (Fallback)
+
+If automated publishing fails, you can publish manually:
 
 ```bash
 bundle exec rake release
 ```
 
-This command:
-- Builds the `.gem` file
-- Pushes to [RubyGems.org](https://rubygems.org/gems/minitest-heat)
-- Creates a GitHub release (if configured)
+Or trigger the workflow manually from the Actions tab using the "Run workflow" button.
 
-### 6. Verify
+## One-Time Setup
 
-- Check [RubyGems](https://rubygems.org/gems/minitest-heat) for the new version
-- Verify the gem installs correctly: `gem install minitest-heat -v X.Y.Z`
+### RubyGems Trusted Publishing
+
+The release workflow uses OIDC trusted publishing to push gems without storing API keys. This requires one-time setup:
+
+1. Go to [rubygems.org/profile/oidc/pending_trusted_publishers](https://rubygems.org/profile/oidc/pending_trusted_publishers)
+2. Add a new trusted publisher:
+   - **Gem name:** `minitest-heat`
+   - **GitHub repository owner:** `garrettdimon`
+   - **GitHub repository name:** `minitest-heat`
+   - **GitHub workflow filename:** `release.yml`
+   - **Environment:** `rubygems`
+
+### GitHub Environment
+
+Create a `rubygems` environment for deployment protection:
+
+1. Go to repository Settings > Environments
+2. Create new environment named `rubygems`
+3. Optionally add required reviewers or deployment branches
 
 ## Troubleshooting
 
