@@ -133,12 +133,18 @@ This builds the gem, displays its contents and size, then cleans up.
 2. Create environment named `rubygems`
 3. (Optional) Add required reviewers for extra safety
 
-### Branch Protection
+### Repository Ruleset
 
-1. Go to repository Settings > Branches
-2. Add rule for `main` branch
-3. Enable "Require status checks to pass before merging"
-4. Select required checks: `test`, `security`, `changelog`, `version`
+1. Go to repository Settings > Rules > Rulesets
+2. Edit the `main` ruleset (or create one targeting the default branch)
+3. Enable "Require status checks to pass" with these checks:
+   - `Security`
+   - `Test (Ruby 3.2)`
+   - `Test (Ruby 3.3)`
+   - `Test (Ruby 3.4)`
+   - `Test (Ruby 4.0)`
+   - `Changelog`
+   - `Version`
 
 ## Troubleshooting
 
