@@ -19,15 +19,32 @@ Minitest Heat follows [Semantic Versioning](https://semver.org/):
 
 ## Pre-Release Checklist
 
-Before releasing, verify:
+Run the preflight task to verify everything automatically:
 
-- [ ] All tests pass: `bundle exec rake test`
-- [ ] Code style is clean: `bundle exec rubocop`
-- [ ] No security vulnerabilities: `bundle exec bundle-audit check --update`
-- [ ] CHANGELOG.md has an entry for the new version
-- [ ] Version number in `lib/minitest/heat/version.rb` is updated
-- [ ] You're on the `main` branch with a clean working tree
-- [ ] All changes are committed and pushed
+```bash
+bundle exec rake release:preflight
+```
+
+This runs all checks in sequence:
+- Tests (`rake test`)
+- Linting (`rake lint`)
+- Security audit (`rake release:audit`)
+- Release validation (`rake release:check`)
+
+Or run individual checks:
+
+```bash
+bundle exec rake test                # Run test suite
+bundle exec rake lint                # Run RuboCop
+bundle exec rake release:audit       # Check for vulnerable dependencies
+bundle exec rake release:check       # Validate version, changelog, git state
+```
+
+The release:check task verifies:
+- Version follows semver format (X.Y.Z)
+- CHANGELOG.md has an entry for the version
+- Working directory is clean (no uncommitted changes)
+- You're on the main branch
 
 ## Release Process
 
