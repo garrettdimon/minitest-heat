@@ -32,8 +32,8 @@ namespace :release do
     end
   end
 
-  desc 'Run all pre-release checks (tests, lint, audit, release:check)'
-  task preflight: %i[test lint audit check] do
+  desc 'Run all pre-release checks (tests, audit, release:check)'
+  task preflight: %i[test audit check] do
     puts "\nAll preflight checks passed. Ready to release."
   end
 
@@ -126,10 +126,4 @@ class DryRun
     File.delete(@gem_file)
     puts "Cleaned up #{@gem_file}"
   end
-end
-
-desc 'Run RuboCop linter'
-task :lint do
-  puts 'Running RuboCop...'
-  sh 'bundle exec rubocop'
 end

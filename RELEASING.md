@@ -92,18 +92,17 @@ Run all checks before pushing:
 bundle exec rake release:preflight
 ```
 
-This runs tests, linting, security audit, and release validation in sequence.
+This runs tests, security audit, and release validation in sequence.
 
 ### Individual Tasks
 
 | Task | Purpose |
 |------|---------|
-| `rake release:preflight` | Run all checks (test, lint, audit, check) |
+| `rake release:preflight` | Run all checks (test, audit, check) |
 | `rake release:check` | Validate version format, changelog entry, git state |
 | `rake release:audit` | Check for vulnerable dependencies |
 | `rake release:dry_run` | Build gem locally, show contents and size |
 | `rake test` | Run test suite |
-| `rake lint` | Run RuboCop |
 
 ### Preview a Release
 
