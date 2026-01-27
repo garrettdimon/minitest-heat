@@ -1,57 +1,31 @@
 # Releasing Minitest Heat
 
-This document describes the release process for maintainers.
-
-## Versioning Policy
-
-Minitest Heat follows [Semantic Versioning](https://semver.org/):
-
-- **MAJOR** (x.0.0): Breaking changes to the public API or configuration
-- **MINOR** (0.x.0): New features, new configuration options, deprecations
-- **PATCH** (0.0.x): Bug fixes, performance improvements, documentation updates
-
-### What Constitutes a Breaking Change?
-
-- Removing or renaming public classes/methods
-- Changing method signatures in incompatible ways
-- Changing default configuration values that affect behavior
-- Dropping support for Ruby versions (document in CHANGELOG as "Breaking Changes")
-
-## Pre-Release Checklist
-
-Run the preflight task to verify everything automatically:
+## Quick Reference
 
 ```bash
-bundle exec rake release:preflight
+# 1. Update version and changelog
+# 2. Commit and push
+git add -A && git commit -m "Release vX.Y.Z" && git push
+
+# 3. Tag and push
+git tag vX.Y.Z && git push origin vX.Y.Z
+
+# Done - automation handles the rest
 ```
 
-This runs all checks in sequence:
-- Tests (`rake test`)
-- Linting (`rake lint`)
-- Security audit (`rake release:audit`)
-- Release validation (`rake release:check`)
+## How It Works
 
-Or run individual checks:
+Releases are fully automated via GitHub Actions:
 
-```bash
-bundle exec rake test                # Run test suite
-bundle exec rake lint                # Run RuboCop
-bundle exec rake release:audit       # Check for vulnerable dependencies
-bundle exec rake release:check       # Validate version, changelog, git state
-```
+1. **Branch protection** requires CI to pass before merging to `main`
+2. When you push a version tag, the release workflow:
+   - Validates the tag points to a commit on `main` (ensures CI passed)
+   - Builds and publishes the gem to RubyGems
+   - Creates a GitHub Release with changelog excerpt
 
-The release:check task verifies:
-- Version follows semver format (X.Y.Z)
-- CHANGELOG.md has an entry for the version
-- Working directory is clean (no uncommitted changes)
-- You're on the main branch
+No redundant test runs. If it's on `main`, it already passed CI.
 
-## Release Process
-
-Releases are automated via GitHub Actions. When you push a version tag, the workflow:
-1. Runs all verification checks (tests, lint, security audit)
-2. Builds and publishes the gem to RubyGems (via trusted publishing)
-3. Creates a GitHub Release with changelog excerpt
+## Release Steps
 
 ### 1. Update Version
 
@@ -73,20 +47,11 @@ Move items from `[Unreleased]` to a new version section:
 ### Added
 - New feature description
 
-### Changed
-- Change description
-
 ### Fixed
 - Bug fix description
 ```
 
-### 3. Run Preflight Checks
-
-```bash
-bundle exec rake release:preflight
-```
-
-### 4. Commit and Tag
+### 3. Commit, Tag, Push
 
 ```bash
 git add lib/minitest/heat/version.rb CHANGELOG.md
@@ -96,100 +61,102 @@ git tag vX.Y.Z
 git push origin vX.Y.Z
 ```
 
-GitHub Actions takes over from here and handles publishing automatically.
-
-### 5. Verify
+### 4. Verify
 
 - Watch the [Actions tab](https://github.com/garrettdimon/minitest-heat/actions) for workflow completion
 - Check [RubyGems](https://rubygems.org/gems/minitest-heat) for the new version
-- Verify the [GitHub Release](https://github.com/garrettdimon/minitest-heat/releases) was created
+- Check [GitHub Releases](https://github.com/garrettdimon/minitest-heat/releases) for the release page
 
-### Manual Release (Fallback)
+## Versioning Policy
 
-If automated publishing fails, you can publish manually:
+Follow [Semantic Versioning](https://semver.org/):
+
+- **MAJOR** (x.0.0): Breaking changes to public API or configuration
+- **MINOR** (0.x.0): New features, deprecations
+- **PATCH** (0.0.x): Bug fixes, documentation
+
+### What's a Breaking Change?
+
+- Removing or renaming public classes/methods
+- Changing method signatures incompatibly
+- Changing default configuration behavior
+- Dropping Ruby version support
+
+## Optional: Local Preflight
+
+If you want extra confidence before pushing:
 
 ```bash
-bundle exec rake release
+bundle exec rake release:preflight
 ```
 
-Or trigger the workflow manually from the Actions tab using the "Run workflow" button.
+This runs tests, linting, security audit, and validates version/changelog locally.
 
 ## One-Time Setup
 
 ### RubyGems Trusted Publishing
 
-The release workflow uses OIDC trusted publishing to push gems without storing API keys. This requires one-time setup:
-
 1. Go to [rubygems.org/profile/oidc/pending_trusted_publishers](https://rubygems.org/profile/oidc/pending_trusted_publishers)
-2. Add a new trusted publisher:
+2. Add trusted publisher:
    - **Gem name:** `minitest-heat`
-   - **GitHub repository owner:** `garrettdimon`
-   - **GitHub repository name:** `minitest-heat`
-   - **GitHub workflow filename:** `release.yml`
+   - **Repository owner:** `garrettdimon`
+   - **Repository name:** `minitest-heat`
+   - **Workflow filename:** `release.yml`
    - **Environment:** `rubygems`
 
 ### GitHub Environment
 
-Create a `rubygems` environment for deployment protection:
-
 1. Go to repository Settings > Environments
-2. Create new environment named `rubygems`
-3. Optionally add required reviewers or deployment branches
+2. Create environment named `rubygems`
+3. (Optional) Add required reviewers for extra safety
+
+### Branch Protection
+
+1. Go to repository Settings > Branches
+2. Add rule for `main` branch
+3. Enable "Require status checks to pass before merging"
+4. Select required checks: `test`, `audit`
 
 ## Troubleshooting
 
-### "You do not have permission to push to this gem"
+### Release workflow fails with "must point to commit on main"
 
-You need to be added as an owner on RubyGems:
-
-```bash
-gem owner minitest-heat --add EMAIL
-```
-
-### "Tag already exists"
-
-If you need to re-release (e.g., after fixing a mistake):
+You tagged a commit that isn't on the main branch. Delete the tag and re-tag a commit on main:
 
 ```bash
-git tag -d vX.Y.Z           # Delete local tag
-git push origin :vX.Y.Z     # Delete remote tag
-# Fix the issue, then re-tag
+git tag -d vX.Y.Z              # Delete local tag
+git push origin :vX.Y.Z        # Delete remote tag
+git checkout main
+git pull
 git tag vX.Y.Z
 git push origin vX.Y.Z
 ```
 
-### Tests Fail on Release
+### "You do not have permission to push to this gem"
 
-Never release with failing tests. Fix the issues first:
+The RubyGems trusted publisher isn't configured, or the environment name doesn't match. Check the one-time setup steps above.
 
-```bash
-bundle exec rake test
-```
+### Forgot to update CHANGELOG
 
-### Bundle-Audit Reports Vulnerabilities
-
-Update dependencies and re-run:
+Delete the tag, update CHANGELOG, amend the commit, re-tag:
 
 ```bash
-bundle update
-bundle exec bundle-audit check --update
+git tag -d vX.Y.Z
+git push origin :vX.Y.Z
+# Update CHANGELOG.md
+git add CHANGELOG.md
+git commit --amend --no-edit
+git push --force-with-lease origin main
+git tag vX.Y.Z
+git push origin vX.Y.Z
 ```
 
-If a vulnerability is in a development dependency only, document and proceed with caution.
+## Manual Release (Fallback)
 
-### Forgot to Update CHANGELOG
+If automation fails and you need to publish manually:
 
-If you've already tagged but forgot the CHANGELOG:
+```bash
+bundle exec rake release
+```
 
-1. Delete the tag (see above)
-2. Update CHANGELOG
-3. Amend the commit: `git commit --amend`
-4. Re-tag and push
-
-## Post-Release
-
-After a successful release:
-
-1. Add a new `[Unreleased]` section to CHANGELOG.md
-2. Consider announcing on relevant channels (Twitter, Ruby Weekly, etc.)
-3. Close any GitHub issues resolved by this release
+This builds the gem and pushes to RubyGems using your local credentials.

@@ -4,36 +4,26 @@ on:
   push:
     tags:
       - 'v*'
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: 'Tag to release (e.g., v1.2.3)'
-        required: true
-
-env:
-  CI: true
 
 jobs:
-  verify:
+  validate:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - name: Set up Ruby
-      uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '3.4'
-        bundler-cache: true
-    - name: Run tests
-      run: bundle exec rake test
-    - name: Run linter
-      run: bundle exec rake lint
-    - name: Update vulnerability database
-      run: bundle exec bundle-audit update
-    - name: Run security audit
-      run: bundle exec bundle-audit check
+        fetch-depth: 0
+    - name: Verify tag is on main branch
+      run: |
+        TAG_COMMIT=$(git rev-list -n 1 ${{ github.ref }})
+        if ! git merge-base --is-ancestor $TAG_COMMIT origin/main; then
+          echo "::error::Release tags must point to a commit on the main branch."
+          echo "::error::This ensures the code has passed CI before release."
+          exit 1
+        fi
+        echo "Tag points to commit on main branch"
 
   publish:
-    needs: verify
+    needs: validate
     runs-on: ubuntu-latest
     environment: rubygems
     permissions:
