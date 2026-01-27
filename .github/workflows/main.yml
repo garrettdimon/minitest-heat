@@ -3,13 +3,16 @@ name: CI
 on:
   push:
     branches: [main]
+    tags-ignore:
+      - 'v*'
   pull_request:
 
 env:
   CI: true
 
 jobs:
-  audit:
+  security:
+    name: Security
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -24,12 +27,12 @@ jobs:
       run: bundle exec bundle-audit check
 
   test:
+    name: Test (Ruby ${{ matrix.ruby }})
     strategy:
       fail-fast: false
       matrix:
-        ruby: ['3.2', '3.3', '3.4', '4.0.0-preview3']
+        ruby: ['3.2', '3.3', '3.4', '4.0']
     runs-on: ubuntu-latest
-    continue-on-error: ${{ matrix.ruby == '4.0.0-preview3' }}
     steps:
     - uses: actions/checkout@v4
     - name: Set up Ruby
@@ -37,5 +40,54 @@ jobs:
       with:
         ruby-version: ${{ matrix.ruby }}
         bundler-cache: true
-    - name: Run Tests
-      run: bundle exec rake
+    - name: Run tests
+      run: bundle exec rake test
+
+  changelog:
+    name: Changelog
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Validate changelog format
+      run: |
+        # Check [Unreleased] section exists
+        if ! grep -q '## \[Unreleased\]' CHANGELOG.md; then
+          echo "::error::CHANGELOG.md missing [Unreleased] section"
+          exit 1
+        fi
+
+        # Check version entries have dates (## [X.Y.Z] - YYYY-MM-DD)
+        bad_entries=$(grep -E '## \[[0-9]+\.[0-9]+\.[0-9]+\]' CHANGELOG.md | grep -v ' - [0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}' || true)
+        if [ -n "$bad_entries" ]; then
+          echo "::error::Version entries must have dates (## [X.Y.Z] - YYYY-MM-DD)"
+          echo "$bad_entries"
+          exit 1
+        fi
+
+        echo "Changelog format valid"
+
+  version:
+    name: Version
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.4'
+        bundler-cache: true
+    - name: Check version consistency
+      run: |
+        VERSION=$(ruby -r./lib/minitest/heat/version -e "puts Minitest::Heat::VERSION")
+
+        # If version has a CHANGELOG entry, it should have a date
+        if grep -q "\[${VERSION}\]" CHANGELOG.md; then
+          # Verify the version entry includes a date (YYYY-MM-DD)
+          if ! grep "\[${VERSION}\]" CHANGELOG.md | grep -q ' - [0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}'; then
+            echo "::error::Version ${VERSION} in CHANGELOG is missing release date"
+            exit 1
+          fi
+          echo "Version ${VERSION} has dated changelog entry"
+        else
+          echo "Version ${VERSION} not yet released (under Unreleased section)"
+        fi

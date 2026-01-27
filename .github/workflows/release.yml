@@ -1,0 +1,98 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  validate:
+    name: Validate
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Verify tag is on main branch
+      run: |
+        TAG_COMMIT=$(git rev-list -n 1 ${{ github.ref }})
+        if ! git merge-base --is-ancestor $TAG_COMMIT origin/main; then
+          echo "::error::Release tags must point to a commit on the main branch."
+          echo "::error::This ensures the code has passed CI before release."
+          exit 1
+        fi
+        echo "Tag points to commit on main branch"
+
+  publish:
+    name: Publish
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: rubygems
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.4'
+        bundler-cache: true
+    - name: Build gem
+      run: gem build minitest-heat.gemspec
+    - name: Push to RubyGems
+      uses: rubygems/release-gem@v1
+
+  github-release:
+    name: GitHub Release
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v4
+    - name: Extract version from tag
+      id: version
+      run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+    - name: Extract changelog for version
+      id: changelog
+      run: |
+        # Extract the section for this version from CHANGELOG.md
+        version="${{ steps.version.outputs.version }}"
+        changelog=$(awk -v ver="$version" '
+          /^## \[/ {
+            if (found) exit
+            if ($0 ~ "\\[" ver "\\]") found=1
+            next
+          }
+          found { print }
+        ' CHANGELOG.md)
+
+        # Handle multi-line output
+        {
+          echo "content<<EOF"
+          echo "$changelog"
+          echo "EOF"
+        } >> $GITHUB_OUTPUT
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        name: v${{ steps.version.outputs.version }}
+        body: |
+          ## Changes
+
+          ${{ steps.changelog.outputs.content }}
+
+          ## Installation
+
+          ```bash
+          gem install minitest-heat -v ${{ steps.version.outputs.version }}
+          ```
+
+          Or add to your Gemfile:
+
+          ```ruby
+          gem 'minitest-heat', '~> ${{ steps.version.outputs.version }}'
+          ```
+        draft: false
+        prerelease: false
