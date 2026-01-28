@@ -17,10 +17,10 @@ module Minitest
           failure: %i[default red],
           skipped: %i[default yellow],
           warning_light: %i[light yellow],
-          italicized: %i[italic gray],
+          italicized: %i[italic default],
           bold: %i[bold default],
           default: %i[default default],
-          muted: %i[light gray]
+          muted: %i[light default]
         }.freeze
 
         attr_accessor :style_key, :content

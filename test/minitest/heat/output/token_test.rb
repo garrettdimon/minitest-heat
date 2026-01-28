@@ -43,4 +43,20 @@ class Minitest::Heat::Output::TokenTest < Minitest::Test
 
     refute_equal token, other_token
   end
+
+  def test_muted_style_uses_default_color_for_accessibility
+    # Muted text should use terminal's default color (39) not gray (37)
+    # for readability on both light and dark terminal backgrounds
+    token = ::Minitest::Heat::Output::Token.new(:muted, 'muted text')
+
+    assert_equal "\e[2;39mmuted text\e[0m", token.to_s
+  end
+
+  def test_italicized_style_uses_default_color_for_accessibility
+    # Italicized text should use terminal's default color (39) not gray (37)
+    # for readability on both light and dark terminal backgrounds
+    token = ::Minitest::Heat::Output::Token.new(:italicized, 'italic text')
+
+    assert_equal "\e[3;39mitalic text\e[0m", token.to_s
+  end
 end
