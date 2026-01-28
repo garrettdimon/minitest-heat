@@ -210,6 +210,32 @@ module Minitest
       def exception_message_limit
         200
       end
+
+      # Generates a hash representation for JSON serialization
+      #
+      # @return [Hash] issue data
+      def to_h
+        {
+          type: type,
+          test_class: test_class,
+          test_name: test_identifier,
+          execution_time: execution_time,
+          assertions: assertions,
+          message: message,
+          test_location: locations.test_definition&.to_h,
+          failure_location: failure_location_hash
+        }
+      end
+
+      private
+
+      def failure_location_hash
+        location = locations.most_relevant
+        return nil if location.nil?
+        return nil if location == locations.test_definition
+
+        location.to_h
+      end
     end
   end
 end

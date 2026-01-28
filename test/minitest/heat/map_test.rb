@@ -47,4 +47,24 @@ class Minitest::Heat::MapTest < Minitest::Test
     assert_equal 2, hit.count
     assert_equal [5, 8], hit.line_numbers
   end
+
+  def test_to_h_returns_array_of_hit_hashes_sorted_by_weight
+    @map.add('high.rb', 1, :error)
+    @map.add('high.rb', 2, :error)
+    @map.add('low.rb', 1, :slow)
+
+    hash = @map.to_h
+
+    assert_kind_of Array, hash
+    assert_equal 2, hash.size
+    assert_equal 'high.rb', hash.first[:file]
+    assert_equal 'low.rb', hash.last[:file]
+  end
+
+  def test_to_h_empty_map
+    hash = @map.to_h
+
+    assert_kind_of Array, hash
+    assert_empty hash
+  end
 end

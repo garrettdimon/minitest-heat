@@ -116,4 +116,56 @@ class Minitest::Heat::IssueTest < Minitest::Test
     refute issue.hit?
     assert issue.passed?
   end
+
+  def test_to_h_returns_hash_with_issue_data
+    issue = ::Minitest::Heat::Issue.new(
+      assertions: 3,
+      message: 'Expected true, got false',
+      backtrace: @source_backtrace,
+      test_location: @location,
+      test_class: 'UserTest',
+      test_identifier: 'test_validates_email',
+      execution_time: 0.05,
+      passed: false,
+      error: false,
+      skipped: false
+    )
+
+    hash = issue.to_h
+
+    assert_kind_of Hash, hash
+    assert_equal :failure, hash[:type]
+    assert_equal 'UserTest', hash[:test_class]
+    assert_equal 'test_validates_email', hash[:test_name]
+    assert_equal 0.05, hash[:execution_time]
+    assert_equal 3, hash[:assertions]
+    assert_equal 'Expected true, got false', hash[:message]
+  end
+
+  def test_to_h_includes_location_data
+    issue = ::Minitest::Heat::Issue.new(
+      backtrace: @source_backtrace,
+      test_location: @location,
+      test_class: 'UserTest',
+      test_identifier: 'test_example'
+    )
+
+    hash = issue.to_h
+
+    assert_kind_of Hash, hash[:test_location]
+    assert hash[:test_location].key?(:file)
+    assert hash[:test_location].key?(:line)
+  end
+
+  def test_to_h_with_error_includes_failure_location
+    issue = ::Minitest::Heat::Issue.new(
+      backtrace: @source_backtrace,
+      test_location: @location,
+      error: true
+    )
+
+    hash = issue.to_h
+
+    assert_kind_of Hash, hash[:failure_location]
+  end
 end

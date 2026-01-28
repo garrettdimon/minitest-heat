@@ -128,4 +128,45 @@ class Minitest::Heat::ResultsTest < Minitest::Test
     # Should be sorted by execution_time descending
     assert @results.slows.first.execution_time > @results.slows.last.execution_time
   end
+
+  def test_statistics_returns_counts_by_type
+    @results.record(build_issue(error: true, backtrace: @source_backtrace))
+    @results.record(build_issue(passed: false))
+    @results.record(build_issue(passed: false))
+    @results.record(build_issue(skipped: true))
+    @results.record(build_issue(passed: true, execution_time: 0.0))
+
+    stats = @results.statistics
+
+    assert_kind_of Hash, stats
+    assert_equal 5, stats[:total]
+    assert_equal 1, stats[:errors]
+    assert_equal 2, stats[:failures]
+    assert_equal 1, stats[:skipped]
+  end
+
+  def test_issues_with_problems_excludes_successes
+    @results.record(build_issue(error: true, backtrace: @source_backtrace))
+    @results.record(build_issue(passed: false))
+    @results.record(build_issue(skipped: true))
+    @results.record(build_issue(passed: true, execution_time: 0.0))
+
+    problems = @results.issues_with_problems
+
+    assert_equal 3, problems.length
+    refute problems.any? { |i| i.type == :success }
+  end
+
+  def test_to_h_returns_hash_with_statistics_and_heat_map
+    @results.record(build_issue(error: true, backtrace: @source_backtrace))
+    @results.record(build_issue(passed: false))
+
+    hash = @results.to_h
+
+    assert_kind_of Hash, hash
+    assert hash.key?(:statistics)
+    assert hash.key?(:heat_map)
+    assert hash.key?(:issues)
+    assert_kind_of Array, hash[:issues]
+  end
 end

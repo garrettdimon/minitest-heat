@@ -3,6 +3,12 @@
 require_relative 'heat_reporter'
 
 module Minitest # rubocop:disable Style/Documentation
+  def self.plugin_heat_options(opts, options)
+    opts.on '--heat-json', 'Output results as JSON instead of human-readable format' do
+      options[:heat_json] = true
+    end
+  end
+
   def self.plugin_heat_init(options)
     io = options.fetch(:io, $stdout)
 

@@ -44,4 +44,31 @@ class Minitest::Heat::HitTest < Minitest::Test
 
     assert_includes @hit.line_numbers, @line_number
   end
+
+  def test_to_h_returns_file_weight_and_lines
+    @hit.log(:error, 10)
+    @hit.log(:failure, 20)
+    @hit.log(:failure, 10)
+
+    hash = @hit.to_h
+
+    assert_kind_of Hash, hash
+    assert_equal 'test/minitest/heat/hit_test.rb', hash[:file]
+    assert_equal @hit.weight, hash[:weight]
+    assert_kind_of Array, hash[:lines]
+    assert_equal 2, hash[:lines].size
+  end
+
+  def test_to_h_lines_include_type_and_count
+    @hit.log(:error, 10)
+    @hit.log(:failure, 10)
+
+    hash = @hit.to_h
+    line_10 = hash[:lines].find { |l| l[:line] == 10 }
+
+    assert_equal 10, line_10[:line]
+    assert_includes line_10[:types], :error
+    assert_includes line_10[:types], :failure
+    assert_equal 2, line_10[:count]
+  end
 end

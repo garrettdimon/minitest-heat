@@ -131,4 +131,65 @@ class Minitest::Heat::LocationTest < Minitest::Test
     # Get rid of the manually-created file and directory
     FileUtils.rm_rf(pathname)
   end
+
+  def test_short_returns_relative_filename_and_line
+    expected = "#{@location.relative_filename}:#{@location.line_number}"
+    assert_equal expected, @location.short
+  end
+
+  def test_absolute_filename_for_existing_file
+    assert_equal @raw_pathname, @location.absolute_filename
+  end
+
+  def test_absolute_filename_for_non_existent_file
+    @location.raw_pathname = 'non_existent.rb'
+    assert_equal '(Unrecognized File)', @location.absolute_filename
+  end
+
+  def test_pathname_falls_back_when_argument_error
+    # Null byte in pathname triggers ArgumentError
+    @location.raw_pathname = "test\x00file.rb"
+    assert_equal Pathname(Dir.pwd), @location.pathname
+  end
+
+  def test_line_number_falls_back_when_not_convertible
+    @location.raw_line_number = 'not a number'
+    assert_equal 1, @location.line_number
+  end
+
+  def test_age_in_seconds_for_existing_file
+    age = @location.age_in_seconds
+    assert_kind_of Integer, age
+    assert_operator age, :>=, 0
+  end
+
+  def test_age_in_seconds_for_non_existent_file
+    @location.raw_pathname = 'non_existent.rb'
+    assert_equal(-1, @location.age_in_seconds)
+  end
+
+  def test_mtime_for_existing_file
+    mtime = @location.mtime
+    assert_kind_of Time, mtime
+    refute_equal Time.at(0), mtime
+  end
+
+  def test_mtime_for_non_existent_file
+    @location.raw_pathname = 'non_existent.rb'
+    assert_equal Time.at(0), @location.mtime
+  end
+
+  def test_to_h_returns_hash_with_file_line_and_container
+    hash = @location.to_h
+    assert_kind_of Hash, hash
+    assert_equal @location.relative_filename, hash[:file]
+    assert_equal @location.line_number, hash[:line]
+    assert_equal @container, hash[:container]
+  end
+
+  def test_to_h_with_non_existent_file
+    @location.raw_pathname = 'non_existent_file.rb'
+    hash = @location.to_h
+    assert_equal '(Unrecognized File)', hash[:file]
+  end
 end

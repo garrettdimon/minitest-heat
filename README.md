@@ -40,10 +40,43 @@ Minitest::Heat.configure do |config|
 end
 ```
 
+## JSON Output
+
+For CI integration, tooling, or programmatic consumption, Minitest Heat can output results as JSON:
+
+```bash
+bundle exec rake test TESTOPTS="--heat-json"
+```
+
+The JSON output includes:
+- **statistics** - counts by issue type (errors, failures, skipped, slow, etc.)
+- **timing** - total time, tests/second, assertions/second
+- **heat_map** - files with issues, sorted by severity weight
+- **issues** - detailed issue data with locations and messages
+
+Example usage:
+```bash
+# Capture JSON output (stderr has progress, stdout has JSON)
+bundle exec rake test TESTOPTS="--heat-json" 2>/dev/null > results.json
+```
+
 ## Development
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+After checking out the repo, run `bin/setup` to install dependencies. Then, run `bundle exec rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
 To install this gem onto your local machine, run `bundle exec rake install`. For release instructions, see [RELEASING.md](RELEASING.md).
+
+### Running Tests
+
+```bash
+# Run full test suite
+bundle exec rake test
+
+# Run a single test file
+bundle exec rake test TEST=test/minitest/heat/issue_test.rb
+
+# Run a single test method
+bundle exec rake test TEST=test/minitest/heat/issue_test.rb TESTOPTS="-n /test_error_issue/"
+```
 
 ### Forcing Test Failures
 In order to easily see how Minitest Heat handles different combinations of different types of failures, the following environment variables can be used to force failures.

@@ -35,15 +35,15 @@ module Minitest
         # numbers if the tests reference a shared method with an assertion in it. So in those cases,
         # the backtrace is simply the test definition
         backtrace = if issue.error?
-          # With errors, we have a backtrace
-          issue.locations.backtrace.project_locations
-        else
-          # With failures, the test definition is the most granular backtrace equivalent
-          location = issue.locations.test_definition
-          location.raw_container = issue.test_identifier
+                      # With errors, we have a backtrace
+                      issue.locations.backtrace.project_locations
+                    else
+                      # With failures, the test definition is the most granular backtrace equivalent
+                      location = issue.locations.test_definition
+                      location.raw_container = issue.test_identifier
 
-          [location]
-        end
+                      [location]
+                    end
 
         @heat_map.add(pathname, line_number, issue.type, backtrace: backtrace)
       end
@@ -74,6 +74,39 @@ module Minitest
 
       def slows
         @slows ||= select_issues(:slow).sort_by(&:execution_time).reverse
+      end
+
+      # Returns count statistics by issue type
+      #
+      # @return [Hash] counts for each issue type
+      def statistics
+        {
+          total: issues.size,
+          errors: errors.size,
+          broken: brokens.size,
+          failures: failures.size,
+          skipped: skips.size,
+          painful: painfuls.size,
+          slow: slows.size
+        }
+      end
+
+      # Returns all issues that are not successes
+      #
+      # @return [Array<Issue>] issues that represent problems (errors, failures, skips, slow)
+      def issues_with_problems
+        issues.select(&:hit?)
+      end
+
+      # Generates a hash representation for JSON serialization
+      #
+      # @return [Hash] results data
+      def to_h
+        {
+          statistics: statistics,
+          heat_map: heat_map.to_h,
+          issues: issues_with_problems.map(&:to_h)
+        }
       end
 
       private
