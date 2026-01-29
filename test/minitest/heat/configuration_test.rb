@@ -11,6 +11,13 @@ class Minitest::Heat::ConfigurationTest < Minitest::Test
     @config   = Minitest::Heat.configuration
   end
 
+  def teardown
+    Minitest::Heat.configure do |config|
+      config.slow_threshold = 0.05
+      config.painfully_slow_threshold = 0.1
+    end
+  end
+
   def test_default_slow_thresholds
     assert_equal @defaults[:slow_threshold], @config.slow_threshold
     assert_equal @defaults[:painfully_slow_threshold], @config.painfully_slow_threshold
