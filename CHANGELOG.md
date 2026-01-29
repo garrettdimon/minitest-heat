@@ -2,9 +2,6 @@
 
 ## [1.3.0] - 2026-01-29
 
-### Breaking Changes
-- Minimum Ruby version is now 3.2 (Ruby 3.1 reached EOL in March 2025)
-
 ### Added
 - JSON output mode via `--heat-json` flag for CI and tooling integration
 - Expanded README documentation covering issue priority order and heat map scanning
@@ -21,7 +18,7 @@
 
 ### Changed
 - Significantly improved test coverage for Output classes and Results
-- Updated CI to test on Ruby 3.2, 3.3, 3.4, and 4.0 on Ubuntu
+- Updated CI to test on Ruby 3.0, 3.1, 3.2, 3.3, 3.4, and 4.0 on Ubuntu
 - Made development dependencies (debug, awesome_print) optional for easier setup
 - Removed deprecated codecov gem reference
 - Removed outdated Travis CI configuration (GitHub Actions is now the primary CI)

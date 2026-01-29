@@ -138,6 +138,8 @@ This builds the gem, displays its contents and size, then cleans up.
 2. Edit the `main` ruleset (or create one targeting the default branch)
 3. Enable "Require status checks to pass" with these checks:
    - `Security`
+   - `Test (Ruby 3.0)`
+   - `Test (Ruby 3.1)`
    - `Test (Ruby 3.2)`
    - `Test (Ruby 3.3)`
    - `Test (Ruby 3.4)`
