@@ -18,7 +18,7 @@
 
 ### Changed
 - Significantly improved test coverage for Output classes and Results
-- Updated CI to test on Ruby 3.0, 3.1, 3.2, 3.3, 3.4, and 4.0 on Ubuntu
+- Updated CI to test on Ruby 3.1, 3.2, 3.3, 3.4, and 4.0 on Ubuntu
 - Made development dependencies (debug, awesome_print) optional for easier setup
 - Removed deprecated codecov gem reference
 - Removed outdated Travis CI configuration (GitHub Actions is now the primary CI)

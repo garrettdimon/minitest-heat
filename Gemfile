@@ -6,8 +6,7 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'bundler-audit', '>= 0.9'
-# Constrain minitest for Ruby 3.0 compatibility (minitest 5.26+ requires Ruby 3.1+)
-gem 'minitest', '~> 5.0', '< 5.26'
+gem 'minitest', '~> 5.0'
 gem 'rake', '>= 13.0'
 
 # Constrain erb for Ruby 3.1 compatibility (erb 5.0+ requires Ruby 3.2+)
