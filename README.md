@@ -26,16 +26,65 @@ And depending on your usage, you may need to require Minitest Heat in your test 
 require 'minitest/heat'
 ```
 
+## Prioritizing Your Work
+
+Minitest Heat surfaces the most impactful problems first so you can fix what matters without scrolling through noise.
+
+### Issue Priority
+
+Issues are displayed in priority order—you'll always see the most critical problems first:
+
+| Priority | Type | Why First |
+|----------|------|-----------|
+| 1 | **Errors** | Exceptions in source code—your app is broken |
+| 2 | **Broken** | Exceptions in test files—fix your tests before trusting them |
+| 3 | **Failures** | Assertion failures—the core of what tests catch |
+| 4 | **Skipped** | Only shown when no errors/failures—a reminder, not urgent |
+| 5 | **Slow/Painful** | Only shown when everything passes—performance cleanup |
+
+You never see skips or slow tests when there are real problems. This keeps you focused on what actually needs fixing.
+
+### The Heat Map
+
+After listing individual issues, the heat map shows where problems are concentrated across your codebase:
+
+- **Files sorted by severity**—most problematic files appear first
+- **Line numbers with issue counts**—`42×3` means 3 issues at line 42
+- **Quick hot spot identification**—if one file keeps appearing, that's where to focus
+
+The heat map helps you spot patterns. A single file with many issues often points to a deeper problem worth investigating rather than fixing issues one by one.
+
 ## Configuration
-Minitest Heat doesn't currently offer a significant set of configuration options, but the thresholds for "Slow" and "Painfully Slow" tests can be adjusted. By default, it considers anything over 1.0s to be 'slow' and anything over 3.0s to be 'painfully slow'.
 
-You can add a configuration block to your `test_helper.rb` file after the `require 'minitest/heat'` line.
+Minitest Heat provides configurable thresholds for identifying slow tests. By default, tests over 1.0s are considered "slow" and tests over 3.0s are "painfully slow."
 
-For example:
+Add a configuration block to your `test_helper.rb` after `require 'minitest/heat'`:
 
 ```ruby
 Minitest::Heat.configure do |config|
-  config.slow_threshold = 0.01
+  config.slow_threshold = 1.0        # seconds
+  config.painfully_slow_threshold = 3.0
+end
+```
+
+### Example: Rails Application
+
+System tests and integration tests naturally run slower. You might use higher thresholds:
+
+```ruby
+Minitest::Heat.configure do |config|
+  config.slow_threshold = 3.0
+  config.painfully_slow_threshold = 10.0
+end
+```
+
+### Example: Gem Development
+
+For a gem with fast unit tests, stricter thresholds catch performance regressions early:
+
+```ruby
+Minitest::Heat.configure do |config|
+  config.slow_threshold = 0.1
   config.painfully_slow_threshold = 0.5
 end
 ```

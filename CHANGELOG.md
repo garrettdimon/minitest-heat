@@ -1,12 +1,24 @@
 ## [Unreleased]
 
-### Breaking Changes
-- Minimum Ruby version is now 3.2 (Ruby 3.1 reaches EOL in March 2025)
+## [1.3.0] - 2026-01-29
 
-### Improvements
+### Added
+- JSON output mode via `--heat-json` flag for CI and tooling integration
+- Expanded README documentation covering issue priority order and heat map scanning
+- GitHub Actions release automation with trusted publishing to RubyGems
+- Pre-release validation rake tasks (`release:preflight`, `release:check`, `release:audit`, `release:dry_run`)
+- Comprehensive release documentation (RELEASING.md)
+
+### Fixed
+- Muted text now readable on light terminal backgrounds (uses terminal default color instead of gray)
+- Defensive error handling throughout to prevent exception messages from bubbling up
+- Off-by-one error in backtrace line_count calculation
+- Handle nil values safely in source.rb, line_parser.rb, backtrace.rb, issue.rb, and output classes
+- Bare rescue clause in output.rb now catches specific exceptions
+
+### Changed
 - Significantly improved test coverage for Output classes and Results
-- Updated CI to test on Ruby 3.2, 3.3, 3.4, and 4.0.0-preview3 on Ubuntu
-- Fixed bare rescue clause in output.rb to catch specific exceptions
+- Updated CI to test on Ruby 3.1, 3.2, 3.3, 3.4, and 4.0 on Ubuntu
 - Made development dependencies (debug, awesome_print) optional for easier setup
 - Removed deprecated codecov gem reference
 - Removed outdated Travis CI configuration (GitHub Actions is now the primary CI)

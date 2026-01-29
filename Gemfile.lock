@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    minitest-heat (1.2.0)
+    minitest-heat (1.3.0)
       minitest
 
 GEM
@@ -104,4 +104,4 @@ DEPENDENCIES
   simplecov_json_formatter
 
 BUNDLED WITH
-   2.7.2
+   2.6.9

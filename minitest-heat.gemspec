@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.description   = 'Presents test results in a visual manner to guide you to where to look first.'
   spec.homepage      = 'https://github.com/garrettdimon/minitest-heat'
   spec.license       = 'MIT'
-  spec.required_ruby_version = Gem::Requirement.new('>= 3.2')
+  spec.required_ruby_version = Gem::Requirement.new('>= 3.1')
 
   spec.metadata['homepage_uri'] = spec.homepage
   spec.metadata['bug_tracker_uri'] = 'https://github.com/garrettdimon/minitest-heat/issues'
