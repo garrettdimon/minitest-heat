@@ -66,6 +66,19 @@ module Minitest
         (assertion_count / total_time).round(2)
       end
 
+      # Generates a hash representation for JSON serialization
+      #
+      # @return [Hash] timing data
+      def to_h
+        {
+          total_seconds: total_time,
+          test_count: test_count,
+          assertion_count: assertion_count,
+          tests_per_second: tests_per_second,
+          assertions_per_second: assertions_per_second
+        }
+      end
+
       private
 
       # The total time the test suite was running.

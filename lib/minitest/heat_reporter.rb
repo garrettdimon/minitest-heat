@@ -48,7 +48,9 @@ module Minitest
     def start
       timer.start!
 
-      # A couple of blank lines to create some breathing room
+      # A couple of blank lines to create some breathing room (skip for JSON output)
+      return if json_output?
+
       output.newline
       output.newline
     end
@@ -72,8 +74,8 @@ module Minitest
       # Record the issue to show details later
       results.record(issue)
 
-      # Show the marker
-      output.marker(issue.type)
+      # Show the marker (skip for JSON output)
+      output.marker(issue.type) unless json_output?
     rescue StandardError => e
       display_exception_guidance(e)
     end
@@ -93,6 +95,45 @@ module Minitest
     def report
       timer.stop!
 
+      if json_output?
+        output_json
+      else
+        output_text
+      end
+    end
+
+    # Whether to output JSON instead of human-readable text
+    #
+    # @return [Boolean] true if --heat-json flag was passed
+    def json_output?
+      options[:heat_json]
+    end
+
+    # Did this run pass?
+    def passed?
+      results.errors.empty? && results.failures.empty?
+    end
+
+    private
+
+    def output_json
+      require 'json'
+      output.stream.puts JSON.pretty_generate(json_results)
+    end
+
+    def json_results
+      {
+        version: '1.0',
+        status: results.problems? ? 'failed' : 'passed',
+        timestamp: Time.now.iso8601,
+        statistics: results.statistics,
+        timing: timer.to_h,
+        heat_map: results.heat_map.to_h,
+        issues: results.issues_with_problems.map(&:to_h)
+      }
+    end
+
+    def output_text
       # The list of individual issues and their associated details
       output.issues_list(results)
 
@@ -106,11 +147,6 @@ module Minitest
 
       output.newline
       output.newline
-    end
-
-    # Did this run pass?
-    def passed?
-      results.errors.empty? && results.failures.empty?
     end
   end
 end

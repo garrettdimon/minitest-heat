@@ -79,6 +79,34 @@ module Minitest
       def line_numbers
         issues.values.flatten.uniq.sort
       end
+
+      # Generates a hash representation for JSON serialization
+      #
+      # @return [Hash] hit data with file, weight, and line details
+      def to_h
+        {
+          file: relative_path,
+          weight: weight,
+          lines: lines_summary
+        }
+      end
+
+      private
+
+      def relative_path
+        pathname.to_s.delete_prefix("#{Dir.pwd}/")
+      end
+
+      def lines_summary
+        line_numbers.map do |line_num|
+          traces = lines[line_num.to_s] || []
+          {
+            line: line_num,
+            types: traces.map(&:type).uniq,
+            count: traces.size
+          }
+        end
+      end
     end
   end
 end

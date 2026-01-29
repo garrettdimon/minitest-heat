@@ -61,4 +61,20 @@ class Minitest::Heat::TimerTest < Minitest::Test
     expected_rate = (assertion_count / @timer.total_time).round(2)
     assert_equal expected_rate, @timer.assertions_per_second
   end
+
+  def test_to_h_returns_timing_data
+    @timer.start!
+    @timer.increment_counts(5)
+    @timer.increment_counts(3)
+    @timer.stop!
+
+    hash = @timer.to_h
+
+    assert_kind_of Hash, hash
+    assert_equal @timer.total_time, hash[:total_seconds]
+    assert_equal @timer.test_count, hash[:test_count]
+    assert_equal @timer.assertion_count, hash[:assertion_count]
+    assert_equal @timer.tests_per_second, hash[:tests_per_second]
+    assert_equal @timer.assertions_per_second, hash[:assertions_per_second]
+  end
 end

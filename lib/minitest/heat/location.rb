@@ -44,6 +44,17 @@ module Minitest
         ]
       end
 
+      # Generates a hash representation for JSON serialization
+      #
+      # @return [Hash] location data with file, line, and container
+      def to_h
+        {
+          file: relative_filename,
+          line: line_number,
+          container: container
+        }
+      end
+
       # A short relative pathname and line number pair
       #
       # @return [String] the short filename/line number combo. ex. `dir/file.rb:23`

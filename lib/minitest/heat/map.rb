@@ -30,6 +30,13 @@ module Minitest
         hot_files.take(MAXIMUM_FILES_TO_SHOW)
       end
 
+      # Generates a hash representation for JSON serialization
+      #
+      # @return [Array<Hash>] array of hit hashes sorted by weight (highest first)
+      def to_h
+        hot_files.map(&:to_h)
+      end
+
       private
 
       # Sorts the files by hit "weight" so that the most problematic files are at the beginning
