@@ -117,6 +117,48 @@ class Minitest::Heat::IssueTest < Minitest::Test
     assert issue.passed?
   end
 
+  def test_slow_issue_in_inherently_slow_path_is_success
+    Minitest::Heat.configure do |config|
+      config.inherently_slow_paths = ['test/files/system']
+    end
+
+    slow_time = Minitest::Heat.configuration.slow_threshold
+    system_test = "#{Dir.pwd}/test/files/system/example_test.rb"
+
+    issue = ::Minitest::Heat::Issue.new(
+      execution_time: slow_time,
+      test_location: [system_test, 1],
+      passed: true
+    )
+
+    assert_equal :success, issue.type
+  ensure
+    Minitest::Heat.configure do |config|
+      config.inherently_slow_paths = []
+    end
+  end
+
+  def test_painful_issue_in_inherently_slow_path_is_success
+    Minitest::Heat.configure do |config|
+      config.inherently_slow_paths = ['test/files/system']
+    end
+
+    painful_time = Minitest::Heat.configuration.painfully_slow_threshold + 1.0
+    system_test = "#{Dir.pwd}/test/files/system/example_test.rb"
+
+    issue = ::Minitest::Heat::Issue.new(
+      execution_time: painful_time,
+      test_location: [system_test, 1],
+      passed: true
+    )
+
+    assert_equal :success, issue.type
+  ensure
+    Minitest::Heat.configure do |config|
+      config.inherently_slow_paths = []
+    end
+  end
+
   def test_to_h_returns_hash_with_issue_data
     issue = ::Minitest::Heat::Issue.new(
       assertions: 3,
