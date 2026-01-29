@@ -1,5 +1,14 @@
 ## [Unreleased]
 
+### Breaking
+- Require Ruby >= 3.2 (dropped 3.1 support)
+
+### Fixed
+- Contrived slow tests called nonexistent class methods, misclassifying as broken instead of slow/painful
+- ConfigurationTest reset global thresholds without restoring, causing test-order-dependent JSON output inconsistencies
+- Raised test slow thresholds to eliminate false positive slow warnings on normal tests
+- Updated bundler from 2.6.9 to 2.7.2 to fix constant redefinition warnings with Ruby 3.4
+
 ## [1.3.0] - 2026-01-29
 
 ### Added
