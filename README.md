@@ -67,16 +67,21 @@ Minitest::Heat.configure do |config|
 end
 ```
 
-### Example: Rails Application
+### Inherently Slow Paths
 
-System tests and integration tests naturally run slower. You might use higher thresholds:
+System tests, integration tests, and other browser-driven tests are inherently slower than unit tests. Rather than raising your global thresholds to accommodate them, you can tell Minitest Heat which paths to exclude from slow test reporting. Tests in those directories still run and report errors and failures normally—they just aren't evaluated against the timing thresholds.
 
 ```ruby
 Minitest::Heat.configure do |config|
-  config.slow_threshold = 3.0
-  config.painfully_slow_threshold = 10.0
+  config.inherently_slow_paths = ['test/system', 'test/integration']
 end
 ```
+
+Any test whose file path starts with a listed prefix is excluded. Common paths to consider:
+
+- `test/system` — Rails system tests (browser-driven)
+- `test/integration` — Integration tests with broader scope
+- `test/e2e` — End-to-end tests
 
 ### Example: Gem Development
 

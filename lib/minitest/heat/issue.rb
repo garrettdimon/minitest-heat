@@ -99,9 +99,9 @@ module Minitest
           :skipped
         elsif !passed?
           :failure
-        elsif passed? && painful?
+        elsif passed? && painful? && !inherently_slow_path?
           :painful
-        elsif passed? && slow?
+        elsif passed? && slow? && !inherently_slow_path?
           :slow
         else
           :success
@@ -228,6 +228,11 @@ module Minitest
       end
 
       private
+
+      def inherently_slow_path?
+        path = locations.test_definition.relative_filename
+        Minitest::Heat.configuration.inherently_slow_path?(path)
+      end
 
       def failure_location_hash
         location = locations.most_relevant
