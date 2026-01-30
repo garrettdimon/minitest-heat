@@ -1,7 +1,11 @@
 ## [Unreleased]
 
+## [2.1.0] - 2026-01-30
+
 ### Added
 - `inherently_slow_paths` configuration option to exclude directories (e.g. `test/system`, `test/integration`) from slow test reporting. Tests in listed paths still run and report errors and failures — they just aren't flagged as slow or painfully slow. ([#5](https://github.com/garrettdimon/minitest-heat/issues/5))
+
+## [2.0.0] - 2026-01-29
 
 ### Breaking
 - Require Ruby >= 3.2 (dropped 3.1 support)
@@ -60,4 +64,3 @@ The biggest update is that the slow thresholds are now configurable.
 ## [1.0.0] - 2021-12-01
 
 Initial release.
-
