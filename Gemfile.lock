@@ -1,14 +1,4 @@
 PATH
-  remote: ../reviewer
-  specs:
-    reviewer (0.1.6)
-      benchmark
-      pstore
-      rainbow
-      ruby-progressbar
-      slop
-
-PATH
   remote: .
   specs:
     minitest-heat (2.1.1)
@@ -18,7 +8,6 @@ GEM
   remote: https://rubygems.org/
   specs:
     ast (2.4.3)
-    benchmark (0.5.0)
     bigdecimal (4.0.1)
     bundler-audit (0.9.3)
       bundler (>= 1.2.0)
@@ -88,7 +77,6 @@ GEM
       prettyprint
     prettyprint (0.2.0)
     prism (1.9.0)
-    pstore (0.2.0)
     psych (5.3.1)
       date
       stringio
@@ -108,6 +96,9 @@ GEM
     regexp_parser (2.11.3)
     reline (0.6.3)
       io-console (~> 0.5)
+    reviewer (0.1.5)
+      rainbow
+      slop
     rexml (3.4.4)
     rubocop (1.84.0)
       json (~> 2.3)
@@ -159,7 +150,7 @@ DEPENDENCIES
   minitest-heat!
   rake (>= 13.0)
   reek
-  reviewer!
+  reviewer
   rubocop
   rubocop-minitest
   rubocop-rake
