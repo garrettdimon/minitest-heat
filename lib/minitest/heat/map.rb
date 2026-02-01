@@ -26,25 +26,19 @@ module Minitest
       # Returns a subset of affected files to keep the list from being overwhelming
       #
       # @return [Array] the list of files and the line numbers for each encountered issue type
-      def file_hits
-        hot_files.take(MAXIMUM_FILES_TO_SHOW)
-      end
+      def file_hits = hot_files.take(MAXIMUM_FILES_TO_SHOW)
 
       # Generates a hash representation for JSON serialization
       #
       # @return [Array<Hash>] array of hit hashes sorted by weight (highest first)
-      def to_h
-        hot_files.map(&:to_h)
-      end
+      def to_h = hot_files.map(&:to_h)
 
       private
 
       # Sorts the files by hit "weight" so that the most problematic files are at the beginning
       #
       # @return [Array] the collection of files that encountred issues
-      def hot_files
-        hits.values.sort_by(&:weight).reverse
-      end
+      def hot_files = hits.values.sort_by(&:weight).reverse
     end
   end
 end

@@ -2,9 +2,19 @@
 
 source 'https://rubygems.org'
 
-# Specify your gem's dependencies in minitest-heat.gemspec
+# Runtime dependencies in minitest-heat.gemspec
 gemspec
 
+# Development dependencies
 gem 'bundler-audit', '>= 0.9'
-gem 'minitest', '~> 5.0'
+gem 'debug'
+gem 'flay'
+gem 'flog'
 gem 'rake', '>= 13.0'
+gem 'reek'
+gem 'reviewer'
+gem 'rubocop'
+gem 'rubocop-minitest'
+gem 'rubocop-rake'
+gem 'simplecov'
+gem 'simplecov_json_formatter'

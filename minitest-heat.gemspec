@@ -31,13 +31,5 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  spec.add_runtime_dependency 'minitest'
-
-  spec.add_development_dependency 'awesome_print'
-  spec.add_development_dependency 'debug'
-  spec.add_development_dependency 'rubocop'
-  spec.add_development_dependency 'rubocop-minitest'
-  spec.add_development_dependency 'rubocop-rake'
-  spec.add_development_dependency 'simplecov'
-  spec.add_development_dependency 'simplecov_json_formatter'
+  spec.add_dependency 'minitest'
 end

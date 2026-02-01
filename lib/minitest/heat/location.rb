@@ -30,19 +30,12 @@ module Minitest
       # Generates a formatted string describing the line of code similar to the original backtrace
       #
       # @return [String] a consistently-formatted, human-readable string about the line of code
-      def to_s
-        "#{absolute_path}#{filename}:#{line_number} in `#{container}`"
-      end
+      def to_s = "#{absolute_path}#{filename}:#{line_number} in `#{container}`"
 
       # Generates a simplified location array with the pathname and line number
       #
       # @return [Array<Pathname, Integer>] a no-frills location pair
-      def to_a
-        [
-          pathname,
-          line_number
-        ]
-      end
+      def to_a = [pathname, line_number]
 
       # Generates a hash representation for JSON serialization
       #
@@ -58,16 +51,17 @@ module Minitest
       # A short relative pathname and line number pair
       #
       # @return [String] the short filename/line number combo. ex. `dir/file.rb:23`
-      def short
-        "#{relative_filename}:#{line_number}"
-      end
+      def short = "#{relative_filename}:#{line_number}"
+
+      # Determine if the file exists on disk
+      #
+      # @return [Boolean] true if the file exists
+      def file_exists? = pathname.exist?
 
       # Determine if there is a file and text at the given line number
       #
       # @return [Boolean] true if the file exists and has text at the given line number
-      def exists?
-        pathname.exist? && source_code.lines.any?
-      end
+      def exists? = file_exists? && source_code.lines.any?
 
       # The pathanme for the location. Written to be safe and fallbackto the project directory if
       #   an exception is raised ocnverting the value to a pathname
@@ -83,33 +77,21 @@ module Minitest
       #
       # @return [String] either the path/directory portion of the file name or '(Unrecognized File)'
       #   if the offending file can't be found for some reason
-      def path
-        pathname.exist? ? pathname.dirname.to_s : UNRECOGNIZED
-      end
+      def path = file_exists? ? pathname.dirname.to_s : UNRECOGNIZED
 
-      def absolute_path
-        pathname.exist? ? "#{path}/" : UNRECOGNIZED
-      end
+      def absolute_path = file_exists? ? "#{path}/" : UNRECOGNIZED
 
-      def relative_path
-        pathname.exist? ? absolute_path.delete_prefix("#{project_root_dir}/") : UNRECOGNIZED
-      end
+      def relative_path = file_exists? ? absolute_path.delete_prefix("#{project_root_dir}/") : UNRECOGNIZED
 
       # A safe interface for getting a string representing the filename portion of the file
       #
       # @return [String] either the filename portion of the file or '(Unrecognized File)'
       #   if the offending file can't be found for some reason
-      def filename
-        pathname.exist? ? pathname.basename.to_s : UNRECOGNIZED
-      end
+      def filename = file_exists? ? pathname.basename.to_s : UNRECOGNIZED
 
-      def absolute_filename
-        pathname.exist? ? pathname.to_s : UNRECOGNIZED
-      end
+      def absolute_filename = file_exists? ? pathname.to_s : UNRECOGNIZED
 
-      def relative_filename
-        pathname.exist? ? pathname.to_s.delete_prefix("#{project_root_dir}/") : UNRECOGNIZED
-      end
+      def relative_filename = file_exists? ? pathname.to_s.delete_prefix("#{project_root_dir}/") : UNRECOGNIZED
 
       # Line number identifying the specific line in the file
       #
@@ -124,9 +106,7 @@ module Minitest
       # The containing method or block details for the location
       #
       # @return [String] the containing method of the line of code
-      def container
-        raw_container.nil? ? '(Unknown Container)' : String(raw_container)
-      end
+      def container = raw_container.nil? ? '(Unknown Container)' : String(raw_container)
 
       # Looks up the source code for the location. Can return multiple lines of source code from
       #   the surrounding lines of code for the primary line
@@ -145,65 +125,47 @@ module Minitest
       # Determines if a given file is from the project directory
       #
       # @return [Boolean] true if the file is in the project (source code or test) but not vendored
-      def project_file?
-        path.include?(project_root_dir) && !bundled_file? && !binstub_file?
-      end
+      def project_file? = path.include?(project_root_dir) && !bundled_file? && !binstub_file?
 
       # Determines if the file is in the project `vendor/bundle` directory.
       #
       # @return [Boolean] true if the file is in `<project_root>/vendor/bundle
-      def bundled_file?
-        path.include?("#{project_root_dir}/vendor/bundle")
-      end
+      def bundled_file? = path.include?("#{project_root_dir}/vendor/bundle")
 
       # Determines if the file is in the project `bin` directory. With binstub'd gems, they'll
       #   appear to be source code because the code is located in the project directory. This helps
       #   make sure the backtraces don't think that's the case
       #
       # @return [Boolean] true if the file is in `<project_root>/bin
-      def binstub_file?
-        path.include?("#{project_root_dir}/bin")
-      end
+      def binstub_file? = path.include?("#{project_root_dir}/bin")
 
       # Determines if a given file follows the standard approaching to naming test files.
       #
       # @return [Boolean] true if the file name starts with `test_` or ends with `_test.rb`
-      def test_file?
-        filename.to_s.start_with?('test_') || filename.to_s.end_with?('_test.rb')
-      end
+      def test_file? = filename.to_s.start_with?('test_') || filename.to_s.end_with?('_test.rb')
 
       # Determines if a given file is a non-test file from the project directory
       #
       # @return [Boolean] true if the file is in the project but not a test file or vendored file
-      def source_code_file?
-        project_file? && !test_file?
-      end
+      def source_code_file? = project_file? && !test_file?
 
       # A safe interface to getting the last modified time for the file in question
       #
       # @return [Time] the timestamp for when the file in question was last modified or `Time.at(0)`
       #   if the offending file can't be found for some reason
-      def mtime
-        pathname.exist? ? pathname.mtime : UNKNOWN_MODIFICATION_TIME
-      end
+      def mtime = file_exists? ? pathname.mtime : UNKNOWN_MODIFICATION_TIME
 
       # A safe interface to getting the number of seconds since the file was modified
       #
       # @return [Integer] the number of seconds since the file was modified or `-1` if the offending
       #   file can't be found for some reason
-      def age_in_seconds
-        pathname.exist? ? seconds_ago : UNKNOWN_MODIFICATION_SECONDS
-      end
+      def age_in_seconds = file_exists? ? seconds_ago : UNKNOWN_MODIFICATION_SECONDS
 
       private
 
-      def project_root_dir
-        Dir.pwd
-      end
+      def project_root_dir = Dir.pwd
 
-      def seconds_ago
-        (Time.now - mtime).to_i
-      end
+      def seconds_ago = (Time.now - mtime).to_i
     end
   end
 end

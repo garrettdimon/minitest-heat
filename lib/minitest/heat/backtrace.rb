@@ -21,9 +21,7 @@ module Minitest
       # Determines if the raw backtrace has values in it
       #
       # @return [Boolean] true if there's no backtrace or it's empty
-      def empty?
-        raw_backtrace.empty?
-      end
+      def empty? = raw_backtrace.empty?
 
       # All lines of the backtrace converted to Backtrace::LineParser's
       #
@@ -38,30 +36,22 @@ module Minitest
       #   files at the beginning
       #
       # @return [Array<Location>] the sorted backtrace lines from the project
-      def recently_modified_locations
-        @recently_modified_locations ||= project_locations.sort_by(&:mtime).reverse
-      end
+      def recently_modified_locations = (@recently_modified_locations ||= project_locations.sort_by(&:mtime).reverse)
 
       # All entries from the backtrace that are files within the project
       #
       # @return [Array<Location>] the backtrace lines from within the project
-      def project_locations
-        @project_locations ||= locations.select(&:project_file?)
-      end
+      def project_locations = (@project_locations ||= locations.select(&:project_file?))
 
       # All entries from the backtrace within the project tests
       #
       # @return [Array<Location>] the backtrace lines from within the tests
-      def test_locations
-        @test_locations ||= project_locations.select(&:test_file?)
-      end
+      def test_locations = (@test_locations ||= project_locations.select(&:test_file?))
 
       # All source code entries from the backtrace (i.e. excluding tests)
       #
       # @return [Array<Location>] the backtrace lines from within the source code
-      def source_code_locations
-        @source_code_locations ||= project_locations.select(&:source_code_file?)
-      end
+      def source_code_locations = (@source_code_locations ||= project_locations.select(&:source_code_file?))
     end
   end
 end

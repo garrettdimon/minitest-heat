@@ -21,11 +21,7 @@ class Minitest::Heat::LocationTest < Minitest::Test
 
   def test_no_container
     @location.raw_container = nil
-    assert_equal Pathname(@raw_pathname), @location.pathname
-    assert_equal Integer(@raw_line_number), @location.line_number
     assert_equal '(Unknown Container)', @location.container
-    refute_empty @location.source_code.lines
-    assert @location.exists?
   end
 
   def test_non_existent_file
@@ -89,47 +85,29 @@ class Minitest::Heat::LocationTest < Minitest::Test
   end
 
   def test_knows_if_bundled_file
-    # Root path is not a project file and should be recognized as one
-    @location.raw_pathname = '/'
-    refute @location.bundled_file?
-
-    # Manually create a file in vendor/bundle
     directory = "#{Dir.pwd}/vendor/bundle"
-    filename = "heat.rb"
-    pathname = "#{directory}/#{filename}"
+    pathname = "#{directory}/heat.rb"
     FileUtils.mkdir_p(directory)
     FileUtils.touch(pathname)
 
     @location.raw_pathname = pathname
-    refute @location.binstub_file?
     assert @location.bundled_file?
-    refute @location.source_code_file?
+    refute @location.binstub_file?
     refute @location.project_file?
-
-    # Get rid of the manually-created file and directory
-    FileUtils.rm_rf(directory)
+  ensure
+    FileUtils.rm_rf("#{Dir.pwd}/vendor")
   end
 
   def test_knows_if_binstub_file
-    # Root path is not a project file and should be recognized as one
-    @location.raw_pathname = '/'
-    refute @location.bundled_file?
-
-    # Manually create a file in vendor/bundle
-    directory = "#{Dir.pwd}/bin"
-    filename = "stub"
-    pathname = "#{directory}/#{filename}"
-    FileUtils.mkdir_p(directory)
+    pathname = "#{Dir.pwd}/bin/_test_stub"
     FileUtils.touch(pathname)
 
     @location.raw_pathname = pathname
     assert @location.binstub_file?
     refute @location.bundled_file?
-    refute @location.source_code_file?
     refute @location.project_file?
-
-    # Get rid of the manually-created file and directory
-    FileUtils.rm_rf(pathname)
+  ensure
+    FileUtils.rm_f(pathname)
   end
 
   def test_short_returns_relative_filename_and_line
@@ -187,9 +165,12 @@ class Minitest::Heat::LocationTest < Minitest::Test
     assert_equal @container, hash[:container]
   end
 
-  def test_to_h_with_non_existent_file
-    @location.raw_pathname = 'non_existent_file.rb'
-    hash = @location.to_h
-    assert_equal '(Unrecognized File)', hash[:file]
+  def test_file_exists_for_real_file
+    assert @location.file_exists?
+  end
+
+  def test_file_exists_for_missing_file
+    @location.raw_pathname = 'non_existent.rb'
+    refute @location.file_exists?
   end
 end

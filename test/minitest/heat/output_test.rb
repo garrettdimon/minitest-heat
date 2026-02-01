@@ -49,12 +49,6 @@ class Minitest::Heat::OutputTest < Minitest::Test
     assert_equal "\n", @stream.string
   end
 
-  def test_marker_outputs_marker_token
-    @output.marker(:error)
-
-    refute_empty @stream.string
-  end
-
   def test_marker_for_each_issue_type
     issue_types = %i[error broken failure skipped painful slow success]
 

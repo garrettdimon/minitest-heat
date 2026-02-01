@@ -1,0 +1,13 @@
+inherit_from: ../.rubocop.yml
+
+# Test classes naturally grow with coverage
+Metrics/ClassLength:
+  Max: 250
+
+# Test methods often have many setup/assertion lines. 25 is reasonable.
+Metrics/AbcSize:
+  Max: 25
+
+# line_10 is a clear, descriptive name for a variable holding line 10 data.
+Naming/VariableNumber:
+  Enabled: false

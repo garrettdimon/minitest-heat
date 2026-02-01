@@ -1,5 +1,16 @@
 ## [Unreleased]
 
+## [2.1.1] - 2026-02-01
+
+### Changed
+- Converted ~90 single-expression methods to Ruby 3.0+ endless method syntax
+- Moved dev dependencies from gemspec to Gemfile; changed `add_runtime_dependency` to `add_dependency`
+- Moved constants above `private` in Output::Token for conventional ordering
+- Replaced inline rubocop disables with targeted reek annotations
+- Switched to leading-dot method chains, symbol-to-proc where applicable, and minor style fixes
+- Removed unnecessary `begin`/`end` block in Output#print_tokens rescue
+- Cleaned up test suite: removed redundant tests, fixed silent-pass conditionals, replaced fragile mutation-based setup with fresh instances, added ensure-based cleanup for filesystem tests
+
 ## [2.1.0] - 2026-01-30
 
 ### Added

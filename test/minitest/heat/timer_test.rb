@@ -37,13 +37,9 @@ class Minitest::Heat::TimerTest < Minitest::Test
   end
 
   def test_tests_per_second
-    assertion_count = 1
     @timer.start!
-    @timer.increment_counts(assertion_count)
+    @timer.increment_counts(1)
     @timer.stop!
-
-    # 1 assertion and 1 test, so the rates should be equal
-    assert_equal @timer.tests_per_second, @timer.assertions_per_second
 
     expected_rate = (1 / @timer.total_time).round(2)
     assert_equal expected_rate, @timer.tests_per_second

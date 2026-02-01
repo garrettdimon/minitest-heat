@@ -90,7 +90,7 @@ module Minitest
       #   painfully slow and should get more attention.
       #
       # @return [Symbol] issue type for classifying issues and reporting
-      def type # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+      def type # rubocop:disable Metrics/PerceivedComplexity
         if error? && in_test?
           :broken
         elsif error?
@@ -112,88 +112,66 @@ module Minitest
       #   (Because slow tests still pass and wouldn't otherwise be considered an issue.)
       #
       # @return [Boolean] true if the test did not pass or if it was slow
-      def hit?
-        !passed? || slow? || painful?
-      end
+      def hit? = !passed? || slow? || painful?
 
       # The number, in seconds, for a test to be considered "slow"
       #
       # @return [Float] number of seconds after which a test is considered slow
-      def slow_threshold
-        Minitest::Heat.configuration.slow_threshold
-      end
+      def slow_threshold = Minitest::Heat.configuration.slow_threshold
 
       # The number, in seconds, for a test to be considered "painfully slow"
       #
       # @return [Float] number of seconds after which a test is considered painfully slow
-      def painfully_slow_threshold
-        Minitest::Heat.configuration.painfully_slow_threshold
-      end
+      def painfully_slow_threshold = Minitest::Heat.configuration.painfully_slow_threshold
 
       # Determines if a test should be considered slow by comparing it to the low end definition of
       #   what is considered slow.
       #
       # @return [Boolean] true if the test took longer to run than `slow_threshold`
-      def slow?
-        execution_time >= slow_threshold && execution_time < painfully_slow_threshold
-      end
+      def slow? = execution_time >= slow_threshold && execution_time < painfully_slow_threshold
 
       # Determines if a test should be considered painfully slow by comparing it to the high end
       #   definition of what is considered slow.
       #
       # @return [Boolean] true if the test took longer to run than `painfully_slow_threshold`
-      def painful?
-        execution_time >= painfully_slow_threshold
-      end
+      def painful? = execution_time >= painfully_slow_threshold
 
       # Determines if the issue is an exception that was raised from directly within a test
       #   definition. In these cases, it's more likely to be a quick fix.
       #
       # @return [Boolean] true if the final locations of the stacktrace was a test file
-      def in_test?
-        locations.broken_test?
-      end
+      def in_test? = locations.broken_test?
 
       # Determines if the issue is an exception that was raised from directly within the project
       #   codebase.
       #
       # @return [Boolean] true if the final locations of the stacktrace was a file from the project
       #   (as opposed to a dependency or Ruby library)
-      def in_source?
-        locations.proper_failure?
-      end
+      def in_source? = locations.proper_failure?
 
       # Was the result a pass? i.e. Skips aren't passes or failures. Slows are still passes. So this
       #   is purely a measure of whether the test explicitly passed all assertions
       #
       # @return [Boolean] false for errors, failures, or skips, true for passes (including slows)
-      def passed?
-        passed
-      end
+      def passed? = passed
 
       # Was there an exception that triggered a failure?
       #
       # @return [Boolean] true if there's an exception
-      def error?
-        error
-      end
+      def error? = error
 
       # Was the test skipped?
       #
       # @return [Boolean] true if the test was explicitly skipped, false otherwise
-      def skipped?
-        skipped
-      end
+      def skipped? = skipped
 
       # The more nuanced detail of the failure. If it's an error, digs into the exception. Otherwise
       #   uses the message from the result
       #
       # @return [String] a more detailed explanation of the issue
-      def summary
-        # When there's an exception, use the first line from the exception message. Otherwise,  the
-        #   message represents explanation for a test failure, and should be used in full
-        error? ? first_line_of_exception_message : message
-      end
+      # When there's an exception, use the first line from the exception message. Otherwise,  the
+      #   message represents explanation for a test failure, and should be used in full
+      def summary = error? ? first_line_of_exception_message : message
 
       # Returns the first line of an exception message when the issue is from a proper exception
       #   failure since exception messages can be long and cumbersome.
@@ -207,9 +185,7 @@ module Minitest
         text.size > exception_message_limit ? "#{text[0..exception_message_limit]}..." : text
       end
 
-      def exception_message_limit
-        200
-      end
+      def exception_message_limit = 200
 
       # Generates a hash representation for JSON serialization
       #

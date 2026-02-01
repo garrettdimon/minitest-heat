@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Re-open these classes to add bogus methods that raise errors from inside the source rather than
 #   directly from the tests. These need to be in a separate file from `contrived_examples_test.rb`
 #   so Minitest::Heat doesn't perceive them as occuring from a test file since it treats exceptions

@@ -28,27 +28,21 @@ module Minitest
       #   test failure
       #
       # @return [String] ex. 'path/to/file.rb:12'
-      def to_s
-        "#{most_relevant.absolute_filename}:#{most_relevant.line_number}"
-      end
+      def to_s = "#{most_relevant.absolute_filename}:#{most_relevant.line_number}"
 
       # Knows if the failure is contained within the test. For example, if there's bad code in a
       #   test, and it raises an exception, then it's really a broken test rather than a proper
       #   faiure.
       #
       # @return [Boolean] true if final file in the backtrace is the same as the test location file
-      def broken_test?
-        !test_failure.nil? && test_failure == final
-      end
+      def broken_test? = !test_failure.nil? && test_failure == final
 
       # Knows if the failure occurred in the actual project source code—as opposed to the test or
       #   an external piece of code like a gem.
       #
       # @return [Boolean] true if there's a non-test project file in the stacktrace but it's not
       #   a result of a broken test
-      def proper_failure?
-        !source_code.nil? && !broken_test?
-      end
+      def proper_failure? = !source_code.nil? && !broken_test?
 
       # The file most likely to be the source of the underlying problem. Often, the most recent
       #   backtrace files will be a gem or external library that's failing indirectly as a result
@@ -64,9 +58,7 @@ module Minitest
         ].compact.first
       end
 
-      def freshest
-        backtrace.recently_modified_locations.first
-      end
+      def freshest = backtrace.recently_modified_locations.first
 
       # Returns the final test location based on the backtrace if present. Otherwise falls back to
       #   the test location which represents the test definition. The `test_definition` attribute
@@ -74,32 +66,24 @@ module Minitest
       #   line from within the test where the problem occurred
       #
       # @return [Location] the final location from the test files
-      def test_failure
-        backtrace.test_locations.any? ? backtrace.test_locations.first : test_definition
-      end
+      def test_failure = backtrace.test_locations.any? ? backtrace.test_locations.first : test_definition
 
       # Returns the final source code location based on the backtrace
       #
       # @return [Location] the final location from the source code files
-      def source_code
-        backtrace.source_code_locations.first
-      end
+      def source_code = backtrace.source_code_locations.first
 
       # Returns the final project location based on the backtrace if present. Otherwise falls back
       #   to the test location which represents the test definition.
       #
       # @return [Location] the final location from the project files
-      def project
-        backtrace.project_locations.any? ? backtrace.project_locations.first : test_definition
-      end
+      def project = backtrace.project_locations.any? ? backtrace.project_locations.first : test_definition
 
       # The line number from within the `test_file` test definition where the failure occurred
       #
       # @return [Location] the last location from the backtrace or the test location if a backtrace
       #   was not passed to the initializer
-      def final
-        backtrace.locations.any? ? backtrace.locations.first : test_definition
-      end
+      def final = backtrace.locations.any? ? backtrace.locations.first : test_definition
     end
   end
 end

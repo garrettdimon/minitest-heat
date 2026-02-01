@@ -19,7 +19,7 @@ module Minitest
             next unless relevant_issue_types?(hit)
 
             # Add a new line
-            @tokens << [[:muted, ""]]
+            @tokens << [[:muted, '']]
 
             # Build the summary line for the file
             @tokens << file_summary_tokens(hit)
@@ -54,10 +54,10 @@ module Minitest
           # 1. Only pull the traces that have proper locations
           # 2. Sort the traces by the most recent line number so they're displayed in numeric order
           # 3. Get the final relevant location from the trace
-          traces.
-            select  { |trace| trace.locations.any? }.
-            sort_by { |trace| trace.locations.last.line_number }.
-            map     { |trace| origination_location_token(trace) }
+          traces
+            .select  { |trace| trace.locations.any? }
+            .sort_by { |trace| trace.locations.last.line_number }
+            .map     { |trace| origination_location_token(trace) }
         end
 
         def file_summary_tokens(hit)
@@ -80,7 +80,7 @@ module Minitest
             [:muted, ':'],
             [:default, location.line_number],
             [:muted, " in #{location.container}"],
-            [:muted, " #{Output::SYMBOLS[:arrow]} `#{location.source_code.line.strip}`"],
+            [:muted, " #{Output::SYMBOLS[:arrow]} `#{location.source_code.line.strip}`"]
           ]
         end
 
@@ -160,7 +160,7 @@ module Minitest
         def line_number_token(style, line_number, frequency)
           if frequency > 1
             [
-              [style, "#{line_number}"],
+              [style, line_number.to_s],
               [:muted, "✕#{frequency} "]
             ]
           else

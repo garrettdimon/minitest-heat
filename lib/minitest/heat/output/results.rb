@@ -10,9 +10,7 @@ module Minitest
         attr_accessor :results, :timer
 
         # Explicitly define issues to avoid Forwardable warning about Object#issues private method
-        def issues
-          @results.issues
-        end
+        def issues = @results.issues
 
         def_delegators :@results, :errors, :brokens, :failures, :skips, :painfuls, :slows, :problems?
 
@@ -68,17 +66,11 @@ module Minitest
           counts_with_separators
         end
 
-        def error_count_token
-          issue_count_token(:error, errors)
-        end
+        def error_count_token = issue_count_token(:error, errors)
 
-        def broken_count_token
-          issue_count_token(:broken, brokens)
-        end
+        def broken_count_token = issue_count_token(:broken, brokens)
 
-        def failure_count_token
-          issue_count_token(:failure, failures)
-        end
+        def failure_count_token = issue_count_token(:failure, failures)
 
         def skip_count_token
           style = problems? ? :muted : :skipped
@@ -86,34 +78,24 @@ module Minitest
         end
 
         def painful_count_token
-          style = problems? || skips.any? ? :muted : :painful
-          issue_count_token(style, painfuls, name: 'Painfully Slow')
+          issue_count_token(secondary_style(:painful), painfuls, name: 'Painfully Slow')
         end
 
         def slow_count_token
-          style = problems? || skips.any? ? :muted : :slow
-          issue_count_token(style, slows, name: 'Slow')
+          issue_count_token(secondary_style(:slow), slows, name: 'Slow')
         end
 
-        def test_count_token
-          [:default, pluralize(timer.test_count, 'test').to_s]
-        end
+        def secondary_style(style) = problems? || skips.any? ? :muted : style
 
-        def tests_performance_token
-          [:default, " (#{timer.tests_per_second}/s)"]
-        end
+        def test_count_token = [:default, pluralize(timer.test_count, 'test').to_s]
 
-        def assertions_count_token
-          [:default, pluralize(timer.assertion_count, 'assertion').to_s]
-        end
+        def tests_performance_token = [:default, " (#{timer.tests_per_second}/s)"]
 
-        def assertions_performance_token
-          [:default, " (#{timer.assertions_per_second}/s)"]
-        end
+        def assertions_count_token = [:default, pluralize(timer.assertion_count, 'assertion').to_s]
 
-        def timing_token
-          [:bold, "#{timer.total_time.round(2)}s"]
-        end
+        def assertions_performance_token = [:default, " (#{timer.assertions_per_second}/s)"]
+
+        def timing_token = [:bold, "#{timer.total_time.round(2)}s"]
 
         def issue_count_token(type, collection, name: type.capitalize)
           return nil if collection.empty?
@@ -121,13 +103,9 @@ module Minitest
           [type, pluralize(collection.size, name)]
         end
 
-        def spacer_token
-          Output::TOKENS[:spacer]
-        end
+        def spacer_token = Output::TOKENS[:spacer]
 
-        def join_token
-          [:default, ' with ']
-        end
+        def join_token = [:default, ' with ']
       end
     end
   end

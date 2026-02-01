@@ -63,9 +63,7 @@ module Minitest
         #   three lines. Or it could be something end users could disable in order to reduce noise.
         #
         # @return [Boolean] true if the target line should be highlighted
-        def highlight_key_line?
-          HIGHLIGHT_KEY_LINE
-        end
+        def highlight_key_line? = HIGHLIGHT_KEY_LINE
 
         # The number of spaces each line of code should be indented. Currently defaults to 2 in
         #   order to provide visual separation between test failures, but in the future, it could
@@ -75,9 +73,7 @@ module Minitest
         #   option that would reduce the space used.
         #
         # @return [type] [description]
-        def indentation
-          DEFAULT_INDENTATION_SPACES
-        end
+        def indentation = DEFAULT_INDENTATION_SPACES
 
         private
 
@@ -113,18 +109,14 @@ module Minitest
         # @param line_number [Integer,String] the digits representing the line number
         #
         # @return [Array] the style/content token for the current line number
-        def line_number_token(style, line_number)
-          [style, "#{' ' * indentation}#{line_number.to_s.rjust(max_line_number_digits)} "]
-        end
+        def line_number_token(style, line_number) = [style, "#{' ' * indentation}#{line_number.to_s.rjust(max_line_number_digits)} "]
 
         # The token representing the content of a given line of code.
         # @param style [Symbol] the symbol representing the style for the line of code token
         # @param line_number [Integer,String] the content of the line of code
         #
         # @return [Array] the style/content token for the current line of code
-        def line_of_code_token(style, line_of_code)
-          [style, line_of_code]
-        end
+        def line_of_code_token(style, line_of_code) = [style, line_of_code]
       end
     end
   end
