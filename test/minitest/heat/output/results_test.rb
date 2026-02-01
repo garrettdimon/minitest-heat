@@ -121,6 +121,38 @@ class Minitest::Heat::Output::ResultsTest < Minitest::Test
     end
   end
 
+  def test_painful_count_muted_when_problems_exist
+    painful_time = Minitest::Heat.configuration.painfully_slow_threshold + 1.0
+
+    results = build_results
+    results.record(build_issue(passed: false))
+    results.record(build_issue(passed: true, execution_time: painful_time))
+    timer = build_timer
+
+    output_results = ::Minitest::Heat::Output::Results.new(results, timer)
+    tokens = output_results.tokens
+
+    painful_token = tokens.flatten(1).find { |t| t.is_a?(Array) && t[1]&.include?('Painfully Slow') }
+    refute_nil painful_token, 'Expected a Painfully Slow token in output'
+    assert_equal :muted, painful_token[0]
+  end
+
+  def test_slow_count_muted_when_problems_exist
+    slow_time = Minitest::Heat.configuration.slow_threshold
+
+    results = build_results
+    results.record(build_issue(passed: false))
+    results.record(build_issue(passed: true, execution_time: slow_time))
+    timer = build_timer
+
+    output_results = ::Minitest::Heat::Output::Results.new(results, timer)
+    tokens = output_results.tokens
+
+    slow_token = tokens.flatten(1).find { |t| t.is_a?(Array) && t[1]&.include?('Slow') && !t[1]&.include?('Painfully') }
+    refute_nil slow_token, 'Expected a Slow token in output'
+    assert_equal :muted, slow_token[0]
+  end
+
   def test_delegators_work
     results = build_results
     results.record(build_issue(passed: false))

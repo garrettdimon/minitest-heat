@@ -1,0 +1,87 @@
+# Reek configuration for minitest-heat
+# https://github.com/troessner/reek/blob/master/docs/defaults.reek.yml
+
+detectors:
+  # --- Disabled: conflicts with standard Ruby patterns ---
+
+  # Flags attr_accessor as a writable attribute. Standard Ruby; no value suppressing.
+  Attribute:
+    enabled: false
+
+  # Flags keyword arguments like `clear_screen: false`. Idiomatic Ruby.
+  BooleanParameter:
+    enabled: false
+
+  # Flags branching on method arguments. Appropriate for configuration and options.
+  ControlParameter:
+    enabled: false
+
+  # Issue#initialize wraps Minitest::Result data — all parameters are necessary.
+  # Map#add takes pathname, line_number, type, and backtrace — all distinct inputs.
+  LongParameterList:
+    max_params: 4
+    exclude:
+      - 'Minitest::Heat::Issue#initialize'
+
+  # --- Threshold adjustments: defaults are too aggressive ---
+
+  # Default max_calls (1) flags every repeated method call. Raise to 3 so only
+  # genuine duplication is flagged, not incidental reuse.
+  DuplicateMethodCall:
+    max_calls: 3
+
+  # Guard clauses like `file_exists?` and mode checks like `json_output?` are
+  # repeated across public methods by design, not duplication.
+  RepeatedConditional:
+    enabled: false
+
+  # Default max_statements (5) flags nearly every non-trivial method. 12 keeps
+  # the check useful while allowing token-building methods that are linear and clear.
+  TooManyStatements:
+    max_statements: 12
+
+  # Location is a comprehensive value object with many accessors.
+  # 30 keeps the check useful for genuinely bloated classes.
+  TooManyMethods:
+    max_methods: 30
+
+  # Flags nil checks (`nil?`, `!x`). Legitimate for optional settings and
+  # backtrace data where nil is a normal value.
+  NilCheck:
+    enabled: false
+
+  # Output classes format data from domain objects — accessing their attributes
+  # is the entire purpose, not a design flaw.
+  FeatureEnvy:
+    enabled: false
+
+  # Flags private methods that don't reference instance state. These methods
+  # logically belong to their class even without direct instance access.
+  UtilityFunction:
+    enabled: false
+
+  # ManualDispatch is legitimate for duck-typing checks (respond_to? + send).
+  ManualDispatch:
+    enabled: false
+
+  # Nested iterators are common in token-building code where lines contain tokens.
+  # Two levels deep is readable and appropriate for this codebase.
+  NestedIterators:
+    max_allowed_nesting: 2
+
+  # Issue wraps a Minitest::Result with classification; 9 ivars reflect the data it needs.
+  # Source has 5 ivars for file reading context — all necessary.
+  TooManyInstanceVariables:
+    max_instance_variables: 9
+
+  # Timer.start! and Timer.stop! are mutating operations with no safe equivalent.
+  # The bang convention here signals state mutation, not a safe/unsafe pair.
+  MissingSafeMethod:
+    enabled: false
+
+  # RuboCop enforces `e` for rescue variables (Naming/RescuedExceptionsVariableName).
+  # Allow `e` to avoid conflicts between the two tools.
+  UncommunicativeVariableName:
+    accept:
+      - e
+      - i

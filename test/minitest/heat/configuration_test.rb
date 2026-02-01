@@ -51,7 +51,6 @@ class Minitest::Heat::ConfigurationTest < Minitest::Test
     slow_threshold = @config.slow_threshold
     painfully_slow_threshold = @config.painfully_slow_threshold
 
-    # Change the settings to verify they get set appropriately
     Minitest::Heat.configure do |config|
       config.slow_threshold += 1.0
       config.painfully_slow_threshold += 1.0
@@ -59,11 +58,5 @@ class Minitest::Heat::ConfigurationTest < Minitest::Test
 
     assert_equal (slow_threshold + 1.0), @config.slow_threshold
     assert_equal (painfully_slow_threshold + 1.0), @config.painfully_slow_threshold
-
-    # Return the settings to the previous values for the rest of the tests
-    Minitest::Heat.configure do |config|
-      config.slow_threshold -= 1.0
-      config.painfully_slow_threshold -= 1.0
-    end
   end
 end

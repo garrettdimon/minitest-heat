@@ -19,20 +19,24 @@ class Minitest::Heat::IssueTest < Minitest::Test
   end
 
   def test_full_initialization
-    # Raise, rescue, and assign an exception instance to ensure the full context
     issue = ::Minitest::Heat::Issue.new(
-      assertions: 1,
-      message: '',
+      assertions: 3,
+      message: 'Something went wrong',
       backtrace: @source_backtrace,
       test_location: @location,
       test_class: 'Minitest::ClassName',
-      test_identifier: 'Test Name',
+      test_identifier: 'test_example',
       execution_time: 1.1,
       passed: false,
       error: false,
       skipped: false
     )
-    refute_nil issue
+
+    assert_equal 3, issue.assertions
+    assert_equal 'Something went wrong', issue.message
+    assert_equal 'Minitest::ClassName', issue.test_class
+    assert_equal 'test_example', issue.test_identifier
+    assert_equal 1.1, issue.execution_time
   end
 
   def test_broken_test_issue

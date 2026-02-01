@@ -36,12 +36,10 @@ module Minitest
       #   returns a zero that would be problematic as a denomitor in calculating average times
       #
       # @return [Float] the clocktime duration of the test suite run in seconds
-      def total_time
-        # Don't return 0. The time can end up being 0 for a new or realy fast test suite, and
-        # dividing by 0 doesn't go well when determining average time, so this ensures it uses a
-        # close-enough-but-not-zero value.
-        delta.zero? ? 0.01 : delta
-      end
+      # Don't return 0. The time can end up being 0 for a new or realy fast test suite, and
+      # dividing by 0 doesn't go well when determining average time, so this ensures it uses a
+      # close-enough-but-not-zero value.
+      def total_time = delta.zero? ? 0.01 : delta
 
       # Records the test and assertion counts for a given test outcome
       # @param count [Integer] the number of assertions from the test
@@ -55,16 +53,12 @@ module Minitest
       # Provides a nice rounded answer for about how many tests were completed per second
       #
       # @return [Float] the average number of tests completed per second
-      def tests_per_second
-        (test_count / total_time).round(2)
-      end
+      def tests_per_second = (test_count / total_time).round(2)
 
       # Provides a nice rounded answer for about how many assertions were completed per second
       #
       # @return [Float] the average number of assertions completed per second
-      def assertions_per_second
-        (assertion_count / total_time).round(2)
-      end
+      def assertions_per_second = (assertion_count / total_time).round(2)
 
       # Generates a hash representation for JSON serialization
       #

@@ -56,8 +56,8 @@ module Minitest
     end
 
     # About to start running a test. This allows a reporter to show that it is starting or that we
-    # are in the middle of a test run.
-    def prerecord(klass, name); end
+    # are in the middle of a test run. Parameters required by Minitest::AbstractReporter interface.
+    def prerecord(_klass, _name); end
 
     # Records the data from a result.
     #
@@ -105,14 +105,10 @@ module Minitest
     # Whether to output JSON instead of human-readable text
     #
     # @return [Boolean] true if --heat-json flag was passed
-    def json_output?
-      options[:heat_json]
-    end
+    def json_output? = options[:heat_json]
 
     # Did this run pass?
-    def passed?
-      results.errors.empty? && results.failures.empty?
-    end
+    def passed? = results.errors.empty? && results.failures.empty?
 
     private
 

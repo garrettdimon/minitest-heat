@@ -33,19 +33,13 @@ module Minitest
           @issue_type = issue_type
         end
 
-        def token
-          [style, symbol]
-        end
+        def token = [style, symbol]
 
         private
 
-        def style
-          STYLES.fetch(issue_type, :default)
-        end
+        def style = STYLES.fetch(issue_type, :default)
 
-        def symbol
-          SYMBOLS.fetch(issue_type, '?')
-        end
+        def symbol = SYMBOLS.fetch(issue_type, '?')
       end
     end
   end

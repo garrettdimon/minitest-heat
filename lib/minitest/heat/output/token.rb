@@ -6,6 +6,7 @@ module Minitest
       # Provides a convenient interface for creating console-friendly output while ensuring
       #   consistency in the applied styles.
       class Token
+        # Raised when an unrecognized style key is used
         class InvalidStyle < ArgumentError; end
 
         STYLES = {
@@ -21,6 +22,28 @@ module Minitest
           bold: %i[bold default],
           default: %i[default default],
           muted: %i[light default]
+        }.freeze
+
+        ESC_SEQUENCE = "\e["
+        END_SEQUENCE = 'm'
+
+        WEIGHTS = {
+          default: 0,
+          bold: 1,
+          light: 2,
+          italic: 3
+        }.freeze
+
+        COLORS = {
+          black: 30,
+          red: 31,
+          green: 32,
+          yellow: 33,
+          blue: 34,
+          magenta: 35,
+          cyan: 36,
+          gray: 37,
+          default: 39
         }.freeze
 
         attr_accessor :style_key, :content
@@ -46,28 +69,6 @@ module Minitest
         alias :== eql?
 
         private
-
-        ESC_SEQUENCE = "\e["
-        END_SEQUENCE = 'm'
-
-        WEIGHTS = {
-          default: 0,
-          bold: 1,
-          light: 2,
-          italic: 3
-        }.freeze
-
-        COLORS = {
-          black: 30,
-          red: 31,
-          green: 32,
-          yellow: 33,
-          blue: 34,
-          magenta: 35,
-          cyan: 36,
-          gray: 37,
-          default: 39
-        }.freeze
 
         def style_string
           "#{ESC_SEQUENCE}#{weight};#{color}#{END_SEQUENCE}"

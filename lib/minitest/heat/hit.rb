@@ -7,6 +7,7 @@ module Minitest
     # Kind of like an issue, but instead of focusing on a failing test, it covers all issues for a
     #   given file to build a heat map of the affected files and line numbers
     class Hit
+      # Represents a single occurrence of an issue at a specific line
       Trace = Struct.new(:type, :line_number, :locations)
 
       # So we can sort hot spots by liklihood of being the most important spot to check out before
@@ -62,23 +63,17 @@ module Minitest
       #   the most problematic across the various issue types
       #
       # @return [Integer] the problem weight for the file
-      def weight
-        issues.sum { |type, values| values.size * WEIGHTS.fetch(type, 0) }
-      end
+      def weight = issues.sum { |type, values| values.size * WEIGHTS.fetch(type, 0) }
 
       # The total issue count for the file across all issue types. Includes duplicates if they exist
       #
       # @return [Integer] the sum of the counts for all line numbers for all issue types
-      def count
-        issues.sum { |_type, values| values.size }
-      end
+      def count = issues.sum { |_type, values| values.size }
 
       # The full set of unique line numbers across all issue types
       #
       # @return [Array<Integer>] the full set of unique offending line numbers for the hit
-      def line_numbers
-        issues.values.flatten.uniq.sort
-      end
+      def line_numbers = issues.values.flatten.uniq.sort
 
       # Generates a hash representation for JSON serialization
       #
@@ -93,9 +88,7 @@ module Minitest
 
       private
 
-      def relative_path
-        pathname.to_s.delete_prefix("#{Dir.pwd}/")
-      end
+      def relative_path = pathname.to_s.delete_prefix("#{Dir.pwd}/")
 
       def lines_summary
         line_numbers.map do |line_num|

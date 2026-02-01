@@ -154,7 +154,7 @@ class Minitest::Heat::ResultsTest < Minitest::Test
     problems = @results.issues_with_problems
 
     assert_equal 3, problems.length
-    refute problems.any? { |i| i.type == :success }
+    refute(problems.any? { |i| i.type == :success })
   end
 
   def test_to_h_returns_hash_with_statistics_and_heat_map

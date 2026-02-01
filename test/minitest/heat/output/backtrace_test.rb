@@ -28,7 +28,7 @@ class Minitest::Heat::Output::BacktraceTest < Minitest::Test
     tokens = @backtrace_output.tokens
 
     assert_instance_of Array, tokens
-    assert tokens.all? { |line| line.is_a?(Array) }
+    assert(tokens.all? { |line| line.is_a?(Array) })
   end
 
   def test_tokens_contain_valid_token_tuples

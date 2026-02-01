@@ -15,7 +15,7 @@ module Minitest
         end
 
         def earliest_project_location
-          locations.rindex { |element| element.project_file? }
+          locations.rindex(&:project_file?)
         end
 
         def max_location

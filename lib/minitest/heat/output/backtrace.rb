@@ -23,16 +23,14 @@ module Minitest
         # Determines the number of lines to display from the backtrace.
         #
         # @return [Integer] the number of lines to limit the backtrace to
-        def line_count
-          # Defined as a method instead of using the constant directly in order to easily support
-          # adding options for controlling how many lines are displayed from a backtrace.
-          #
-          # For example, instead of a fixed number, the backtrace could dynamically calculate how
-          # many lines it should displaye in order to get to the origination point. Or it could have
-          # a default, but inteligently go back further if the backtrace meets some criteria for
-          # displaying more lines.
-          ::Minitest::Heat::Backtrace::LineCount.new(backtrace.locations).limit
-        end
+        # Defined as a method instead of using the constant directly in order to easily support
+        # adding options for controlling how many lines are displayed from a backtrace.
+        #
+        # For example, instead of a fixed number, the backtrace could dynamically calculate how
+        # many lines it should displaye in order to get to the origination point. Or it could have
+        # a default, but inteligently go back further if the backtrace meets some criteria for
+        # displaying more lines.
+        def line_count = ::Minitest::Heat::Backtrace::LineCount.new(backtrace.locations).limit
 
         # A subset of parsed lines from the backtrace.
         #
@@ -69,16 +67,14 @@ module Minitest
             *file_and_line_number_tokens(location),
             containining_element_token(location),
             source_code_line_token(location),
-            most_recently_modified_token(location),
+            most_recently_modified_token(location)
           ].compact
         end
 
         # Determines if all lines to be displayed are from within the project directory
         #
         # @return [Boolean] true if all lines of the backtrace being displayed are from the project
-        def all_backtrace_from_project?
-          backtrace_locations.all?(&:project_file?)
-        end
+        def all_backtrace_from_project? = backtrace_locations.all?(&:project_file?)
 
         # Determines if the file referenced by a backtrace line is the most recently modified file
         #   of all the files referenced in the visible backtrace locations.
@@ -87,16 +83,12 @@ module Minitest
         #
         # @return [<type>] <description>
         #
-        def most_recently_modified?(location)
-          # If there's more than one line being displayed (otherwise, with one line, of course it's
-          # the most recently modified because there_aren't any others) and the current line is the
-          # same as the freshest location in the backtrace
-          backtrace_locations.size > 1 && location == locations.freshest
-        end
+        # If there's more than one line being displayed (otherwise, with one line, of course it's
+        # the most recently modified because there_aren't any others) and the current line is the
+        # same as the freshest location in the backtrace
+        def most_recently_modified?(location) = backtrace_locations.size > 1 && location == locations.freshest
 
-        def indentation_token
-          [:default, ' ' * indentation]
-        end
+        def indentation_token = [:default, ' ' * indentation]
 
         def path_token(location)
           # If the line is a project file, help it stand out from the backtrace noise
@@ -145,9 +137,7 @@ module Minitest
         #   option that would reduce the space used.
         #
         # @return [type] [description]
-        def indentation
-          DEFAULT_INDENTATION_SPACES
-        end
+        def indentation = DEFAULT_INDENTATION_SPACES
       end
     end
   end

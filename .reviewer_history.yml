@@ -1,0 +1,42 @@
+---
+:bundle_audit:
+  :last_status: :passed
+  :last_prepared_at: '2026-02-01 10:15:13 -0700'
+  bundle exec bundle-audit update:
+  - 0.94
+  bundle exec bundle-audit check --no-update:
+  - 0.2
+  - 0.15
+  - 0.23
+  - 0.21
+  - 0.29
+  :last_failed_files:
+:rubocop:
+  :last_status: :passed
+  :last_failed_files:
+  bundle exec rubocop --parallel:
+  - 1.4
+  - 1.11
+  - 1.76
+:tests:
+  :last_status: :passed
+  :last_failed_files:
+  bundle exec rake test:
+  - 0.54
+  - 0.5
+  - 0.66
+:reek:
+  :last_status: :passed
+  :last_failed_files:
+  bundle exec reek --config .reek.yml lib/:
+  - 0.91
+:flog:
+  :last_status: :passed
+  :last_failed_files:
+  bundle exec flog -g lib --threshold 10 --group --methods-only:
+  - 0.38
+:flay:
+  :last_status: :passed
+  :last_failed_files:
+  bundle exec flay ./lib --liberal --summary:
+  - 0.36

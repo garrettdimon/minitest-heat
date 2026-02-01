@@ -11,7 +11,7 @@ require_relative 'output/token'
 module Minitest
   module Heat
     # Friendly API for printing nicely-formatted output to the console
-    class Output # rubocop:disable Metrics/ClassLength
+    class Output
       SYMBOLS = {
         middot: '·',
         arrow: '➜',
@@ -33,12 +33,12 @@ module Minitest
         end
       end
 
-      def print(*args)
-        stream.print(*args)
+      def print(*)
+        stream.print(*)
       end
 
-      def puts(*args)
-        stream.puts(*args)
+      def puts(*)
+        stream.puts(*)
       end
       alias newline puts
 
@@ -152,12 +152,10 @@ module Minitest
       def print_tokens(lines_of_tokens)
         lines_of_tokens.each do |tokens|
           tokens.each do |token|
-            begin
-              print Token.new(*token).to_s(token_format)
-            rescue ArgumentError => e
-              # Token format error - output debug info and continue
-              puts "Token error (#{e.message}): #{token.inspect}"
-            end
+            print Token.new(*token).to_s(token_format)
+          rescue ArgumentError => e
+            # Token format error - output debug info and continue
+            puts "Token error (#{e.message}): #{token.inspect}"
           end
           newline
         end

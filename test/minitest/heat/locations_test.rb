@@ -54,23 +54,23 @@ class Minitest::Heat::LocationsTest < Minitest::Test
   end
 
   def test_backtrace_without_source_code_lines
-    # Remove the project source line so the test is the last location
-    @raw_backtrace.shift
-    assert_nil @location.source_code
-    refute_nil @location.project.filename
-    refute_nil @location.test_failure.filename
-    refute_nil @location.final.filename
+    # Backtrace with only test and gem lines (no source code)
+    test_only_backtrace = @raw_backtrace.drop(1)
+    location = Minitest::Heat::Locations.new(@test_location, test_only_backtrace)
+
+    assert_nil location.source_code
+    refute_nil location.project.filename
+    refute_nil location.test_failure.filename
+    refute_nil location.final.filename
   end
 
   def test_backtrace_without_source_or_test_lines
-    # Remove the project source line so the test is the last location
-    @raw_backtrace.shift
+    # Backtrace with only gem lines (no project files at all)
+    gem_only_backtrace = @raw_backtrace.drop(2)
+    location = Minitest::Heat::Locations.new(@test_location, gem_only_backtrace)
 
-    # Remove the project test line so an external file is the last location
-    @raw_backtrace.shift
-
-    assert_nil @location.source_code
-    refute_nil @location.test_failure.filename
-    refute_nil @location.final.filename
+    assert_nil location.source_code
+    refute_nil location.test_failure.filename
+    refute_nil location.final.filename
   end
 end

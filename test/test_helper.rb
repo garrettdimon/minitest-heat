@@ -24,11 +24,6 @@ end
 
 $LOAD_PATH.unshift File.expand_path('../lib', __dir__)
 
-begin
-  require 'awesome_print'
-rescue LoadError
-  # awesome_print gem is optional for development
-end
 require 'minitest/heat'
 require 'minitest/autorun'
 

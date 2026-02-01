@@ -15,21 +15,18 @@ module Minitest
         @line_number = Integer(line_number)
         @max_line_count = max_line_count
         @context = context
+        @raw_lines = nil
       end
 
       # Returns relevant lines as a hash with line numbers as the keys
       #
       # @return [Hash] hash of relevant lines with line numbers as keys
-      def to_h
-        line_numbers.map(&:to_s).zip(lines).to_h
-      end
+      def to_h = line_numbers.map(&:to_s).zip(lines).to_h
 
       # Looks up the line of code referenced
       #
       # @return [String] the line of code at filename:line_number
-      def line
-        file_lines[line_number - 1]
-      end
+      def line = file_lines[line_number - 1]
 
       # Looks up the available lines of code around the referenced line number
       #
@@ -43,9 +40,7 @@ module Minitest
       # Line numbers for the returned lines
       #
       # @return [Array<Integer>] the line numbers corresponding to the lines returned
-      def line_numbers
-        (first_line_number..last_line_number).to_a.uniq
-      end
+      def line_numbers = (first_line_number..last_line_number).to_a.uniq
 
       # Reads (and chomps) the lines of the target file
       #
@@ -68,9 +63,7 @@ module Minitest
       # The largest possible value for line numbers
       #
       # @return [Integer] the last line number of the file
-      def max_line_number
-        file_lines.length
-      end
+      def max_line_number = file_lines.length
 
       # The number of the first line of code to return
       #
@@ -79,7 +72,7 @@ module Minitest
         target = line_number - first_line_offset - leftover_trailing_lines_count
 
         # Can't go earlier than the first line
-        target < 1 ? 1 : target
+        [target, 1].max
       end
 
       # The number of the last line of code to return
@@ -89,7 +82,7 @@ module Minitest
         target = line_number + last_line_offset + leftover_preceding_lines_count
 
         # Can't go past the end of the file
-        target > max_line_number ? max_line_number : target
+        [target, max_line_number].min
       end
 
       # The target number of preceding lines to include
@@ -135,21 +128,15 @@ module Minitest
       end
 
       # The total number of lines to include in addition to the primary line
-      def other_lines_count
-        max_line_count - 1
-      end
+      def other_lines_count = max_line_count - 1
 
-      def preceding_lines_split_count
-        # Round up preceding lines if it's uneven because preceding lines are more likely to be
-        # helpful when debugging
-        (other_lines_count / 2).round(0, half: :up)
-      end
+      # Round up preceding lines if it's uneven because preceding lines are more likely to be
+      # helpful when debugging
+      def preceding_lines_split_count = (other_lines_count / 2).round(0, half: :up)
 
-      def trailing_lines_split_count
-        # Round down preceding lines because they provide context in the file but don't contribute
-        # in terms of the code that led to the error
-        (other_lines_count / 2).round(0, half: :down)
-      end
+      # Round down preceding lines because they provide context in the file but don't contribute
+      # in terms of the code that led to the error
+      def trailing_lines_split_count = (other_lines_count / 2).round(0, half: :down)
     end
   end
 end

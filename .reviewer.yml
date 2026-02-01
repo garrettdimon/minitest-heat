@@ -1,0 +1,87 @@
+---
+# Review gem dependencies for security issues
+bundle_audit:
+  name: Bundle Audit
+  description: Review gem dependencies for security issues
+  tags: [security, dependencies, ruby]
+  commands:
+    install: bundle exec gem install bundler-audit
+    prepare: bundle exec bundle-audit update
+    review: bundle exec bundle-audit check --no-update
+
+# Review Ruby syntax and formatting for consistency
+rubocop:
+  name: RuboCop
+  description: Review Ruby syntax and formatting for consistency
+  tags: [ruby, syntax]
+  commands:
+    install: bundle exec gem install rubocop
+    review: bundle exec rubocop --parallel
+    format: bundle exec rubocop --auto-correct
+  files:
+    flag: ''
+    separator: ' '
+    pattern: '*.rb'
+
+# Examine Ruby classes for code smells
+reek:
+  disabled: true
+  name: Reek
+  description: Examine Ruby classes for code smells
+  tags: [ruby, quality]
+  links:
+    home: https://github.com/troessner/reek
+    install: https://github.com/troessner/reek#quickstart
+  max_exit_status: 2
+  commands:
+    install: bundle exec gem install reek
+    review: bundle exec reek --config .reek.yml lib/
+  files:
+    flag: ''
+    separator: ' '
+    pattern: '*.rb'
+
+# Reports most tortured ruby code in a pain report
+flog:
+  disabled: true
+  name: Flog
+  description: Reports your most tortured ruby code in an easy to read pain report.
+  tags: [ruby, quality]
+  links:
+    home: https://ruby.sadi.st/Flog.html
+    install: https://ruby.sadi.st/Flog.html
+  commands:
+    install: bundle exec gem install flog
+    review: bundle exec flog -g lib
+  flags:
+    threshold: 10
+    group:
+    methods-only:
+
+# Review ruby code for structural similarities
+flay:
+  disabled: true
+  name: Flay
+  description: Review ruby code for structural similarities and refactoring opportunities.
+  tags: [ruby, quality]
+  links:
+    home: https://ruby.sadi.st/Flay.html
+    install: https://ruby.sadi.st/Flay.html
+  commands:
+    install: bundle exec gem install flay
+    review: bundle exec flay ./lib
+  flags:
+    liberal:
+    summary:
+
+# Unit tests and coverage
+tests:
+  name: Minitest
+  description: Unit tests and coverage
+  tags: [ruby, tests]
+  commands:
+    review: bundle exec rake test
+  files:
+    review: bundle exec ruby -Itest
+    pattern: '*_test.rb'
+    map_to_tests: minitest
