@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'test_helper'
+require 'tmpdir'
 
 class Minitest::Heat::LocationTest < Minitest::Test
   def setup
@@ -85,17 +86,18 @@ class Minitest::Heat::LocationTest < Minitest::Test
   end
 
   def test_knows_if_bundled_file
-    directory = "#{Dir.pwd}/vendor/bundle"
-    pathname = "#{directory}/heat.rb"
-    FileUtils.mkdir_p(directory)
-    FileUtils.touch(pathname)
+    FileUtils.mkdir_p('tmp')
+    Dir.mktmpdir('bundled-location-', File.expand_path('tmp')) do |directory|
+      Dir.chdir(directory) do
+        FileUtils.mkdir_p('vendor/bundle')
+        FileUtils.touch('vendor/bundle/heat.rb')
 
-    @location.raw_pathname = pathname
-    assert @location.bundled_file?
-    refute @location.binstub_file?
-    refute @location.project_file?
-  ensure
-    FileUtils.rm_rf("#{Dir.pwd}/vendor")
+        @location.raw_pathname = File.expand_path('vendor/bundle/heat.rb')
+        assert @location.bundled_file?
+        refute @location.binstub_file?
+        refute @location.project_file?
+      end
+    end
   end
 
   def test_knows_if_binstub_file
