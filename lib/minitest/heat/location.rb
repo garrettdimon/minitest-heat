@@ -68,7 +68,7 @@ module Minitest
       #
       # @return [Pathname] a pathname instance for the relevant file
       def pathname
-        Pathname(raw_pathname)
+        Pathname(raw_pathname).expand_path
       rescue ArgumentError
         Pathname(Dir.pwd)
       end

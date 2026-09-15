@@ -29,9 +29,19 @@ class Minitest::Heat::LocationTest < Minitest::Test
     fake_file_name = 'fake_file.rb'
     @location.raw_pathname = fake_file_name
 
-    assert_equal Pathname(fake_file_name), @location.pathname
+    assert_equal Pathname(fake_file_name).expand_path, @location.pathname
     assert_empty @location.source_code.lines
     refute @location.exists?
+  end
+
+  def test_relative_pathname_resolves_against_project_root
+    relative_path = 'lib/minitest/heat.rb'
+    @location.raw_pathname = relative_path
+
+    assert_equal Pathname(File.join(Dir.pwd, relative_path)), @location.pathname
+    assert_equal relative_path, @location.raw_pathname
+    assert @location.project_file?
+    assert @location.source_code_file?
   end
 
   def test_non_existent_line_number
