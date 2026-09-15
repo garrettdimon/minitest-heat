@@ -108,12 +108,13 @@ module Minitest
     def json_output? = options[:heat_json]
 
     # Did this run pass?
-    def passed? = results.errors.empty? && results.failures.empty?
+    def passed? = !results.problems?
 
     private
 
     def output_json
       require 'json'
+      require 'time'
       output.stream.puts JSON.pretty_generate(json_results)
     end
 
