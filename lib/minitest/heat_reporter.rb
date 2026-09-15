@@ -108,7 +108,7 @@ module Minitest
     def json_output? = options[:heat_json]
 
     # Did this run pass?
-    def passed? = results.errors.empty? && results.failures.empty?
+    def passed? = !results.problems?
 
     private
 

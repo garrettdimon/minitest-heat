@@ -1,5 +1,8 @@
 ## [Unreleased]
 
+### Fixed
+- Tests classified as broken now cause an unsuccessful process exit instead of incorrectly reporting success to test runners and CI.
+
 ## [2.1.1] - 2026-02-01
 
 ### Changed
