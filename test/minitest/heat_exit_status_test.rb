@@ -35,6 +35,7 @@ class Minitest::HeatExitStatusTest < Minitest::Test
       RbConfig.ruby, '-Ilib', File.join(root, 'test/files/test_exit_status.rb'),
       '--name', "test_#{scenario}", '--heat-json', chdir: root
     )
+    refute_empty stdout, "Child exited #{status.exitstatus}: #{stderr}"
     result = JSON.parse(stdout)
 
     assert_equal 1, result.fetch('statistics').fetch('total'), stderr
