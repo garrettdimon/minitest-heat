@@ -114,6 +114,7 @@ module Minitest
 
     def output_json
       require 'json'
+      require 'time'
       output.stream.puts JSON.pretty_generate(json_results)
     end
 
