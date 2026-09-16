@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'minitest/autorun'
+require_relative '../support/heat_activation'
 require_relative 'exit_status_source'
 
 # Run only in a subprocess, with one scenario selected by --name.
