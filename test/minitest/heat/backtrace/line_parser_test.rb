@@ -13,7 +13,7 @@ class Minitest::Heat::Backtrace::LineParserParserTest < Minitest::Test
   end
 
   def test_parsing_extracts_pathname
-    assert_equal Pathname(@filename), @location.pathname
+    assert_equal Pathname(@filename).expand_path, @location.pathname
   end
 
   def test_parsing_extracts_line_number
