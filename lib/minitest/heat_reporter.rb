@@ -38,6 +38,7 @@ module Minitest
       super()
 
       @options = options
+      @recording_error = false
 
       @timer =    Heat::Timer.new
       @results =  Heat::Results.new
@@ -77,18 +78,19 @@ module Minitest
       # Show the marker (skip for JSON output)
       output.marker(issue.type) unless json_output?
     rescue StandardError => e
+      @recording_error = true
       display_exception_guidance(e)
     end
 
     def display_exception_guidance(exception)
-      output.newline
-      puts 'Sorry, but Minitest Heat encountered an exception recording an issue. Disabling Minitest Heat will get you back on track.'
-      puts 'Please use the following exception details to submit an issue at https://github.com/garrettdimon/minitest-heat/issues'
-      puts "#{exception.message}:"
+      warn ''
+      warn 'Sorry, but Minitest Heat encountered an exception recording an issue. Disabling Minitest Heat will get you back on track.'
+      warn 'Please use the following exception details to submit an issue at https://github.com/garrettdimon/minitest-heat/issues'
+      warn "#{exception.message}:"
       exception.backtrace.each do |line|
-        puts "  #{line}"
+        warn "  #{line}"
       end
-      output.newline
+      warn ''
     end
 
     # Outputs the summary of the run.
@@ -109,7 +111,7 @@ module Minitest
     def json_output? = options[:heat_json]
 
     # Did this run pass?
-    def passed? = !results.problems? && !empty_filtered_run?
+    def passed? = !@recording_error && !results.problems? && !empty_filtered_run?
 
     private
 
