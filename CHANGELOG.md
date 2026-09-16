@@ -1,6 +1,7 @@
 ## [Unreleased]
 
 ### Fixed
+- Preserve namespaced method names and handle current Ruby quoting in backtrace details.
 - Tests classified as broken now cause an unsuccessful process exit instead of incorrectly reporting success to test runners and CI.
 - JSON output explicitly loads the time library so timestamp formatting works on Ruby 3.2 and 3.3 without relying on another dependency to load it.
 - Updated locked development dependencies for security advisories affecting concurrent-ruby, erb, and json.
