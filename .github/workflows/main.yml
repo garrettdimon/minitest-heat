@@ -65,6 +65,22 @@ jobs:
     - name: Run tests
       run: bundle exec rake test
 
+  required-tests:
+    # Keep the names required by the repository rules while gating on every
+    # supported Ruby/Minitest combination, including the version boundaries.
+    name: Test (Ruby ${{ matrix.ruby }})
+    needs: test
+    if: ${{ always() }}
+    strategy:
+      matrix:
+        ruby: ['3.2', '3.3', '3.4', '4.0']
+    runs-on: ubuntu-latest
+    env:
+      TEST_RESULT: ${{ needs.test.result }}
+    steps:
+    - name: Require the complete compatibility matrix to pass
+      run: test "$TEST_RESULT" = success
+
   changelog:
     name: Changelog
     runs-on: ubuntu-latest
