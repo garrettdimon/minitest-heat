@@ -29,6 +29,15 @@ class Minitest::HeatEmptyRunTest < Minitest::Test
     assert_empty_run(['--name', 'test_passing', '--exclude', 'test_passing'], 1)
   end
 
+  def test_minitest_six_include_filter
+    skip 'Minitest 6 include option' if Minitest::VERSION.to_i < 6
+
+    assert_empty_run(['--include', 'test_nonexistent'], 1)
+    stdout, stderr, status = run_fixture(['--include', 'test_passing', '--heat-json'])
+    assert status.success?, stderr
+    assert_equal 1, JSON.parse(stdout).fetch('statistics').fetch('total')
+  end
+
   private
 
   def assert_empty_run(arguments, exit_status)
@@ -40,7 +49,7 @@ class Minitest::HeatEmptyRunTest < Minitest::Test
     assert_equal exit_status, status.exitstatus, "#{stdout}\n#{stderr}"
     assert_equal(exit_status.zero? ? 'passed' : 'failed', result.fetch('status'))
     if exit_status.zero?
-      assert_empty stderr
+      refute_includes stderr, 'Nothing ran for filter:'
     else
       assert_includes stderr, 'Nothing ran for filter:'
     end

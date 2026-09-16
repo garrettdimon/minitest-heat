@@ -2,7 +2,7 @@ PATH
   remote: .
   specs:
     minitest-heat (2.1.1)
-      minitest
+      minitest (>= 5.22.3, < 7)
 
 GEM
   remote: https://rubygems.org/

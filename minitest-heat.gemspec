@@ -31,5 +31,5 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  spec.add_dependency 'minitest'
+  spec.add_dependency 'minitest', '>= 5.22.3', '< 7'
 end

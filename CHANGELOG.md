@@ -1,6 +1,13 @@
 ## [Unreleased]
 
+### Added
+- Support Minitest 6 with explicit plugin activation and compatible test filtering, while retaining automatic discovery on Minitest 5.
+
+### Changed
+- Declare the supported Minitest range as `>= 5.22.3, < 7` and test both major versions in CI.
+
 ### Fixed
+- Install only one Heat reporter when the plugin is loaded repeatedly, preserving valid JSON output.
 - Normalize relative result paths so test exceptions retain their classification and failure locations when invoked with relative filenames.
 - Return an unsuccessful exit status when Heat cannot record a result, and keep JSON output valid by sending reporter diagnostics to stderr.
 - Return an unsuccessful exit status when an explicit test filter matches no tests, consistent with Minitest; unfiltered empty runs remain successful.
