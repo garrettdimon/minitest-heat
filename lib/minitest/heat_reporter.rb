@@ -96,6 +96,7 @@ module Minitest
     # Outputs the summary of the run.
     def report
       timer.stop!
+      warn "Nothing ran for filter: #{options[:filter]}" if empty_filtered_run?
 
       if json_output?
         output_json
@@ -110,9 +111,11 @@ module Minitest
     def json_output? = options[:heat_json]
 
     # Did this run pass?
-    def passed? = !@recording_error && !results.problems?
+    def passed? = !@recording_error && !results.problems? && !empty_filtered_run?
 
     private
+
+    def empty_filtered_run? = options[:filter] && timer.test_count.zero?
 
     def output_json
       require 'json'
