@@ -12,8 +12,8 @@ module Minitest
         def self.read(raw_text)
           return nil if raw_text.nil? || raw_text.empty?
 
-          raw_pathname, raw_line_number, raw_container = raw_text.to_s.split(':')
-          raw_container = raw_container&.delete_prefix('in `')&.delete_suffix("'")
+          raw_pathname, raw_line_number, raw_container = raw_text.to_s.split(':', 3)
+          raw_container = raw_container&.sub(/\Ain [`']/, '')&.delete_suffix("'")
 
           ::Minitest::Heat::Location.new(
             pathname: raw_pathname,
