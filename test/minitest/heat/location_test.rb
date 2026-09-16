@@ -13,7 +13,7 @@ class Minitest::Heat::LocationTest < Minitest::Test
   end
 
   def test_full_initialization
-    assert_equal Pathname(@raw_pathname), @location.pathname
+    assert_equal Pathname(@raw_pathname).expand_path, @location.pathname
     assert_equal Integer(@raw_line_number), @location.line_number
     assert_equal @container, @location.container
     refute_nil @location.source_code
@@ -29,9 +29,19 @@ class Minitest::Heat::LocationTest < Minitest::Test
     fake_file_name = 'fake_file.rb'
     @location.raw_pathname = fake_file_name
 
-    assert_equal Pathname(fake_file_name), @location.pathname
+    assert_equal Pathname(fake_file_name).expand_path, @location.pathname
     assert_empty @location.source_code.lines
     refute @location.exists?
+  end
+
+  def test_relative_pathname_resolves_against_project_root
+    relative_path = 'lib/minitest/heat.rb'
+    @location.raw_pathname = relative_path
+
+    assert_equal Pathname(File.join(Dir.pwd, relative_path)), @location.pathname
+    assert_equal relative_path, @location.raw_pathname
+    assert @location.project_file?
+    assert @location.source_code_file?
   end
 
   def test_non_existent_line_number
@@ -118,7 +128,7 @@ class Minitest::Heat::LocationTest < Minitest::Test
   end
 
   def test_absolute_filename_for_existing_file
-    assert_equal @raw_pathname, @location.absolute_filename
+    assert_equal File.expand_path(@raw_pathname), @location.absolute_filename
   end
 
   def test_absolute_filename_for_non_existent_file
