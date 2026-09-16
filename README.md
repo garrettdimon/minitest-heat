@@ -20,11 +20,21 @@ Or install it yourself as:
 
     $ gem install minitest-heat
 
-And depending on your usage, you may need to require Minitest Heat in your test suite:
+Heat supports Ruby 3.2 and newer with Minitest `>= 5.22.3, < 7`.
+
+Minitest 5 discovers Heat automatically when the gem is available and plugin loading
+is enabled. Existing Minitest 5 setups do not need to change.
+
+Minitest 6 requires explicit plugin activation. Add this to your `test_helper.rb`:
 
 ```ruby
-require 'minitest/heat'
+require 'minitest/autorun'
+Minitest.load :heat
 ```
+
+`require 'minitest/heat'` loads Heat's library and configuration API; it does not
+activate the reporter on Minitest 6. Loading the Heat plugin more than once installs
+only one reporter.
 
 ## Prioritizing Your Work
 
@@ -144,6 +154,24 @@ FORCE_SLOWS=true       # No errors or skipped tests, just slow tests
 ```
 
 So to see the full context of a test suite, `IMPLODE=true bundle exec rake` will work its magic.
+
+### Testing Minitest compatibility
+
+The development lockfile retains Minitest 5.27.0. To select another supported version
+in a disposable checkout, use the same runner as CI:
+
+```sh
+export MINITEST_VERSION='~> 6.0'
+export BUNDLE_FROZEN=false BUNDLE_DEPLOYMENT=false
+bundle lock --update minitest
+bundle install
+CI=true bundle exec rake test
+```
+
+Use `~> 5.0` for the latest Minitest 5, or `= 5.22.3` / `= 6.0.0` for the supported
+boundaries. These commands update that checkout's lockfile; do not commit those
+version-selection changes. CI tests the latest 5.x and 6.x on Ruby 3.2–4.0 and both
+Minitest boundaries on Ruby 3.2. All compatibility jobs must pass before release.
 
 ## Contributing
 Bug reports and pull requests are welcome on GitHub at https://github.com/garrettdimon/minitest-heat. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/[USERNAME]/minitest-heat/blob/master/CODE_OF_CONDUCT.md).
