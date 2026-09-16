@@ -1,10 +1,12 @@
 ## [Unreleased]
 
+## [2.2.0] - 2026-09-16
+
 ### Added
-- Support Minitest 6 with explicit plugin activation and compatible test filtering, while retaining automatic discovery on Minitest 5.
+- Support Minitest 6 with explicit plugin activation (`Minitest.load :heat`) and compatible test filtering, while retaining automatic discovery on Minitest 5.
 
 ### Changed
-- Declare the supported Minitest range as `>= 5.22.3, < 7` and test both major versions in CI.
+- Require Minitest `>= 5.22.3, < 7` and test both major versions in CI. Applications using older Minitest versions must upgrade Minitest before upgrading Heat.
 
 ### Fixed
 - Install only one Heat reporter when the plugin is loaded repeatedly, preserving valid JSON output.
