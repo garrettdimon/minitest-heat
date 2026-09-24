@@ -60,11 +60,19 @@ module Minitest
       #
       # @return [String] the exception class, message, and filtered backtrace
       def self.unexpected_error_message(error)
-        root = "#{Heat.project_root}/"
         lines = (error.backtrace || []).map { |line| Heat.utf8(line) }
-        backtrace = Minitest.filter_backtrace(lines).map { |line| line.gsub(root, '') }
+        backtrace = Minitest.filter_backtrace(lines).map { |line| line.gsub(minitest_base_pattern, '') }
 
         "#{error.class}: #{Heat.utf8(error.message)}\n    #{backtrace.join("\n    ")}"
+      end
+
+      # Minitest's pattern for the directory it loaded from, rebuilt as UTF-8 so it can match
+      #   UTF-8 backtraces. Reusing it strips the same prefix as Minitest even if a test changes
+      #   the working directory.
+      #
+      # @return [Regexp] the UTF-8 equivalent of `Minitest::UnexpectedError::BASE_RE`
+      def self.minitest_base_pattern
+        @minitest_base_pattern ||= Regexp.new(Heat.utf8(Minitest::UnexpectedError::BASE_RE.source))
       end
 
       # Creates an instance of Issue. In general, the `from_result` approach will be more convenient

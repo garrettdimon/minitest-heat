@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'test_helper'
+require 'json'
 
 class Minitest::Heat::IssueTest < Minitest::Test
   def setup
@@ -229,6 +230,14 @@ class Minitest::Heat::IssueTest < Minitest::Test
 
     assert_equal result.failure.message, issue.message
     assert issue.error?
+  end
+
+  def test_unexpected_error_message_matches_minitest_after_a_directory_change
+    result = unexpected_error_result(ArgumentError.new('boom'))
+
+    Dir.chdir('test') do
+      assert_equal result.failure.message, ::Minitest::Heat::Issue.from_result(result).message
+    end
   end
 
   private
