@@ -214,4 +214,37 @@ class Minitest::Heat::IssueTest < Minitest::Test
 
     assert_kind_of Hash, hash[:failure_location]
   end
+
+  def test_message_from_outside_ruby_source_is_utf8
+    command_output = 'naïve'.b.force_encoding(Encoding::US_ASCII)
+    issue = ::Minitest::Heat::Issue.new(message: "command printed #{command_output}", test_location: @location)
+
+    assert_equal 'command printed naïve', issue.message
+    assert_includes JSON.generate(issue.to_h), 'command printed naïve'
+  end
+
+  def test_unexpected_error_message_matches_minitest
+    result = unexpected_error_result(ArgumentError.new('naïve failure'))
+    issue = ::Minitest::Heat::Issue.from_result(result)
+
+    assert_equal result.failure.message, issue.message
+    assert issue.error?
+  end
+
+  private
+
+  def unexpected_error_result(error)
+    begin
+      raise error
+    rescue ArgumentError => e
+      error = e
+    end
+
+    result = Minitest::Result.new('test_example')
+    result.klass = 'Minitest::ClassName'
+    result.time = 0.0
+    result.source_location = @location
+    result.failures << Minitest::UnexpectedError.new(error)
+    result
+  end
 end

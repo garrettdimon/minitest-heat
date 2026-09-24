@@ -118,7 +118,7 @@ module Minitest
         end
 
         def pathname(hit)
-          directory = hit.pathname.dirname.to_s.delete_prefix("#{Dir.pwd}/")
+          directory = hit.pathname.dirname.to_s.delete_prefix("#{Heat.project_root}/")
           filename = hit.pathname.basename.to_s
 
           [

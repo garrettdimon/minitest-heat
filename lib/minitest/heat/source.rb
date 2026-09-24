@@ -51,7 +51,7 @@ module Minitest
       #
       # @return [Array<String>] the chomped lines of the file as valid UTF-8
       def file_lines
-        @raw_lines ||= File.readlines(filename, chomp: true, mode: 'rb').map { |line| line.force_encoding(Encoding::UTF_8).scrub }
+        @raw_lines ||= File.readlines(filename, chomp: true, mode: 'rb').map { |line| Heat.utf8(line) }
         # Remove trailing empty lines, checking for nil/empty safely
         @raw_lines.pop while @raw_lines.any? && @raw_lines.last&.strip.to_s.empty?
 

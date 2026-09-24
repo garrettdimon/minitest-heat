@@ -2,6 +2,8 @@
 
 ### Fixed
 - Display failures normally when a relevant source line contains non-ASCII text under a non-UTF-8 locale (such as `LC_ALL=C` or an unrecognized `LC_ALL`), or contains bytes that aren't valid UTF-8, instead of reporting that Heat couldn't display the failure. Source files are read as UTF-8 and invalid bytes are replaced, so a file that declares a non-UTF-8 encoding shows `�` for characters that aren't valid UTF-8.
+- Under a non-UTF-8 locale, report failures whose messages include non-ASCII text read at runtime (such as command output or file contents) instead of losing them, and keep `--heat-json` output valid when they occur.
+- Under a non-UTF-8 locale, report every failure in a project whose path contains non-ASCII characters, including errors that Minitest's own reporter can't display in that situation.
 
 ## [2.2.0] - 2026-09-16
 
