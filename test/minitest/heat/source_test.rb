@@ -102,6 +102,8 @@ class Minitest::Heat::SourceTest < Minitest::Test
     filename = "#{Dir.pwd}/test/files/source_invalid_utf8.txt"
     source = Minitest::Heat::Source.new(filename, line_number: 1)
 
+    # The fixture must contain a malformed byte, not an already-replaced character
+    refute File.binread(filename).force_encoding(Encoding::UTF_8).valid_encoding?
     assert_equal %(name = "caf\uFFFD"), source.line
   end
 end
