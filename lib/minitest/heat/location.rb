@@ -68,9 +68,9 @@ module Minitest
       #
       # @return [Pathname] a pathname instance for the relevant file
       def pathname
-        Pathname(raw_pathname)
+        Pathname(Heat.utf8(File.expand_path(raw_pathname)))
       rescue ArgumentError
-        Pathname(Dir.pwd)
+        Pathname(Heat.project_root)
       end
 
       # A safe interface to getting a string representing the path portion of the file
@@ -163,7 +163,7 @@ module Minitest
 
       private
 
-      def project_root_dir = Dir.pwd
+      def project_root_dir = Heat.project_root
 
       def seconds_ago = (Time.now - mtime).to_i
     end

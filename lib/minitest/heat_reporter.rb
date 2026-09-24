@@ -38,6 +38,7 @@ module Minitest
       super()
 
       @options = options
+      @recording_error = false
 
       @timer =    Heat::Timer.new
       @results =  Heat::Results.new
@@ -77,23 +78,25 @@ module Minitest
       # Show the marker (skip for JSON output)
       output.marker(issue.type) unless json_output?
     rescue StandardError => e
+      @recording_error = true
       display_exception_guidance(e)
     end
 
     def display_exception_guidance(exception)
-      output.newline
-      puts 'Sorry, but Minitest Heat encountered an exception recording an issue. Disabling Minitest Heat will get you back on track.'
-      puts 'Please use the following exception details to submit an issue at https://github.com/garrettdimon/minitest-heat/issues'
-      puts "#{exception.message}:"
+      warn ''
+      warn 'Sorry, but Minitest Heat encountered an exception recording an issue. Disabling Minitest Heat will get you back on track.'
+      warn 'Please use the following exception details to submit an issue at https://github.com/garrettdimon/minitest-heat/issues'
+      warn "#{exception.message}:"
       exception.backtrace.each do |line|
-        puts "  #{line}"
+        warn "  #{line}"
       end
-      output.newline
+      warn ''
     end
 
     # Outputs the summary of the run.
     def report
       timer.stop!
+      warn "Nothing ran for filter: #{test_filter}" if empty_filtered_run?
 
       if json_output?
         output_json
@@ -108,19 +111,24 @@ module Minitest
     def json_output? = options[:heat_json]
 
     # Did this run pass?
-    def passed? = results.errors.empty? && results.failures.empty?
+    def passed? = !@recording_error && !results.problems? && !empty_filtered_run?
 
     private
 
+    def test_filter = options[:include] || options[:filter]
+
+    def empty_filtered_run? = test_filter && timer.test_count.zero?
+
     def output_json
       require 'json'
+      require 'time'
       output.stream.puts JSON.pretty_generate(json_results)
     end
 
     def json_results
       {
         version: '1.0',
-        status: results.problems? ? 'failed' : 'passed',
+        status: passed? ? 'passed' : 'failed',
         timestamp: Time.now.iso8601,
         statistics: results.statistics,
         timing: timer.to_h,

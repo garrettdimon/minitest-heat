@@ -25,7 +25,7 @@ end
 $LOAD_PATH.unshift File.expand_path('../lib', __dir__)
 
 require 'minitest/heat'
-require 'minitest/autorun'
+require_relative 'support/heat_activation'
 
 require_relative 'support/issue_helpers'
 
@@ -36,4 +36,22 @@ end
 
 class Minitest::Test
   include IssueHelpers
+
+  # Simulates a non-UTF-8 locale (e.g. LC_ALL=C) regardless of the developer's own locale.
+  # Ruby warns when this changes, so warnings are silenced while swapping.
+  def with_default_external(encoding)
+    original = Encoding.default_external
+    swap_default_external(encoding)
+    yield
+  ensure
+    swap_default_external(original)
+  end
+
+  def swap_default_external(encoding)
+    verbose = $VERBOSE
+    $VERBOSE = nil
+    Encoding.default_external = encoding
+  ensure
+    $VERBOSE = verbose
+  end
 end

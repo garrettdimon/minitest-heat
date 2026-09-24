@@ -102,7 +102,7 @@ module Minitest
         end
 
         def file_and_line_number_tokens(location)
-          style = location.to_s.include?(Dir.pwd) ? :bold : :muted
+          style = location.to_s.include?(Heat.project_root) ? :bold : :muted
           [
             [style, location.filename],
             [:muted, ':'],

@@ -35,7 +35,9 @@ module Minitest
       # @return [Issue] the instance of the issue to use for examining the result
       def self.from_result(result)
         # Not all results are failures, so we use the safe navigation operator
-        exception = result.failure&.exception
+        failure = result.failure
+        unexpected = failure.is_a?(Minitest::UnexpectedError)
+        exception = unexpected ? failure.error : failure&.exception
 
         new(
           assertions: result.assertions,
@@ -46,9 +48,31 @@ module Minitest
           passed: result.passed?,
           error: result.error?,
           skipped: result.skipped?,
-          message: exception&.message,
+          message: unexpected ? unexpected_error_message(exception) : exception&.message,
           backtrace: exception&.backtrace
         )
+      end
+
+      # Matches the format of `Minitest::UnexpectedError#message` without calling it. Minitest
+      #   builds that message with a binary regular expression, which raises when the project path
+      #   and the backtrace contain non-ASCII characters under a non-UTF-8 locale.
+      # @param error [Exception] the exception wrapped by the unexpected error
+      #
+      # @return [String] the exception class, message, and filtered backtrace
+      def self.unexpected_error_message(error)
+        lines = (error.backtrace || []).map { |line| Heat.utf8(line) }
+        backtrace = Minitest.filter_backtrace(lines).map { |line| line.gsub(minitest_base_pattern, '') }
+
+        "#{error.class}: #{Heat.utf8(error.message)}\n    #{backtrace.join("\n    ")}"
+      end
+
+      # Minitest's pattern for the directory it loaded from, rebuilt as UTF-8 so it can match
+      #   UTF-8 backtraces. Reusing it strips the same prefix as Minitest even if a test changes
+      #   the working directory.
+      #
+      # @return [Regexp] the UTF-8 equivalent of `Minitest::UnexpectedError::BASE_RE`
+      def self.minitest_base_pattern
+        @minitest_base_pattern ||= Regexp.new(Heat.utf8(Minitest::UnexpectedError::BASE_RE.source))
       end
 
       # Creates an instance of Issue. In general, the `from_result` approach will be more convenient
@@ -67,10 +91,10 @@ module Minitest
       #
       # @return [type] [description]
       def initialize(assertions: 1, test_location: ['Unrecognized Test File', 1], backtrace: [], execution_time: 0.0, message: nil, test_class: nil, test_identifier: nil, passed: false, error: false, skipped: false)
-        @message = message
+        @message = Heat.utf8(message)
 
         @assertions = Integer(assertions)
-        @locations = Locations.new(test_location, backtrace)
+        @locations = Locations.new(test_location, backtrace&.map { |line| Heat.utf8(line) })
 
         @test_class = test_class
         @test_identifier = test_identifier

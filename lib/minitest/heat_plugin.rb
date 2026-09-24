@@ -11,6 +11,8 @@ module Minitest
   end
 
   def self.plugin_heat_init(options)
+    return if reporter.reporters.any? { |existing| existing.is_a?(HeatReporter) }
+
     io = options.fetch(:io, $stdout)
 
     reporter.reporters.reject! do |reporter|

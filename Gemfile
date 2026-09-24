@@ -5,6 +5,8 @@ source 'https://rubygems.org'
 # Runtime dependencies in minitest-heat.gemspec
 gemspec
 
+gem 'minitest', ENV.fetch('MINITEST_VERSION') if ENV['MINITEST_VERSION']
+
 # Development dependencies
 gem 'bundler-audit', '>= 0.9'
 gem 'debug'

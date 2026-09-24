@@ -27,11 +27,21 @@ jobs:
       run: bundle exec bundle-audit check
 
   test:
-    name: Test (Ruby ${{ matrix.ruby }})
+    name: Test (Ruby ${{ matrix.ruby }}, Minitest ${{ matrix.minitest }})
     strategy:
       fail-fast: false
       matrix:
         ruby: ['3.2', '3.3', '3.4', '4.0']
+        minitest: ['~> 5.0', '~> 6.0']
+        include:
+        - ruby: '3.2'
+          minitest: '= 5.22.3'
+        - ruby: '3.2'
+          minitest: '= 6.0.0'
+    env:
+      MINITEST_VERSION: ${{ matrix.minitest }}
+      BUNDLE_FROZEN: 'false'
+      BUNDLE_DEPLOYMENT: 'false'
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -40,9 +50,36 @@ jobs:
       with:
         ruby-version: ${{ matrix.ruby }}
         bundler: '2.7.2'
-        bundler-cache: true
+        bundler-cache: false
+    - name: Resolve selected Minitest
+      run: |
+        bundle lock --update minitest
+        bundle install
+    - name: Verify selected Minitest
+      run: |
+        bundle exec ruby -rminitest -e '
+          version = Gem.loaded_specs.fetch("minitest").version
+          abort "Wrong Minitest: #{version}" unless Gem::Requirement.new(ENV.fetch("MINITEST_VERSION")).satisfied_by?(version)
+          puts "Ruby #{RUBY_VERSION}, Minitest #{version}"
+        '
     - name: Run tests
       run: bundle exec rake test
+
+  required-tests:
+    # Keep the names required by the repository rules while gating on every
+    # supported Ruby/Minitest combination, including the version boundaries.
+    name: Test (Ruby ${{ matrix.ruby }})
+    needs: test
+    if: ${{ always() }}
+    strategy:
+      matrix:
+        ruby: ['3.2', '3.3', '3.4', '4.0']
+    runs-on: ubuntu-latest
+    env:
+      TEST_RESULT: ${{ needs.test.result }}
+    steps:
+    - name: Require the complete compatibility matrix to pass
+      run: test "$TEST_RESULT" = success
 
   changelog:
     name: Changelog

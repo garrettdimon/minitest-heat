@@ -1,5 +1,28 @@
 ## [Unreleased]
 
+### Fixed
+- Display failures normally when a relevant source line contains non-ASCII text under a non-UTF-8 locale (such as `LC_ALL=C` or an unrecognized `LC_ALL`), or contains bytes that aren't valid UTF-8, instead of reporting that Heat couldn't display the failure. Source files are read as UTF-8 and invalid bytes are replaced, so a file that declares a non-UTF-8 encoding shows `�` for characters that aren't valid UTF-8.
+- Under a non-UTF-8 locale, report failures whose messages include non-ASCII text read at runtime (such as command output or file contents) instead of losing them, and keep `--heat-json` output valid when they occur.
+- Under a non-UTF-8 locale, report every failure in a project whose path contains non-ASCII characters, including errors that Minitest's own reporter can't display in that situation.
+
+## [2.2.0] - 2026-09-16
+
+### Added
+- Support Minitest 6 with explicit plugin activation (`Minitest.load :heat`) and compatible test filtering, while retaining automatic discovery on Minitest 5.
+
+### Changed
+- Require Minitest `>= 5.22.3, < 7` and test both major versions in CI. Applications using older Minitest versions must upgrade Minitest before upgrading Heat.
+
+### Fixed
+- Install only one Heat reporter when the plugin is loaded repeatedly, preserving valid JSON output.
+- Normalize relative result paths so test exceptions retain their classification and failure locations when invoked with relative filenames.
+- Return an unsuccessful exit status when Heat cannot record a result, and keep JSON output valid by sending reporter diagnostics to stderr.
+- Return an unsuccessful exit status when an explicit test filter matches no tests, consistent with Minitest; unfiltered empty runs remain successful.
+- Preserve namespaced method names and handle current Ruby quoting in backtrace details.
+- Tests classified as broken now cause an unsuccessful process exit instead of incorrectly reporting success to test runners and CI.
+- JSON output explicitly loads the time library so timestamp formatting works on Ruby 3.2 and 3.3 without relying on another dependency to load it.
+- Updated locked development dependencies for security advisories affecting concurrent-ruby, erb, and json.
+
 ## [2.1.1] - 2026-02-01
 
 ### Changed

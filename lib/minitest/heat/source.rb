@@ -44,14 +44,19 @@ module Minitest
 
       # Reads (and chomps) the lines of the target file
       #
-      # @return [type] [description]
+      # Ruby labels file contents with the locale's encoding, which is US-ASCII under `LC_ALL=C` or
+      # an unrecognized locale. Ruby source is UTF-8 by default, so lines are read as UTF-8
+      # regardless of locale, and bytes that aren't valid UTF-8 are replaced so that displaying
+      # them can't raise.
+      #
+      # @return [Array<String>] the chomped lines of the file as valid UTF-8
       def file_lines
-        @raw_lines ||= File.readlines(filename, chomp: true)
+        @raw_lines ||= File.readlines(filename, chomp: true, mode: 'rb').map { |line| Heat.utf8(line) }
         # Remove trailing empty lines, checking for nil/empty safely
         @raw_lines.pop while @raw_lines.any? && @raw_lines.last&.strip.to_s.empty?
 
         @raw_lines
-      rescue Errno::ENOENT, Errno::EACCES, Errno::EISDIR, IOError, Encoding::UndefinedConversionError
+      rescue Errno::ENOENT, Errno::EACCES, Errno::EISDIR, IOError
         # Occasionally, for a variety of reasons, a file can't be read. In those cases, it's best to
         # return no source code lines rather than have the test suite raise an error unrelated to
         # the code being tested because that gets confusing.

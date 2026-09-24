@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'test_helper'
+require 'tmpdir'
 
 class Minitest::Heat::LocationTest < Minitest::Test
   def setup
@@ -12,7 +13,7 @@ class Minitest::Heat::LocationTest < Minitest::Test
   end
 
   def test_full_initialization
-    assert_equal Pathname(@raw_pathname), @location.pathname
+    assert_equal Pathname(@raw_pathname).expand_path, @location.pathname
     assert_equal Integer(@raw_line_number), @location.line_number
     assert_equal @container, @location.container
     refute_nil @location.source_code
@@ -28,9 +29,19 @@ class Minitest::Heat::LocationTest < Minitest::Test
     fake_file_name = 'fake_file.rb'
     @location.raw_pathname = fake_file_name
 
-    assert_equal Pathname(fake_file_name), @location.pathname
+    assert_equal Pathname(fake_file_name).expand_path, @location.pathname
     assert_empty @location.source_code.lines
     refute @location.exists?
+  end
+
+  def test_relative_pathname_resolves_against_project_root
+    relative_path = 'lib/minitest/heat.rb'
+    @location.raw_pathname = relative_path
+
+    assert_equal Pathname(File.join(Dir.pwd, relative_path)), @location.pathname
+    assert_equal relative_path, @location.raw_pathname
+    assert @location.project_file?
+    assert @location.source_code_file?
   end
 
   def test_non_existent_line_number
@@ -85,17 +96,18 @@ class Minitest::Heat::LocationTest < Minitest::Test
   end
 
   def test_knows_if_bundled_file
-    directory = "#{Dir.pwd}/vendor/bundle"
-    pathname = "#{directory}/heat.rb"
-    FileUtils.mkdir_p(directory)
-    FileUtils.touch(pathname)
+    FileUtils.mkdir_p('tmp')
+    Dir.mktmpdir('bundled-location-', File.expand_path('tmp')) do |directory|
+      Dir.chdir(directory) do
+        FileUtils.mkdir_p('vendor/bundle')
+        FileUtils.touch('vendor/bundle/heat.rb')
 
-    @location.raw_pathname = pathname
-    assert @location.bundled_file?
-    refute @location.binstub_file?
-    refute @location.project_file?
-  ensure
-    FileUtils.rm_rf("#{Dir.pwd}/vendor")
+        @location.raw_pathname = File.expand_path('vendor/bundle/heat.rb')
+        assert @location.bundled_file?
+        refute @location.binstub_file?
+        refute @location.project_file?
+      end
+    end
   end
 
   def test_knows_if_binstub_file
@@ -116,7 +128,7 @@ class Minitest::Heat::LocationTest < Minitest::Test
   end
 
   def test_absolute_filename_for_existing_file
-    assert_equal @raw_pathname, @location.absolute_filename
+    assert_equal File.expand_path(@raw_pathname), @location.absolute_filename
   end
 
   def test_absolute_filename_for_non_existent_file
