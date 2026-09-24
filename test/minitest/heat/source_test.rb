@@ -86,4 +86,22 @@ class Minitest::Heat::SourceTest < Minitest::Test
     assert_equal [7, 8, 9], @source.line_numbers
     assert_equal @file_lines[6..8], @source.lines
   end
+
+  def test_reads_non_ascii_lines_as_utf8_under_ascii_locale
+    filename = "#{Dir.pwd}/test/files/source_utf8.txt"
+    source = Minitest::Heat::Source.new(filename, line_number: 2)
+
+    with_default_external(Encoding::US_ASCII) { source.file_lines }
+
+    assert_equal Encoding::UTF_8, source.line.encoding
+    assert_equal 'assert_equal "café", "cafe"', source.line.strip
+    assert_equal 'raise "☃"', source.file_lines.last
+  end
+
+  def test_replaces_bytes_that_are_not_valid_utf8
+    filename = "#{Dir.pwd}/test/files/source_invalid_utf8.txt"
+    source = Minitest::Heat::Source.new(filename, line_number: 1)
+
+    assert_equal %(name = "caf\uFFFD"), source.line
+  end
 end
