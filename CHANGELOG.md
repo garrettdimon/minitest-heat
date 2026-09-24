@@ -1,5 +1,8 @@
 ## [Unreleased]
 
+### Fixed
+- Display failures normally when a relevant source line contains non-ASCII text under a non-UTF-8 locale (such as `LC_ALL=C` or an unrecognized `LC_ALL`), or contains bytes that aren't valid UTF-8, instead of reporting that Heat couldn't display the failure. Source files are read as UTF-8 and invalid bytes are replaced, so a file that declares a non-UTF-8 encoding shows `�` for characters that aren't valid UTF-8.
+
 ## [2.2.0] - 2026-09-16
 
 ### Added

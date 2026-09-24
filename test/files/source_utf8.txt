@@ -1,0 +1,3 @@
+# Non-ASCII source for encoding tests
+assert_equal "café", "cafe"
+raise "☃"
