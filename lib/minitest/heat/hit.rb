@@ -88,7 +88,7 @@ module Minitest
 
       private
 
-      def relative_path = pathname.to_s.delete_prefix("#{Dir.pwd}/")
+      def relative_path = pathname.to_s.delete_prefix("#{Heat.project_root}/")
 
       def lines_summary
         line_numbers.map do |line_num|
